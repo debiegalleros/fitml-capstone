@@ -43,7 +43,13 @@ Two planning docs may exist in `docs/planning/`:
   hip (cm), body type dropdown (hourglass/pear/apple/rectangle/athletic/petite).
   Uploaded photo is for try-on pose ONLY — never feeds the size model.
 - Claude API role: advice text only (personalized fit explanation, history-based
-  brand/fabric notes). Never measurement estimation, never part of graded ML.
+  brand/fabric notes). Enhanced with vision: the /advice endpoint also sends the
+  composited try-on image to Claude (multimodal input) so the advice text can
+  include visual fit observations (e.g. shoulder seam alignment, hem length,
+  fabric pull). This is qualitative visual commentary, NOT measurement
+  estimation — it does not override or feed into the trained size model.
+  Document this in Step 9 (GenAI use) as a multimodal AI integration.
+  Never measurement estimation, never part of graded ML.
 - History suggestions: rule-based DB lookup (2+ prior items same brand/fabric with
   consistent fit → add note to Claude advice prompt). NOT a second trained model.
 - Catalog: **Kaggle "Fashion Product Images Dataset"**
