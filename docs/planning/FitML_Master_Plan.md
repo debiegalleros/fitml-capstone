@@ -192,7 +192,8 @@ Free, no app-store cost/review, and matches the Flask + Fable stack already plan
 2. **About/How it works** — the problem (35% return rate), how sizing + AR try-on
    work, the fairness differentiator (real trained model + published fairness
    audit vs. commercial black-box tools) — doubles as an in-product business pitch
-3. **Profile setup** — photo upload, extracted-measurement review/edit
+3. **Profile setup** — photo upload (for try-on pose only), manual measurement
+   entry (height, weight, bust, waist, hip, body type)
 4. **Catalog/browse** — filter sidebar (category, size, gender, fabric, color, price)
    + garment grid with "try on" buttons
 5. **Try-on result** — composited image, size/color swap pills, personalized advice
@@ -243,8 +244,13 @@ other.
 - **Backend:** Flask (Python), SQLite, OpenCV/PIL for compositing, MediaPipe for pose
 - **Frontend:** Fable (F# → JS), plain HTML5 Canvas (no Three.js/WebGL needed for 2D
   body-wrap)
-- **AI:** Claude Vision (measurement extraction, personalized advice), scikit-learn/
-  XGBoost (size classification)
+- **AI:** Claude API for personalized advice text only — enhanced with vision:
+  the /advice endpoint also sends the composited try-on image to Claude
+  (multimodal input) so the advice text can include visual fit observations
+  (e.g. shoulder seam alignment, hem length, fabric pull). This is qualitative
+  visual commentary, NOT measurement extraction — it does not override or feed
+  into the trained size model (measurements are always manually entered).
+  scikit-learn/XGBoost (size classification)
 - **Hosting (free tier):** Render/Railway for Flask backend, Netlify/Vercel for
   frontend
 
