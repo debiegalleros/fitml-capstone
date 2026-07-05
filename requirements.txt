@@ -1,0 +1,33 @@
+# FitML Capstone — dependencies by phase.
+# Install with: pip install -r requirements.txt
+
+# Phase 0-2: data acquisition & inspection
+kaggle
+pandas
+numpy
+jupyter
+
+# Phase 3: EDA / feature engineering
+matplotlib
+seaborn
+scikit-learn
+
+# Phase 5: model training
+xgboost
+
+# Phase 6: fairness audit
+shap
+fairlearn
+
+# Phase 7: catalog processing
+rembg
+Pillow
+opencv-python
+
+# Phase 8: Flask backend + AR try-on
+flask
+flask-cors
+mediapipe
+python-dotenv
+anthropic
+joblib

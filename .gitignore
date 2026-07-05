@@ -1,0 +1,35 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Data (raw + catalog are large/licensed, never commit — keep folder structure via .gitkeep)
+data/raw/*
+!data/raw/.gitkeep
+data/catalog/*
+!data/catalog/.gitkeep
+
+# Kaggle credentials
+kaggle.json
+.kaggle/
+
+# Uploaded user photos (privacy)
+backend/uploads/
+
+# Env / secrets
+.env
+*.env
+
+# OS
+.DS_Store
+
+# Model artifacts that are large (keep comparison.csv, small joblib files can stay if small)
+*.h5
+
+# Editor
+.vscode/
+.idea/
+
+# Claude Code local tooling state
+.claude/
