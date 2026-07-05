@@ -176,7 +176,8 @@ the report, not as "an online store."
 
 ## 8. UI — Web App (not native app)
 
-Free, no app-store cost/review, and matches the Flask + Fable stack already planned.
+Free, no app-store cost/review, and matches the Flask + plain HTML/CSS/JS stack
+already planned.
 
 **Six pages total:**
 1. **Title/Landing** — FitML name, tagline ("Shop smarter. Fit better."), hero
@@ -242,8 +243,9 @@ other.
 ## 10. Tech Stack
 
 - **Backend:** Flask (Python), SQLite, OpenCV/PIL for compositing, MediaPipe for pose
-- **Frontend:** Fable (F# → JS), plain HTML5 Canvas (no Three.js/WebGL needed for 2D
-  body-wrap)
+- **Frontend:** plain HTML/CSS/JavaScript — no framework, vanilla JS with
+  fetch() calls to the Flask backend; plain HTML5 Canvas (no Three.js/WebGL
+  needed for 2D body-wrap)
 - **AI:** Claude API for personalized advice text only — enhanced with vision:
   the /advice endpoint also sends the composited try-on image to Claude
   (multimodal input) so the advice text can include visual fit observations
@@ -267,7 +269,7 @@ other.
 | 4 | Model training & comparison | Days 3–4 |
 | 5 | Fairness audit | Days 4–5 |
 | 6 | Flask backend (upload, catalog, recommend, try-on, advice) | Days 5–8 |
-| 7 | Fable frontend (4 screens) | Days 7–10 |
+| 7 | Frontend (plain HTML/CSS/JS, six pages per spec) | Days 7–10 |
 | 8 | Deployment (Render + Netlify) | Days 12–13 |
 | 9 | Docs, GitHub, presentations | Days 13–14 |
 

@@ -17,7 +17,7 @@ pillar5-capstone/
 ├── data/          # raw/ processed/ catalog/  (raw + catalog gitignored)
 ├── models/        # saved artifacts + comparison.csv
 ├── backend/       # Flask app
-├── frontend/      # Fable app
+├── frontend/      # plain HTML/CSS/JS app
 ├── docs/          # data_dictionary.md, model_selection.md, fairness_report.md, privacy.md, planning/
 └── requirements.txt
 ```

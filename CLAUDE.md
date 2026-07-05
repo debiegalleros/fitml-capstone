@@ -24,6 +24,9 @@ Two planning docs may exist in `docs/planning/`:
   - "Claude Vision estimates measurements" → wrong. Claude generates ONLY advice text.
     Measurements are always manually entered by the user.
   - Repo name `fitml` → use `fitml-capstone`.
+  - Fable (F#→JS) frontend with .NET SDK/dotnet setup → superseded. Frontend is
+    plain HTML/CSS/JavaScript (vanilla JS + fetch), no framework, no .NET
+    toolchain — ignore the Build Guide's Phase 7 dotnet/Fable commands.
 
 ## Locked decisions — do not revisit or "improve"
 - Models: Logistic Regression, Random Forest, XGBoost, MLP. **No CNNs, no diffusion
