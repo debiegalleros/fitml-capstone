@@ -72,6 +72,16 @@ Two planning docs may exist in `docs/planning/`:
 - UI: flat cards, hairline borders, minimal — follow the screen-by-screen spec in
   the Master Plan (sidebar filters, 2-col grid, confidence box with blue/amber
   states, size pills, color swatches). Do not redesign.
+- Responsive design: the site must work on both desktop and mobile (mobile-first
+  CSS, no horizontal scrolling at any width). Breakpoint adaptations: Catalog
+  page — on mobile the left filter sidebar collapses into a "Filters" button
+  that opens a slide-in drawer; garment grid stays 2 columns on mobile (cards
+  shrink), 3–4 columns on wide desktop. Try-on/item detail — image full-width
+  on mobile, size pills and swatches wrap, buttons full-width. Profile form —
+  single column on mobile, inputs full-width, touch targets min 44px.
+  Landing/About — hero and feature cards stack vertically on mobile. Photo
+  upload — on mobile allow direct camera capture (input accept="image/*"
+  capture) as well as gallery upload. Test at 375px, 768px, and 1280px+ widths.
 - Confidence box borderline rule: predicted size near boundary AND low-stretch
   fabric AND fitted/athletic cut → amber box, recommend one size up, lower displayed
   confidence, tradeoff-explaining advice text.
