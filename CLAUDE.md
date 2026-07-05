@@ -73,7 +73,8 @@ Two planning docs may exist in `docs/planning/`:
 - Color-suitability matching: OUT OF SCOPE. Mention as future work only.
 - Product: functional prototype website — no checkout, no payments, no inventory.
   Describe as "functional prototype", never "an online store".
-- Stack: Flask backend, Fable (F#→JS) frontend, plain Canvas compositing.
+- Stack: Flask backend, plain HTML/CSS/JavaScript frontend (no framework —
+  vanilla JS with fetch() calls to the Flask backend), plain Canvas compositing.
   Deploy: Render/Railway (backend) + Netlify/Vercel (frontend), free tiers.
 - UI: flat cards, hairline borders, minimal — follow the screen-by-screen spec in
   the Master Plan (sidebar filters, 2-col grid, confidence box with blue/amber
@@ -108,7 +109,7 @@ pillar5-capstone/
 ├── data/          # raw/ processed/ catalog/  (raw + catalog gitignored)
 ├── models/        # saved artifacts + comparison.csv
 ├── backend/       # Flask app
-├── frontend/      # Fable app
+├── frontend/      # plain HTML/CSS/JS app
 ├── docs/          # data_dictionary.md, model_selection.md, fairness_report.md,
 │                  # privacy.md, scope_and_data_provenance.md, planning/
 ├── README.md
@@ -137,7 +138,7 @@ Cover page title uses the FitML title; filenames use the LMS assignment name.
 6. Fairness audit (real model only) + mitigation before/after → fairness_report.md
 7. Catalog processing (rembg, resize, hue variants) + metadata.csv with pricing
 8. Flask backend (upload, catalog, recommend-size, try-on, advice endpoints)
-9. Fable frontend (six pages per spec)
+9. Frontend (plain HTML/CSS/JS, six pages per spec)
 10. Deployment (Render + Netlify/Vercel)
 11. Docs, README, decks, GitHub push, rename submission files per convention
 
