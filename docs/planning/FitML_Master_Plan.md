@@ -1,6 +1,6 @@
 # FitML — Master Project Plan
-A Fairness-Audited Machine Learning System for Sizing and AR Try-On in
-E-Commerce
+A Fairness-Audited Machine Learning System for Sizing and Augmented Reality
+Try-On in E-Commerce
 Capstone Project — AI/ML Postgraduate Diploma | Due July 17, 2026
 
 ---
@@ -329,8 +329,8 @@ instructions allow a single approved format: .pdf/.doc/.pptx/.ppt), name it:
 clearly section it internally (Report → Technical Deck → Business Deck)
 rather than uploading three separate files, if the submission portal only
 accepts one. The report itself should still be titled "FitML: A
-Fairness-Audited Machine Learning System for Sizing and AR Try-On in
-E-Commerce" on its cover page — the filename follows the LMS assignment
+Fairness-Audited Machine Learning System for Sizing and Augmented Reality
+Try-On in E-Commerce" on its cover page — the filename follows the LMS assignment
 name, the document title follows the project name.
 
 1. Download and inspect the real Kaggle fit dataset (row counts, columns, nulls)

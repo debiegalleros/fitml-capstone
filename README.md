@@ -1,6 +1,6 @@
 # FitML — Capstone Project
 
-A fairness-audited size-recommendation + 2D AR try-on system for e-commerce.
+A fairness-audited size-recommendation + 2D augmented-reality try-on system for e-commerce.
 
 Capstone project for AIM PGDAIML, "Pillar 5: Capstone Project" (due 2026-07-17).
 
