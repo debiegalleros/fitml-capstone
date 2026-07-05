@@ -7,6 +7,9 @@ __pycache__/
 # Data (raw + catalog are large/licensed, never commit — keep folder structure via .gitkeep)
 data/raw/*
 !data/raw/.gitkeep
+# Exception: hand-transcribed Uniqlo men's size chart — tiny, not a licensed
+# download, required to reproduce the men's extension
+!data/raw/mens_size_charts.csv
 data/catalog/*
 !data/catalog/.gitkeep
 

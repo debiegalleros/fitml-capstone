@@ -1,4 +1,6 @@
-# Data Dictionary — `data/processed/model_ready.csv`
+# Data Dictionary
+
+## `data/processed/model_ready.csv` — real women's dataset (graded ML core)
 
 Produced by [`src/prepare_data.py`](../src/prepare_data.py) from the Kaggle
 "Clothing Fit Dataset for Size Recommendation" (ModCloth + RentTheRunway).
@@ -9,7 +11,7 @@ for the full EDA and reasoning behind each cleaning/encoding decision.
 No nulls remain — see "Missing-value handling" below for how each source-
 exclusive gap was resolved.
 
-## Columns
+### Columns
 
 | Column | Type | Description | Source |
 |---|---|---|---|
@@ -29,7 +31,7 @@ exclusive gap was resolved.
 | `bust_band_missing` | int (0/1) | 1 if `bust_band` was imputed | derived |
 | `bust_cup_ordinal_missing` | int (0/1) | 1 if `bust_cup_ordinal` was imputed | derived |
 
-## Excluded from the raw source data
+### Excluded from the raw source data
 
 - **`waist_cm`** — dropped entirely. RentTheRunway never collected it, and
   ModCloth's own `waist` field was already 96.5% null, so combined coverage
@@ -45,7 +47,7 @@ exclusive gap was resolved.
 - **`review_text`, `review_summary`, `user_name`, `user_id`, `item_id`** —
   free text / identifiers, not modeling features.
 
-## Missing-value handling
+### Missing-value handling
 
 Two different patterns show up, handled differently:
 
@@ -59,7 +61,7 @@ Two different patterns show up, handled differently:
    shape) so downstream models — and the Phase 6 fairness audit — can tell
    a measured value from an imputed placeholder.
 
-## Category harmonization
+### Category harmonization
 
 ModCloth's raw `category` includes non-garment merchandising tags
 (`new`, `sale`, `wedding`) with no garment-type signal — these 24,287 rows
@@ -69,7 +71,7 @@ frame is built. RentTheRunway's 68 fine-grained tags (`dress`, `gown`,
 (`tops`/`dresses`/`bottoms`/`outerwear`) ModCloth already used; 3 residual
 garbage tags (`print`, `combo`, `for`, 118 rows total) fall into `other`.
 
-## Not yet applied (by design)
+### Not yet applied (by design)
 
 - **Scaling** — deliberately not baked into `model_ready.csv`. Fitting a
   `StandardScaler` on the full dataset here and saving scaled values would
@@ -79,3 +81,34 @@ garbage tags (`print`, `combo`, `for`, 118 rows total) fall into `other`.
   in the EDA notebook for exploratory feature-importance ranking, but not
   saved to the CSV, so Phase 5 can encode consistently within its own
   pipeline.
+
+## `data/processed/mens_synthetic.csv` — men's synthetic extension (demo only)
+
+Produced by [`src/mens_extension.py`](../src/mens_extension.py) (seed 42).
+**Synthetic customers, rule-based labels, not a trained model, excluded from
+the fairness audit** — see
+[`docs/scope_and_data_provenance.md`](scope_and_data_provenance.md) for the
+full reasoning. Kept as its own table with its own schema; never merged with
+`model_ready.csv`.
+
+200 rows x 7 columns, no nulls.
+
+| Column | Type | Description | Source |
+|---|---|---|---|
+| `customer_id` | string | `synth_m_000` … `synth_m_199` — the `synth_` prefix flags every row as generated | synthetic |
+| `height_cm` | float | Sampled from a correlated multivariate normal (assumed adult Asian-male anthropometry), clipped to 150–200 | synthetic |
+| `chest_cm` | float | Same sampler, clipped to 75–130; the sizing key for tops | synthetic |
+| `waist_cm` | float | Same sampler, clipped to 60–115; the sizing key for bottoms | synthetic |
+| `hip_cm` | float | Same sampler, clipped to 80–125; carried for schema completeness, not used by the lookup | synthetic |
+| `category` | categorical | `tshirt` / `polo` / `jeans` / `jacket` / `shorts` — one per customer, uniform random | synthetic |
+| `size_label` | categorical | `XS`–`XXL`, assigned by deterministic lookup of chest (tops) or waist (bottoms) against Uniqlo's published men's size chart ([`data/raw/mens_size_charts.csv`](../data/raw/mens_size_charts.csv)) | derived from a **real** published chart |
+
+### `data/raw/mens_size_charts.csv` — Uniqlo men's size chart (transcribed)
+
+Manual transcription (2026-07-06) of Uniqlo's published men's
+body-measurement size guide, 30 rows (5 categories x 6 sizes XS–XXL):
+`category, brand, size, chest_min_cm, chest_max_cm, waist_min_cm,
+waist_max_cm`. This file is real reference data, not synthetic — it is the
+label source for `mens_synthetic.csv` and is committed to git (exempted from
+the `data/raw/*` ignore rule) because it is tiny, hand-made, and required to
+reproduce the extension.
