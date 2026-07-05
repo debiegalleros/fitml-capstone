@@ -46,12 +46,24 @@ Two planning docs may exist in `docs/planning/`:
   brand/fabric notes). Never measurement estimation, never part of graded ML.
 - History suggestions: rule-based DB lookup (2+ prior items same brand/fabric with
   consistent fit → add note to Claude advice prompt). NOT a second trained model.
-- Catalog: iMaterialist images (join competition on Kaggle first), rembg background
-  removal, ~100+ women's + ~10–15 men's items, 2–3 hue-shifted variants each.
-  Metadata per item: item_id, category, gender, color, plausible fabric, size_range,
-  price via random.randint within category bands, rounded to nearest 10 PHP:
-  tshirt/tank/shorts 400–700 · polo/blouse 600–1000 · jeans/slacks/sweater 800–1400 ·
-  jacket/dress 1200–1800. Document as programmatically generated demo pricing.
+- Catalog: **Kaggle "Fashion Product Images Dataset"**
+  (`paramaggarwal/fashion-product-images-dataset`, full-res, MIT license) —
+  plain-background front-facing product/model shots, 1080x1440, with
+  structured `styles.csv` metadata (gender, masterCategory, subCategory,
+  articleType, baseColour). Superseded iMaterialist: evaluated during Phase
+  1/before Phase 7 and rejected — its images are in-the-wild street-style/
+  red-carpet/runway photos (busy backgrounds, some with visible third-party
+  photographer/publication watermarks), not clean product shots, and
+  therefore a poor fit for rembg + affine-warp compositing. The dataset's own
+  low-res "small" variant (60x80px) was also rejected as too pixelated for
+  compositing — use the full-res version, fetched via targeted single-file
+  downloads (~100-115 images needed, not the full ~24.7GB dataset).
+  rembg background removal, ~100+ women's + ~10–15 men's items, 2–3
+  hue-shifted variants each. Metadata per item: item_id, category, gender,
+  color, plausible fabric, size_range, price via random.randint within
+  category bands, rounded to nearest 10 PHP: tshirt/tank/shorts 400–700 ·
+  polo/blouse 600–1000 · jeans/slacks/sweater 800–1400 · jacket/dress
+  1200–1800. Document as programmatically generated demo pricing.
 - Color-suitability matching: OUT OF SCOPE. Mention as future work only.
 - Product: functional prototype website — no checkout, no payments, no inventory.
   Describe as "functional prototype", never "an online store".

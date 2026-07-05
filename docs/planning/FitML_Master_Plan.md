@@ -38,7 +38,7 @@ source (see Data, below) rather than collaborative-filtering recommendation.
 |---|---|---|
 | **Model training + full fairness audit** (graded core, women's apparel) | **Kaggle: "Clothing Fit Dataset for Size Recommendation"** — combines ModCloth + RentTheRunway data | Real customer bust/waist/hip/height/weight/body-type measurements, item ordered, size ordered, real fit feedback (small/fit/large) |
 | **Men's catalog extension** (small, ~10-15 items, NOT in the fairness audit) | Synthetic customers, size-labeled via **Uniqlo's published men's size charts** | Real chart as label source, synthetic customers; sample size too small for valid group comparisons, so excluded from Step 5 |
-| Garment catalog images (visual only, not training data) | **iMaterialist Fashion (Kaggle)** | Background-removed via `rembg`, ~100+ women's + ~10-15 men's items |
+| Garment catalog images (visual only, not training data) | **Fashion Product Images Dataset (Kaggle, `paramaggarwal/fashion-product-images-dataset`, full-res, MIT license)** | Plain-background product/model shots, 1080x1440, `styles.csv` metadata (gender/category/color). Background-removed via `rembg`, ~100+ women's + ~10-15 men's items. Supersedes iMaterialist Fashion (evaluated and rejected: in-the-wild street-style/red-carpet/runway photos, some watermarked, unsuitable for compositing) |
 | Fairness test groups | Stratified subsets of the real Kaggle dataset itself | Not a separate synthetic persona set — stratify by body_type/other fields already present in the real data |
 
 **Why this combination:** the Kaggle fit dataset gives real, citable, high-quality
@@ -152,9 +152,16 @@ match shoulder width and torso angle, then alpha-composited onto the
 photo. Size/color swaps re-run the same warp with a different PNG —
 instant, no 3D asset pipeline needed.
 
-**Catalog:** ~100+ garments across 13 categories (from iMaterialist), each generating
-2–3 color variants via programmatic hue-shifting rather than sourcing 300 unique
-photos. Pricing is category-bounded, not flat-random across the whole catalog
+**Catalog:** ~100+ garments across 13 categories (from the Fashion Product Images
+Dataset, `paramaggarwal/fashion-product-images-dataset` — full-res, MIT license,
+plain-background product/model shots with `styles.csv` gender/category/color
+metadata), each generating 2–3 color variants via programmatic hue-shifting
+rather than sourcing 300 unique photos. iMaterialist Fashion was evaluated
+first and rejected: its images are in-the-wild street-style/red-carpet/runway
+photos (busy backgrounds, some with visible third-party photographer/
+publication watermarks) rather than clean product shots, making them a poor
+fit for `rembg` + affine-warp compositing. Pricing is category-bounded, not
+flat-random across the whole catalog
 (tshirt/tank/shorts PHP 400-700, polo/blouse PHP 600-1000, jeans/slacks/sweater
 PHP 800-1400, jacket/dress PHP 1200-1800), generated alongside color variants and
 documented in the report as a demo-catalog convenience, not real merchant pricing.
