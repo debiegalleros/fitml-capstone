@@ -97,6 +97,10 @@ Two planning docs may exist in `docs/planning/`:
   confidence, tradeoff-explaining advice text.
 - Privacy: uploads under `backend/uploads/{uuid}/`, 24h auto-delete, face blur ON by
   default (MediaPipe + Gaussian), HTTPS only, cite RA 10173 in `docs/privacy.md`.
+- Presentation branding: white background on all slides. AIM logo
+  (`docs/assets/AIM_logo_2017.svg.png`) in the upper left corner of every slide,
+  small (~1 inch / 2.5cm height). Title slide uses the full AIM + Tracer World
+  header banner spanning the top. All other slides just the AIM logo upper left.
 
 ## Rubric (100 pts) — effort should track points
 Problem Framing 10 · Data Collection 10 · EDA/FE 10 · **Models 20** ·
