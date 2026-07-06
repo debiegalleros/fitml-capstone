@@ -320,13 +320,16 @@ fairness-critical numbers:**
 | accuracy | **0.7272** | 0.3959 |
 | DI flags (body_type + size_band) | 0 (vacuous) | 7 (informative) |
 
-**Deployment stance for the FitML prototype:** neither model alone is
-production-grade. The prototype keeps the unweighted model as the Phase 5
-comparison artifact and treats the weighted model's behavior as the honest
-picture of where the data does and doesn't support confident predictions.
-The product-layer safeguard is the confidence box: borderline predictions
-are surfaced as a blue/amber advisory with explicit uncertainty, never as a
-bare "it fits". A calibrated middle ground — probability calibration plus
+**Deployment stance for the FitML prototype (locked decision):** the Phase
+8 `/recommend-size` endpoint serves the **class-weighted model**
+(`models/xgboost_weighted.joblib`) — for a sizing assistant, catching
+misfits (`small`/`large`) matters more than raw accuracy, and the
+confidence % plus the blue/amber advisory layer already communicate
+uncertainty to the user, so borderline predictions surface as a sizing tip,
+never as a bare "it fits". The unweighted model remains the Phase 5
+comparison artifact and this audit's "before"; full reasoning in
+[model_selection.md](model_selection.md). A calibrated middle ground —
+probability calibration plus
 per-group decision thresholds tuned to equalize misfit-detection rates —
 is the clear next step and is documented as future work rather than
 implemented, to keep the before/after comparison clean (one mitigation,

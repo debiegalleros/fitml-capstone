@@ -31,6 +31,11 @@ Two planning docs may exist in `docs/planning/`:
 ## Locked decisions — do not revisit or "improve"
 - Models: Logistic Regression, Random Forest, XGBoost, MLP. **No CNNs, no diffusion
   models** — explicitly scoped out. If tree models beat the MLP, report that honestly.
+- Model served in production (Phase 8): the /recommend-size endpoint serves the
+  class-weighted XGBoost model (models/xgboost_weighted.joblib), not the unweighted
+  baseline — for a sizing assistant, catching misfits (small/large) matters more
+  than raw accuracy; the confidence % and amber-box layer already communicate
+  uncertainty to the user. Document this reasoning in docs/model_selection.md.
 - Try-on: 2D body-wrap compositing (MediaPipe pose keypoints + affine-warped
   transparent garment PNG, alpha-composited on HTML5 Canvas). **NOT 3D, NOT Three.js,
   NOT WebGL.** Do not suggest 3D.

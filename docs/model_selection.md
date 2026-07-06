@@ -68,13 +68,38 @@ modest-size tabular data; it is a legitimate comparison result, not a
 tuning failure (all four models received the same preprocessing and
 equal-footing, untuned hyperparameters).
 
+## Which model the product serves (locked Phase 8 decision)
+
+The Phase 8 `/recommend-size` endpoint serves the **class-weighted XGBoost**
+(`models/xgboost_weighted.joblib`, produced by the Phase 6 mitigation
+retrain — full audit in [fairness_report.md](fairness_report.md)), not the
+unweighted Phase 5 winner. Reasoning:
+
+1. **For a sizing assistant, the costly error is a missed misfit.** Telling
+   a shopper "it fits" when the item runs small or large is exactly the
+   mistake that causes a return. The unweighted model gives that wrong
+   reassurance in ~96–100% of misfit cases (fit-class FPR per group);
+   the weighted model catches roughly half of misfits (recall `large`
+   0.486 / `small` 0.546, vs 0.011 / 0.006 unweighted).
+2. **The weighted model is also better on the Phase 5 selection metric
+   itself** — macro-F1 0.3596 vs 0.2918.
+3. **The accuracy cost (0.727 → 0.396) is absorbed by the product layer.**
+   The endpoint returns class probabilities, not a bare label: the
+   displayed confidence % and the blue/amber confidence box communicate
+   uncertainty to the user, so a lower-confidence prediction surfaces as a
+   sizing tip rather than a flat verdict.
+
+The unweighted `xgboost.joblib` remains in the repo as the Phase 5
+comparison artifact and the fairness audit's "before" model.
+
 ## Artifacts (`models/`)
 
 | File | What it is |
 |---|---|
 | `comparison.csv` | The results table above |
 | `classification_reports.txt` | Full per-class precision/recall/F1 per model |
-| `xgboost.joblib` | **Selected model** — full Pipeline (preprocessing + model), 1.1 MB |
+| `xgboost.joblib` | **Phase 5 winner** (unweighted) — full Pipeline (preprocessing + model), 1.1 MB; the fairness audit's "before" model |
+| `xgboost_weighted.joblib` | **Served model (Phase 8)** — class-weighted retrain from the Phase 6 mitigation |
 | `logistic_regression.joblib`, `mlp.joblib` | Runner-up pipelines (small, committed) |
 | `random_forest.joblib` | **Gitignored** (50 MB — exceeds sensible repo size); byte-reproducible via `./venv/bin/python src/train_models.py` (fixed seed) |
 | `label_encoder.joblib` | fit/large/small ↔ 0/1/2 mapping |
