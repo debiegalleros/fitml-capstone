@@ -1,0 +1,31 @@
+{
+  "seed": 42,
+  "test_rows": 50210,
+  "favorable_outcome": "predicted 'fit'",
+  "groupings": [
+    "body_type",
+    "height_band",
+    "size_band"
+  ],
+  "mitigation": "balanced sample weights, identical pipeline/split",
+  "before": {
+    "accuracy": 0.7272,
+    "f1_macro": 0.2918,
+    "f1_fit": 0.8418,
+    "f1_large": 0.0219,
+    "f1_small": 0.0115,
+    "recall_fit": 0.9967,
+    "recall_large": 0.0112,
+    "recall_small": 0.0059
+  },
+  "after": {
+    "accuracy": 0.3959,
+    "f1_macro": 0.3596,
+    "f1_fit": 0.4846,
+    "f1_large": 0.2924,
+    "f1_small": 0.3018,
+    "recall_fit": 0.3507,
+    "recall_large": 0.4864,
+    "recall_small": 0.5463
+  }
+}
