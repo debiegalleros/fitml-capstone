@@ -20,7 +20,7 @@ shap
 fairlearn
 
 # Phase 7: catalog processing
-rembg
+rembg[cpu]  # bare rembg has no onnxruntime backend and fails at import
 Pillow
 opencv-python
 
