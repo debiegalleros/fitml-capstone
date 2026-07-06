@@ -122,10 +122,10 @@ Two planning docs may exist in `docs/planning/`:
   small (~1 inch / 2.5cm height). No other logos. Title slide of both decks,
   top to bottom: AIM logo upper left, then project title "FitML: A
   Fairness-Audited Machine Learning System for Sizing and Augmented Reality
-  Try-On in E-Commerce", then the program name "Postgraduate Diploma in
-  Artificial Intelligence and Machine Learning" below the project title, then
-  "Debie Galleros · July 2026" and tagline "A virtual fitting room with size
-  recommendations and tailored advice".
+  Try-On in E-Commerce", then "Pillar 5: Capstone Project", then the program
+  name "Postgraduate Diploma in Artificial Intelligence and Machine Learning",
+  then "Debie Galleros · July 2026", then the tagline "A virtual fitting room
+  with size recommendations and tailored advice".
 
 ## Rubric (100 pts) — effort should track points
 Problem Framing 10 · Data Collection 10 · EDA/FE 10 · **Models 20** ·
