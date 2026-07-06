@@ -99,7 +99,12 @@ Two planning docs may exist in `docs/planning/`:
   default (MediaPipe + Gaussian), HTTPS only, cite RA 10173 in `docs/privacy.md`.
 - Presentation branding: White background on all slides. AIM logo
   (`docs/assets/AIM_logo_2017.svg.png`) in the upper left corner of every slide,
-  small (~1 inch / 2.5cm height). No other logos.
+  small (~1 inch / 2.5cm height). No other logos. Title slide of both decks,
+  top to bottom: AIM logo upper left, then project title "FitML: A
+  Fairness-Audited Machine Learning System for Sizing and Augmented Reality
+  Try-On in E-Commerce", then the program name "Postgraduate Diploma in
+  Artificial Intelligence and Machine Learning" below the project title, then
+  "Debie Galleros · July 2026" and tagline "Shop smarter. Fit better."
 
 ## Rubric (100 pts) — effort should track points
 Problem Framing 10 · Data Collection 10 · EDA/FE 10 · **Models 20** ·
