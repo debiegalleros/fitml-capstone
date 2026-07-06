@@ -118,6 +118,12 @@ would require generating a synthetic labeled set from the compositing pipeline i
 — feasible in principle but too time/risk-heavy given the deadline. Mentioned in the
 business deck as a natural next step, not attempted in this submission.
 
+**Future-work research direction (report + decks):** the FIT dataset (2026,
+1.13M fit-aware try-on triplets) is the cited upgrade path for photorealistic,
+fit-accurate generative try-on — the successor to this submission's lightweight
+size-proportional 2D rendering (garment PNG scaled by the size chart's
+measurement ratios when a non-recommended size is selected).
+
 ---
 
 ## 6. Fairness & Ethical AI Audit
@@ -151,6 +157,14 @@ background-removed garment PNG is scaled/rotated (affine transform) to
 match shoulder width and torso angle, then alpha-composited onto the
 photo. Size/color swaps re-run the same warp with a different PNG —
 instant, no 3D asset pipeline needed.
+
+Size-proportional rendering: when compositing a size other than the
+model-recommended one, the garment PNG is additionally scaled by that
+size's measurement ratios from the size chart, so an XL on a
+small-framed user renders visibly wider/longer than an M. It's a
+lightweight visual size-difference cue — the advice text explains the
+fit tradeoff. Fit-aware generative try-on (FIT dataset, 2026) is the
+cited future-work upgrade path.
 
 **Catalog:** ~100+ garments across 13 categories (from the Fashion Product Images
 Dataset, `paramaggarwal/fashion-product-images-dataset` — full-res, MIT license,

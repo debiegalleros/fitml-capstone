@@ -38,7 +38,12 @@ Two planning docs may exist in `docs/planning/`:
   uncertainty to the user. Document this reasoning in docs/model_selection.md.
 - Try-on: 2D body-wrap compositing (MediaPipe pose keypoints + affine-warped
   transparent garment PNG, alpha-composited on HTML5 Canvas). **NOT 3D, NOT Three.js,
-  NOT WebGL.** Do not suggest 3D.
+  NOT WebGL.** Do not suggest 3D. Size-proportional rendering: when compositing a
+  size other than the model-recommended one, scale the garment PNG proportionally
+  to that size's measurement ratios from the size chart (an XL on a small-framed
+  user renders visibly wider/longer than an M). Lightweight visual size-difference
+  cue; the advice text explains the fit tradeoff. Cite fit-aware generative try-on
+  (FIT dataset, 2026) as the future-work upgrade path.
 - Task type: supervised classification (fit/size prediction) on the real women's
   dataset. This is the entire graded ML core.
 - Fairness audit (Step 5, 20 pts): real dataset/model only — disparate impact,
