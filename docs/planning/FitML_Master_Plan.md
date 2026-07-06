@@ -180,7 +180,8 @@ Free, no app-store cost/review, and matches the Flask + plain HTML/CSS/JS stack
 already planned.
 
 **Six pages total:**
-1. **Title/Landing** — FitML name, tagline ("Shop smarter. Fit better."), hero
+1. **Title/Landing** — FitML name, tagline ("A virtual fitting room with size
+   recommendations and tailored advice"), hero
    visual, "Get Started" button. Below the hero, a feature callout section
    styled as short labeled cards (icon + bold title + one-line description),
    e.g.:

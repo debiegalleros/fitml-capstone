@@ -124,7 +124,8 @@ Two planning docs may exist in `docs/planning/`:
   Fairness-Audited Machine Learning System for Sizing and Augmented Reality
   Try-On in E-Commerce", then the program name "Postgraduate Diploma in
   Artificial Intelligence and Machine Learning" below the project title, then
-  "Debie Galleros · July 2026" and tagline "Shop smarter. Fit better."
+  "Debie Galleros · July 2026" and tagline "A virtual fitting room with size
+  recommendations and tailored advice".
 
 ## Rubric (100 pts) — effort should track points
 Problem Framing 10 · Data Collection 10 · EDA/FE 10 · **Models 20** ·
