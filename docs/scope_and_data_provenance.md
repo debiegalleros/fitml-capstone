@@ -105,3 +105,53 @@ Accept" button never appeared on the rules page. A derivative Kaggle
 around the rules gate for evaluation purposes — but the image-quality
 findings above led to dropping iMaterialist altogether in favor of the
 Fashion Product Images Dataset.
+
+## Phase 7: catalog curation and garment isolation (July 2026)
+
+**Selection** (`src/catalog_select.py`): `styles.csv` was filtered to
+Apparel in Casual/Formal/Smart Casual usage, a solid-colour whitelist, and
+name-based exclusion of prints/patterns/multi-packs/kids-mislabels, then
+ranked per category ("Solid"-named first, newest year, seeded tiebreak).
+A strict recent-year cutoff proved unusable — women's target categories
+from 2015+ contain almost no dresses/jeans/skirts (the dataset's apparel
+mass is 2011–2012) — so recency is a ranking preference and the
+solid-colour/clean-cut filters carry the contemporary aesthetic.
+
+**Garment isolation** (`src/catalog_isolate.py`): every apparel photo
+inspected was an on-model shot, so plain `rembg`/u2net (subject-from-
+background) would keep the person. The pipeline instead uses rembg's
+`u2net_cloth_seg` clothing-parsing model, which returns stacked
+upper-body / lower-body / full-body garment bands; the band is chosen by
+category (tops→upper, bottoms→lower then full, dresses→full), with plain
+u2net as a fallback for the rare flat-lay. Cutout cleanup: alpha
+binarisation, largest-connected-component filtering, bbox crop, downscale
+to 1200px max.
+
+**Visual QA** (`src/catalog_exclusions.csv`, 147 exclusions over 8
+rounds): every cutout was reviewed on contact sheets; rejects were
+replaced by the next-ranked candidate (`--extend` mode tops up categories
+whose pool runs dry). Common rejection reasons: model/face retained,
+hair merged into dark garments, hand-shaped holes where hands covered
+the garment, multi-pack product shots, layered inner garments, prints
+that slipped the name filter, and heavy brand graphics. Per the
+curation decision, logo-heavy items were dropped; note that *every*
+men's polo in the dataset is U.S. Polo Assn. branded, so the three kept
+polos carry small chest logos — the least-branded available.
+
+**Colour variants** (`src/catalog_variants.py`): 2 named-palette
+recolours per item (250 total) via HSV hue/saturation replacement with
+median-value matching — gamma when lightening, linear scaling when
+darkening (gamma posterises near-white garments). Neutral (black/white/
+grey) garments accept any target colour; chromatic ones only targets
+≥40° of hue away.
+
+**Metadata** (`src/catalog_metadata.py` → `data/catalog/metadata.csv`):
+125 items — 112 women's across 11 categories, 13 men's limited to the
+four categories covered by `data/raw/mens_size_charts.csv` (tshirt/polo/
+jeans/jacket) so every men's item is sizeable by the Uniqlo chart lookup.
+Prices are programmatically generated demo pricing (seeded
+`random.randint` within per-category PHP bands, rounded to nearest 10;
+skirts assigned to the jeans/slacks 800–1400 band). Fabric is a
+plausible per-category assignment, not ground truth, mixing stretch and
+low-stretch options because fabric stretch feeds the borderline-sizing
+(amber box) rule.

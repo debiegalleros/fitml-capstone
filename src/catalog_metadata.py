@@ -1,0 +1,98 @@
+"""Phase 7 — build data/catalog/metadata.csv for the FitML demo catalog.
+
+One row per catalog item (variants share the row via variant_colors):
+item_id, category, gender, color, variant_colors, fabric, size_range,
+price_php, product_name, image.
+
+Pricing is programmatically generated demo pricing (documented as such, not
+real merchant data): random.randint within the category band, rounded to the
+nearest 10 PHP. Bands per CLAUDE.md: tshirt/tank/shorts 400-700,
+polo/blouse 600-1000, jeans/slacks/skirt/sweater 800-1400,
+jacket/dress 1200-1800 (skirts assigned to the jeans/slacks band).
+
+Fabric is a plausible per-category assignment (not ground truth — documented
+in the data dictionary); low-stretch fabrics matter later for the amber-box
+borderline rule, so each category pool mixes stretch and low-stretch options.
+"""
+
+import random
+from pathlib import Path
+
+import pandas as pd
+
+from catalog_common import ROOT, active_selection
+
+SEED = 42
+VARIANTS_CSV = ROOT / "data/catalog/variants.csv"
+GARMENTS_DIR = ROOT / "data/catalog/garments"
+OUT_CSV = ROOT / "data/catalog/metadata.csv"
+
+# articleType (+gender where needed) -> catalog category
+CATEGORY_MAP = {
+    "Tshirts": "tshirt", "Camisoles": "tank", "Shorts": "shorts",
+    "Polo": "polo", "Tops": "blouse", "Shirts": "blouse",
+    "Jeans": "jeans", "Trousers": "slacks", "Skirts": "skirt",
+    "Sweaters": "sweater", "Jackets": "jacket", "Dresses": "dress",
+}
+
+PRICE_BANDS = {
+    "tshirt": (400, 700), "tank": (400, 700), "shorts": (400, 700),
+    "polo": (600, 1000), "blouse": (600, 1000),
+    "jeans": (800, 1400), "slacks": (800, 1400), "skirt": (800, 1400),
+    "sweater": (800, 1400),
+    "jacket": (1200, 1800), "dress": (1200, 1800),
+}
+
+FABRICS = {
+    "tshirt": ["cotton jersey", "cotton-spandex blend"],
+    "tank": ["cotton-modal blend", "cotton jersey"],
+    "shorts": ["cotton twill", "linen-cotton blend"],
+    "polo": ["cotton pique"],
+    "blouse": ["polyester crepe", "rayon", "cotton poplin"],
+    "jeans": ["stretch denim", "rigid denim"],
+    "slacks": ["polyester-viscose twill", "cotton twill"],
+    "skirt": ["polyester twill", "stretch cotton twill"],
+    "sweater": ["cotton knit", "acrylic knit"],
+    "jacket": ["polyester shell", "cotton twill"],
+    "dress": ["viscose jersey", "polyester crepe"],
+}
+
+SIZE_RANGES = {"women": "XS,S,M,L,XL", "men": "XS,S,M,L,XL,XXL"}  # men per Uniqlo charts
+
+
+def main() -> None:
+    rng = random.Random(SEED)
+    df = active_selection()
+    variants = pd.read_csv(VARIANTS_CSV)
+
+    rows = []
+    for _, r in df.sort_values(["target_gender", "articleType", "rank_in_category"]).iterrows():
+        png = GARMENTS_DIR / f"{int(r.id)}.png"
+        if not png.exists():  # not part of the processed selection
+            continue
+        cat = CATEGORY_MAP[r.articleType]
+        lo, hi = PRICE_BANDS[cat]
+        v = variants[variants.id == r.id].variant.tolist()
+        rows.append({
+            "item_id": int(r.id),
+            "category": cat,
+            "gender": r.target_gender,
+            "color": str(r.baseColour).lower(),
+            "variant_colors": "|".join(v),
+            "fabric": rng.choice(FABRICS[cat]),
+            "size_range": SIZE_RANGES[r.target_gender],
+            "price_php": round(rng.randint(lo, hi) / 10) * 10,
+            "product_name": r.productDisplayName,
+            "image": f"garments/{int(r.id)}.png",
+        })
+
+    out = pd.DataFrame(rows)
+    out.to_csv(OUT_CSV, index=False)
+    print(f"{len(out)} items -> {OUT_CSV}")
+    print(out.groupby(["gender", "category"]).agg(
+        n=("item_id", "size"), price_min=("price_php", "min"),
+        price_max=("price_php", "max")).to_string())
+
+
+if __name__ == "__main__":
+    main()

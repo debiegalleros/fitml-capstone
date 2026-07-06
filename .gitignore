@@ -12,6 +12,12 @@ data/raw/*
 !data/raw/mens_size_charts.csv
 data/catalog/*
 !data/catalog/.gitkeep
+# Exceptions: small derived CSVs that record the catalog curation and are
+# needed to reproduce/serve the exact catalog (images stay ignored)
+!data/catalog/candidates.csv
+!data/catalog/variants.csv
+!data/catalog/metadata.csv
+!data/catalog/isolation_report.csv
 
 # Kaggle credentials
 kaggle.json

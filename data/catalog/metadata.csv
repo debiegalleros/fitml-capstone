@@ -1,0 +1,126 @@
+item_id,category,gender,color,variant_colors,fabric,size_range,price_php,product_name,image
+19860,jacket,men,olive,plum|burgundy,polyester shell,"XS,S,M,L,XL,XXL",1220,U.S. Polo Assn. Men Solid Olive Jacket,garments/19860.png
+22312,jacket,men,black,plum|burgundy,cotton twill,"XS,S,M,L,XL,XXL",1450,Wildcraft Men Solid Black Jacket,garments/22312.png
+17628,jacket,men,charcoal,terracotta|slate blue,polyester shell,"XS,S,M,L,XL,XXL",1340,ADIDAS Men Solid Grey Jacket,garments/17628.png
+44587,jeans,men,blue,forest green|mustard,stretch denim,"XS,S,M,L,XL,XXL",1360,Lee Men Blue Rack Jeans,garments/44587.png
+44578,jeans,men,blue,plum|teal,stretch denim,"XS,S,M,L,XL,XXL",1230,Lee Men Blue Party Jeans,garments/44578.png
+11341,jeans,men,blue,olive|terracotta,stretch denim,"XS,S,M,L,XL,XXL",830,Lee Men Light Blue Chicago Fit Jeans,garments/11341.png
+19790,polo,men,blue,olive|plum,cotton pique,"XS,S,M,L,XL,XXL",710,U.S. Polo Assn. Men Solid Blue Tshirt,garments/19790.png
+19789,polo,men,orange,navy|forest green,cotton pique,"XS,S,M,L,XL,XXL",860,U.S. Polo Assn. Men Solid Orange Tshirt,garments/19789.png
+17259,polo,men,black,terracotta|plum,cotton pique,"XS,S,M,L,XL,XXL",890,U.S. Polo Assn. Men Solid Black  Polo Tshirt,garments/17259.png
+20958,tshirt,men,grey,terracotta|olive,cotton jersey,"XS,S,M,L,XL,XXL",680,s.Oliver Men Solid Grey Tshirt,garments/20958.png
+13468,tshirt,men,green,burgundy|slate blue,cotton-spandex blend,"XS,S,M,L,XL,XXL",510,United Colors of Benetton Men Solid Green Tshirts,garments/13468.png
+19161,tshirt,men,white,plum|slate blue,cotton-spandex blend,"XS,S,M,L,XL,XXL",540,United Colors of Benetton Men Solid White Tshirt,garments/19161.png
+20000,tshirt,men,white,plum|olive,cotton jersey,"XS,S,M,L,XL,XXL",480,United Colors of Benetton Men White Solid T-shirt,garments/20000.png
+40498,tank,women,white,mustard|burgundy,cotton jersey,"XS,S,M,L,XL",570,Femella Women White Camisole,garments/40498.png
+27496,tank,women,white,olive|forest green,cotton jersey,"XS,S,M,L,XL",480,Jockey Women White Camisole,garments/27496.png
+27471,tank,women,white,burgundy|dusty rose,cotton-modal blend,"XS,S,M,L,XL",570,Jockey White Camisole,garments/27471.png
+52465,tank,women,black,teal|mustard,cotton-modal blend,"XS,S,M,L,XL",450,Red Rose Black Camisole,garments/52465.png
+27498,tank,women,pink,slate blue|navy,cotton jersey,"XS,S,M,L,XL",450,Jockey Pink Camisole,garments/27498.png
+50191,tank,women,black,mustard|dusty rose,cotton jersey,"XS,S,M,L,XL",580,Hanes Women Black Cotton - Stretch Camisole,garments/50191.png
+14197,dress,women,black,teal|dusty rose,polyester crepe,"XS,S,M,L,XL",1240,AND Women Solid Black Dresses,garments/14197.png
+18897,dress,women,green,burgundy|teal,polyester crepe,"XS,S,M,L,XL",1750,Arrow Woman Solid Green Dress,garments/18897.png
+18896,dress,women,cream,mustard|dusty rose,viscose jersey,"XS,S,M,L,XL",1590,Arrow Woman Solid Cream Dress,garments/18896.png
+20637,dress,women,grey,teal|dusty rose,viscose jersey,"XS,S,M,L,XL",1760,AND Women Solid Grey and Black Dress,garments/20637.png
+35990,dress,women,pink,navy|mustard,polyester crepe,"XS,S,M,L,XL",1570,Flying Machine Women Cotton Pink Dress,garments/35990.png
+49633,dress,women,red,olive|plum,viscose jersey,"XS,S,M,L,XL",1270,Mineral Coral Dress,garments/49633.png
+52155,dress,women,purple,navy|olive,viscose jersey,"XS,S,M,L,XL",1430,Femella Women Purple Color Block Dress,garments/52155.png
+57049,dress,women,black,navy|burgundy,polyester crepe,"XS,S,M,L,XL",1280,Elle Women Black A-Line Dress,garments/57049.png
+25908,dress,women,red,olive|navy,viscose jersey,"XS,S,M,L,XL",1300,Femella Women Red Dress,garments/25908.png
+39235,dress,women,brown,burgundy|navy,polyester crepe,"XS,S,M,L,XL",1480,Femella Women Peach Crepe Front Zipper Dress Dress,garments/39235.png
+43633,dress,women,red,teal|forest green,polyester crepe,"XS,S,M,L,XL",1570,Vero Moda Women Coral Coloured Dress,garments/43633.png
+34588,dress,women,cream,olive|navy,viscose jersey,"XS,S,M,L,XL",1580,Tonga Women Cream Dress,garments/34588.png
+25972,dress,women,brown,plum|slate blue,polyester crepe,"XS,S,M,L,XL",1410,Femella Women Brown Dress,garments/25972.png
+57046,dress,women,black,terracotta|mustard,polyester crepe,"XS,S,M,L,XL",1270,Elle Women Black Sheath Dress,garments/57046.png
+18957,jacket,women,grey,mustard|burgundy,polyester shell,"XS,S,M,L,XL",1750,United Colors of Benetton Women Solid Grey Knitted Jacket,garments/18957.png
+22314,jacket,women,black,navy|burgundy,polyester shell,"XS,S,M,L,XL",1370,Wildcraft Women Solid Black Jacket,garments/22314.png
+19342,jacket,women,black,mustard|forest green,cotton twill,"XS,S,M,L,XL",1590,United Colors of Benetton Women Solid Black Jacket,garments/19342.png
+19331,jacket,women,navy blue,forest green|mustard,cotton twill,"XS,S,M,L,XL",1770,United Colors of Benetton Women Solid Navy Blue Jacket,garments/19331.png
+46121,jacket,women,black,olive|mustard,polyester shell,"XS,S,M,L,XL",1530,Wildcraft Women Black Jacket,garments/46121.png
+57068,jacket,women,blue,burgundy|teal,polyester shell,"XS,S,M,L,XL",1430,Elle Women Navy Blue Jacket,garments/57068.png
+57066,jacket,women,pink,teal|navy,polyester shell,"XS,S,M,L,XL",1520,Elle Women Pink Jacket,garments/57066.png
+57067,jacket,women,green,dusty rose|navy,cotton twill,"XS,S,M,L,XL",1470,Elle Women Green Retro Jacket,garments/57067.png
+11318,jeans,women,black,burgundy|terracotta,stretch denim,"XS,S,M,L,XL",1020,United Colors of Benetton Women Solid Black Jeans,garments/11318.png
+9144,jeans,women,blue,terracotta|dusty rose,rigid denim,"XS,S,M,L,XL",1020,Lee Women Scraped Blue Roxy Fit Jeans,garments/9144.png
+9148,jeans,women,blue,forest green|burgundy,rigid denim,"XS,S,M,L,XL",1200,Lee Women Blue Jeans,garments/9148.png
+50944,jeans,women,navy blue,olive|slate blue,rigid denim,"XS,S,M,L,XL",950,Lee Women Navy Blue Jeggings,garments/50944.png
+50961,jeans,women,black,mustard|terracotta,rigid denim,"XS,S,M,L,XL",940,Lee Women Black Jeans,garments/50961.png
+9149,jeans,women,blue,forest green|plum,stretch denim,"XS,S,M,L,XL",1370,Lee Women Rinse Blue Jeans,garments/9149.png
+50947,jeans,women,blue,terracotta|olive,rigid denim,"XS,S,M,L,XL",1400,Lee Womens Blue Jeggings,garments/50947.png
+50963,jeans,women,blue,forest green|mustard,rigid denim,"XS,S,M,L,XL",1400,Lee Womens Blue Jeggings,garments/50963.png
+50956,jeans,women,black,plum|burgundy,rigid denim,"XS,S,M,L,XL",1170,Lee Women Black Jeans,garments/50956.png
+9150,jeans,women,black,olive|slate blue,stretch denim,"XS,S,M,L,XL",940,Lee Black Maxi Super-Skinny Jeans,garments/9150.png
+9142,jeans,women,black,plum|mustard,rigid denim,"XS,S,M,L,XL",890,Lee Women Black Eva Fit Jeans,garments/9142.png
+9146,jeans,women,blue,terracotta|dusty rose,stretch denim,"XS,S,M,L,XL",910,Lee Women Mid Stone Blue Maxi Fit Jeans,garments/9146.png
+19727,blouse,women,white,navy|slate blue,polyester crepe,"XS,S,M,L,XL",920,United Colors of Benetton Women Solid White Shirt,garments/19727.png
+13457,blouse,women,white,slate blue|burgundy,polyester crepe,"XS,S,M,L,XL",950,United Colors of Benetton Women Solid White Shirts,garments/13457.png
+13448,blouse,women,pink,plum|slate blue,rayon,"XS,S,M,L,XL",900,United Colors of Benetton Women Solid Pink Shirts,garments/13448.png
+13450,blouse,women,white,slate blue|dusty rose,polyester crepe,"XS,S,M,L,XL",800,United Colors of Benetton Women Solid White Shirts,garments/13450.png
+13458,blouse,women,black,burgundy|dusty rose,rayon,"XS,S,M,L,XL",900,United Colors of Benetton Women Solid Black Shirts,garments/13458.png
+20033,blouse,women,lavender,plum|slate blue,rayon,"XS,S,M,L,XL",870,United Colors of Benetton Women Solid Lavender Shirt,garments/20033.png
+19728,blouse,women,purple,slate blue|mustard,rayon,"XS,S,M,L,XL",880,United Colors of Benetton Women Solid Purple Shirt,garments/19728.png
+32394,blouse,women,lavender,teal|forest green,polyester crepe,"XS,S,M,L,XL",950,Arrow Woman Lavender Shirt,garments/32394.png
+59892,blouse,women,blue,mustard|plum,cotton poplin,"XS,S,M,L,XL",660,Femella Women Blue Shirt,garments/59892.png
+59894,blouse,women,orange,plum|teal,cotton poplin,"XS,S,M,L,XL",870,Femella Women Orange Shirt,garments/59894.png
+27424,shorts,women,black,burgundy|teal,linen-cotton blend,"XS,S,M,L,XL",570,Jockey Black Shorts,garments/27424.png
+27426,shorts,women,grey melange,dusty rose|slate blue,cotton twill,"XS,S,M,L,XL",550,Jockey Women Grey Melange Shorts,garments/27426.png
+43309,shorts,women,white,burgundy|teal,linen-cotton blend,"XS,S,M,L,XL",480,United Colors of Benetton Women's White Washed Shorts,garments/43309.png
+32587,shorts,women,black,terracotta|forest green,linen-cotton blend,"XS,S,M,L,XL",400,Only  Women Black Shorts,garments/32587.png
+57216,shorts,women,brown,burgundy|slate blue,linen-cotton blend,"XS,S,M,L,XL",660,Kraus Jeans Women Brown Shorts,garments/57216.png
+21433,shorts,women,blue,burgundy|olive,cotton twill,"XS,S,M,L,XL",660,Roxy Women Beach Brights Blue Shorts,garments/21433.png
+43916,shorts,women,yellow,burgundy|plum,cotton twill,"XS,S,M,L,XL",550,Femella Women Yellow Shorts,garments/43916.png
+32589,shorts,women,black,olive|terracotta,cotton twill,"XS,S,M,L,XL",480,Only  Women Black Shorts,garments/32589.png
+18713,skirt,women,grey,burgundy|navy,stretch cotton twill,"XS,S,M,L,XL",960,Arrow Woman Solid Grey Skirt,garments/18713.png
+10366,skirt,women,black,mustard|forest green,polyester twill,"XS,S,M,L,XL",1130,United Colors of Benetton Women Solid Black Skirt,garments/10366.png
+18712,skirt,women,black,olive|forest green,stretch cotton twill,"XS,S,M,L,XL",820,Arrow Women Solid Black Skirt,garments/18712.png
+41153,skirt,women,charcoal,burgundy|plum,polyester twill,"XS,S,M,L,XL",1170,Allen Solly Woman Charcoal Skirt,garments/41153.png
+26364,skirt,women,grey,teal|navy,stretch cotton twill,"XS,S,M,L,XL",1040,Arrow Woman Grey Skirt,garments/26364.png
+25930,skirt,women,black,olive|terracotta,polyester twill,"XS,S,M,L,XL",1050,Femella Women Black Skirt,garments/25930.png
+25931,skirt,women,red,olive|slate blue,polyester twill,"XS,S,M,L,XL",890,Femella Women Red Skirt,garments/25931.png
+37930,skirt,women,brown,teal|forest green,stretch cotton twill,"XS,S,M,L,XL",870,Mineral Women Brown Skirt,garments/37930.png
+57084,skirt,women,blue,mustard|burgundy,polyester twill,"XS,S,M,L,XL",930,Elle Women Blue Skirt,garments/57084.png
+57089,skirt,women,navy blue,dusty rose|mustard,stretch cotton twill,"XS,S,M,L,XL",1360,Elle Women Blue Skirt,garments/57089.png
+20227,sweater,women,green,forest green|mustard,cotton knit,"XS,S,M,L,XL",1070,Wrangler Women Solid Green Sweater,garments/20227.png
+21162,sweater,women,pink,mustard|forest green,acrylic knit,"XS,S,M,L,XL",1020,s.Oliver Women Solid Pink Sweater,garments/21162.png
+18959,sweater,women,blue,teal|mustard,cotton knit,"XS,S,M,L,XL",1120,United Colors of Benetton Women Solid Blue Sweater,garments/18959.png
+13961,sweater,women,pink,terracotta|navy,acrylic knit,"XS,S,M,L,XL",1180,Jealous 21 Women Solid Pink Sweaters,garments/13961.png
+23047,sweater,women,charcoal,forest green|olive,acrylic knit,"XS,S,M,L,XL",1330,Arrow Woman Charcoal Solid Sweater,garments/23047.png
+20298,sweater,women,pink,forest green|teal,acrylic knit,"XS,S,M,L,XL",920,Jealous 21 Women Solid Pink Sweater,garments/20298.png
+20346,sweater,women,pink,plum|olive,cotton knit,"XS,S,M,L,XL",1030,Scullers For Her Women Solid Pink Sweater,garments/20346.png
+21135,sweater,women,purple,olive|slate blue,cotton knit,"XS,S,M,L,XL",1150,s.Oliver Women Solid Purple Sweater,garments/21135.png
+10408,blouse,women,black,teal|burgundy,polyester crepe,"XS,S,M,L,XL",900,United Colors of Benetton Women Solid Black Tops,garments/10408.png
+13956,blouse,women,white,terracotta|dusty rose,cotton poplin,"XS,S,M,L,XL",720,United Colors of Benetton Women Solid White Tops,garments/13956.png
+14095,blouse,women,navy blue,plum|dusty rose,cotton poplin,"XS,S,M,L,XL",710,Flying Machine Women Solid Navy Blue Tops,garments/14095.png
+10363,blouse,women,grey,dusty rose|mustard,polyester crepe,"XS,S,M,L,XL",640,United Colors of Benetton Women Solid Grey Tops,garments/10363.png
+19636,blouse,women,grey,teal|mustard,cotton poplin,"XS,S,M,L,XL",920,United Colors of Benetton Women Solid Grey Top,garments/19636.png
+19577,blouse,women,olive,terracotta|mustard,polyester crepe,"XS,S,M,L,XL",720,United Colors of Benetton Women Solid Olive Top,garments/19577.png
+11338,blouse,women,black,dusty rose|terracotta,polyester crepe,"XS,S,M,L,XL",620,United Colors of Benetton Women Solid Black Tops,garments/11338.png
+11758,blouse,women,white,mustard|teal,rayon,"XS,S,M,L,XL",640,Lee Women Solid White Tops,garments/11758.png
+13442,blouse,women,white,navy|forest green,cotton poplin,"XS,S,M,L,XL",720,United Colors of Benetton Women Solid White Tops,garments/13442.png
+13946,blouse,women,blue,terracotta|mustard,rayon,"XS,S,M,L,XL",940,United Colors of Benetton Women Solid Blue Tops,garments/13946.png
+19616,blouse,women,yellow,plum|teal,rayon,"XS,S,M,L,XL",710,United Colors of Benetton Women Solid Yellow Top,garments/19616.png
+14120,blouse,women,grey,olive|burgundy,cotton poplin,"XS,S,M,L,XL",670,Flying Machine Women Solid Grey Tops,garments/14120.png
+19591,blouse,women,navy blue,forest green|dusty rose,cotton poplin,"XS,S,M,L,XL",890,United Colors of Benetton Women Solid Navy Blue Top,garments/19591.png
+13456,blouse,women,pink,forest green|mustard,cotton poplin,"XS,S,M,L,XL",840,United Colors of Benetton Women Solid Pink Tops,garments/13456.png
+32405,slacks,women,navy blue,forest green|teal,polyester-viscose twill,"XS,S,M,L,XL",1280,Arrow Woman Navy Blue Trousers,garments/32405.png
+44664,slacks,women,charcoal,olive|terracotta,cotton twill,"XS,S,M,L,XL",990,Wills Lifestyle Women Charcoal Trousers,garments/44664.png
+32586,slacks,women,brown,forest green|mustard,polyester-viscose twill,"XS,S,M,L,XL",900,ONLY Women Brown Trousers,garments/32586.png
+57139,slacks,women,black,teal|dusty rose,cotton twill,"XS,S,M,L,XL",1160,Elle Women Black Etra Slim Fit Trousers,garments/57139.png
+32407,slacks,women,grey,dusty rose|teal,cotton twill,"XS,S,M,L,XL",1220,Arrow Woman Grey Trousers,garments/32407.png
+32585,slacks,women,black,olive|forest green,cotton twill,"XS,S,M,L,XL",860,Only  Women Black Trousers,garments/32585.png
+27919,slacks,women,brown,teal|slate blue,polyester-viscose twill,"XS,S,M,L,XL",860,Scullers For Her Light Brown Trousers,garments/27919.png
+34504,slacks,women,beige,navy|slate blue,cotton twill,"XS,S,M,L,XL",1150,Van Heusen Woman Beige Trousers,garments/34504.png
+22322,tshirt,women,blue,forest green|plum,cotton jersey,"XS,S,M,L,XL",530,Wildcraft Women Solid Blue Tshirt,garments/22322.png
+10379,tshirt,women,red,plum|teal,cotton jersey,"XS,S,M,L,XL",500,United Colors of Benetton Women Solid Red T-shirt,garments/10379.png
+14103,tshirt,women,cream,teal|burgundy,cotton-spandex blend,"XS,S,M,L,XL",470,Flying Machine Women Solid Cream Tops,garments/14103.png
+10343,tshirt,women,blue,forest green|burgundy,cotton-spandex blend,"XS,S,M,L,XL",490,United Colors of Benetton Women Solid Blue Tshirts,garments/10343.png
+11784,tshirt,women,black,olive|mustard,cotton-spandex blend,"XS,S,M,L,XL",640,Lee Women Solid Black Tshirts,garments/11784.png
+19670,tshirt,women,olive,navy|mustard,cotton jersey,"XS,S,M,L,XL",440,United Colors of Benetton Women Solid Olive T-shirt,garments/19670.png
+10414,tshirt,women,purple,teal|navy,cotton-spandex blend,"XS,S,M,L,XL",680,United Colors of Benetton Women Solid Purple T-shirt,garments/10414.png
+11750,tshirt,women,black,navy|teal,cotton jersey,"XS,S,M,L,XL",420,Lee Women Solid Black Tshirts,garments/11750.png
+19556,tshirt,women,white,dusty rose|burgundy,cotton jersey,"XS,S,M,L,XL",450,United Colors of Benetton Women Solid White Polo Tshirt,garments/19556.png
+10374,tshirt,women,green,plum|burgundy,cotton jersey,"XS,S,M,L,XL",480,United Colors of Benetton Women Solid Green T-shirt,garments/10374.png
+11785,tshirt,women,black,plum|dusty rose,cotton-spandex blend,"XS,S,M,L,XL",650,Lee Women Solid Black Tshirts,garments/11785.png
+19669,tshirt,women,black,plum|mustard,cotton-spandex blend,"XS,S,M,L,XL",510,United Colors of Benetton Women Solid Black Tshirt,garments/19669.png
+19557,tshirt,women,olive,terracotta|forest green,cotton-spandex blend,"XS,S,M,L,XL",430,United Colors of Benetton Women Solid Olive T-shirt,garments/19557.png
+19612,tshirt,women,blue,teal|mustard,cotton jersey,"XS,S,M,L,XL",590,United Colors of Benetton Women Solid Blue Tshirt,garments/19612.png
