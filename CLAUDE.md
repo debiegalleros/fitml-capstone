@@ -45,6 +45,15 @@ Two planning docs may exist in `docs/planning/`:
   band+cup, flagged lower-precision, input method tracked per user), waist (cm),
   hip (cm), body type dropdown (hourglass/pear/apple/rectangle/athletic/petite).
   Uploaded photo is for try-on pose ONLY — never feeds the size model.
+  Photo upload accepts both full-body and half-body (upper) photos. UI note
+  next to the upload control: "For best results, use a full-body photo.
+  Half-body works too — but you'll only be able to try on tops." Backend
+  (Phase 8): after MediaPipe pose extraction, detect which keypoints are
+  visible and store a photo_coverage flag (full_body / upper_body). Try-on
+  endpoint: if the selected garment is a bottom (jeans, skirts, trousers,
+  shorts) and photo_coverage is upper_body, return a friendly error: "This
+  item needs a full-body photo to try on. Update your photo in your profile."
+  Tops/dresses composite normally on upper-body photos.
 - Claude API role: advice text only (personalized fit explanation, history-based
   brand/fabric notes). Enhanced with vision: the /advice endpoint also sends the
   composited try-on image to Claude (multimodal input) so the advice text can
