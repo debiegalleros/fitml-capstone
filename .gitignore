@@ -29,6 +29,8 @@ backend/uploads/
 
 # Model artifacts that are large (keep comparison.csv, small joblib files can stay if small)
 *.h5
+# 50MB — reproducible via src/train_models.py (fixed seed)
+models/random_forest.joblib
 
 # Editor
 .vscode/

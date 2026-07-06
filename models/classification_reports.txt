@@ -1,0 +1,46 @@
+=== logistic_regression ===
+              precision    recall  f1-score   support
+
+         fit     0.7275    0.9988    0.8418     36517
+       large     0.0000    0.0000    0.0000      6862
+       small     0.2319    0.0023    0.0046      6831
+
+    accuracy                         0.7267     50210
+   macro avg     0.3198    0.3337    0.2822     50210
+weighted avg     0.5606    0.7267    0.6129     50210
+
+
+=== random_forest ===
+              precision    recall  f1-score   support
+
+         fit     0.7279    0.9996    0.8424     36517
+       large     0.7955    0.0051    0.0101      6862
+       small     0.4615    0.0009    0.0018      6831
+
+    accuracy                         0.7278     50210
+   macro avg     0.6616    0.3352    0.2848     50210
+weighted avg     0.7009    0.7278    0.6143     50210
+
+
+=== xgboost ===
+              precision    recall  f1-score   support
+
+         fit     0.7287    0.9967    0.8418     36517
+       large     0.4873    0.0112    0.0219      6862
+       small     0.3846    0.0059    0.0115      6831
+
+    accuracy                         0.7272     50210
+   macro avg     0.5335    0.3379    0.2918     50210
+weighted avg     0.6489    0.7272    0.6168     50210
+
+
+=== mlp ===
+              precision    recall  f1-score   support
+
+         fit     0.7275    0.9993    0.8420     36517
+       large     0.4054    0.0022    0.0043      6862
+       small     0.3077    0.0006    0.0012      6831
+
+    accuracy                         0.7272     50210
+   macro avg     0.4802    0.3340    0.2825     50210
+weighted avg     0.6264    0.7272    0.6131     50210

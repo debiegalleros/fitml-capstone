@@ -1,0 +1,32 @@
+{
+  "seed": 42,
+  "test_size": 0.2,
+  "data_path": "data/processed/model_ready.csv",
+  "n_train": 200837,
+  "n_test": 50210,
+  "target": "fit_feedback",
+  "classes": [
+    "fit",
+    "large",
+    "small"
+  ],
+  "numeric_features": [
+    "size_ordered",
+    "height_cm",
+    "weight_kg",
+    "bust_band",
+    "bust_cup_ordinal",
+    "hip_cm",
+    "weight_kg_missing",
+    "hip_cm_missing",
+    "bust_band_missing",
+    "bust_cup_ordinal_missing"
+  ],
+  "categorical_features": [
+    "source",
+    "category_broad",
+    "body_type"
+  ],
+  "selection_metric": "f1_macro",
+  "selected_model": "xgboost"
+}
