@@ -94,7 +94,10 @@ Two planning docs may exist in `docs/planning/`:
   capture) as well as gallery upload. Test at 375px, 768px, and 1280px+ widths.
 - Confidence box borderline rule: predicted size near boundary AND low-stretch
   fabric AND fitted/athletic cut → amber box, recommend one size up, lower displayed
-  confidence, tradeoff-explaining advice text. The advice text has two
+  confidence, tradeoff-explaining advice text. The amber box uses a 💡 lightbulb
+  icon (NOT ⚠ warning triangle — too alarming) and opens with "Sizing tip:"
+  before the recommendation — the amber state is a helpful suggestion, not a
+  warning. Blue box keeps the ✓ checkmark. The advice text has two
   paragraphs. Paragraph 1: measurement-based reasoning in plain language.
   Paragraph 2: starts with "Note:" followed by visual observations from the
   try-on image, written in simple everyday language a non-technical shopper
