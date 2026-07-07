@@ -155,3 +155,35 @@ skirts assigned to the jeans/slacks 800–1400 band). Fabric is a
 plausible per-category assignment, not ground truth, mixing stretch and
 low-stretch options because fabric stretch feeds the borderline-sizing
 (amber box) rule.
+
+## Phase 7 cleanup round: hand-gap artifact repair (July 2026)
+
+After catalog approval, a dedicated cleanup pass addressed the most common
+cutout artifact: hand-shaped transparent holes where the model's hands-on-
+hips pose covered the garment. `src/catalog_repair.py` (per-item modes in
+`src/catalog_repairs.csv`) repairs these against the original photos:
+
+- **default**: enclosed holes and small boundary bites filled with the
+  median color of the surrounding fully-opaque fabric ring (+noise);
+  size/elongation caps keep genuine between-legs background transparent.
+- **source**: transparent regions whose source-photo pixels are NOT white
+  studio background were occluded fabric (a hand) — filled precisely in the
+  occluder's shape. Genuine see-through windows stay open.
+- **window**: additionally fills see-through windows that pierce the
+  silhouette (arm-akimbo gaps) where the open hole reads as damage in a
+  product image.
+
+Classical inpainting (OpenCV Telea) was evaluated and rejected: it smears
+non-fabric colors (waistband linings, skin) into the fill. A source-photo
+audit (residual occluded-region pixels per item) drove mode escalation
+rather than eyeballing thumbnails alone.
+
+Outcome: 28 items repaired and kept; 1 reverted to its original (18897 —
+hem-edge gaps where any fill protrudes outside the silhouette); 4 items
+with residual visible flaws after repair were **excluded without
+replacement** (25908, 39235, 44587, 41153 — the un-QA'd candidate pool's
+pass rate did not justify another replacement round). Final catalog:
+**121 items (109 women's, 12 men's), 242 color variants** — still above
+the ~100+ women's / 10-15 men's targets. Category quotas in
+`catalog_select.py` and `candidates.csv` were reduced to match, so the
+shortfall logic does not backfill the four removed slots.

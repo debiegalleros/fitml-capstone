@@ -22,15 +22,19 @@ ROOT = Path(__file__).resolve().parent.parent
 STYLES_CSV = ROOT / "data/raw/fashion_product_images/styles.csv"
 OUT_CSV = ROOT / "data/catalog/candidates.csv"
 
-# Per-category quotas. Women ~112 items; men 13 across the four categories
+# Per-category quotas. Women ~109 items; men 12 across the four categories
 # covered by data/raw/mens_size_charts.csv (tshirt/polo/jeans/jacket) so every
 # men's item is sizeable by the Uniqlo chart lookup.
+# Dresses/Skirts/men's Jeans were reduced by the hand-gap cleanup round:
+# 4 items with residual repair flaws were excluded WITHOUT replacement
+# (user decision) — quotas match so the shortfall logic doesn't backfill
+# them from the un-QA'd pool.
 WOMEN_QUOTAS = {
-    "Tshirts": 14, "Tops": 14, "Dresses": 14, "Shirts": 10, "Jeans": 12,
-    "Skirts": 10, "Trousers": 8, "Sweaters": 8, "Shorts": 8, "Jackets": 8,
+    "Tshirts": 14, "Tops": 14, "Dresses": 12, "Shirts": 10, "Jeans": 12,
+    "Skirts": 9, "Trousers": 8, "Sweaters": 8, "Shorts": 8, "Jackets": 8,
     "Camisoles": 6,
 }
-MEN_QUOTAS = {"Tshirts": 4, "Polo": 3, "Jeans": 3, "Jackets": 3}
+MEN_QUOTAS = {"Tshirts": 4, "Polo": 3, "Jeans": 2, "Jackets": 3}
 HEADROOM = 2.0  # keep 2x quota as ranked candidates
 
 # Names suggesting prints/patterns/heavy branding — excluded for the

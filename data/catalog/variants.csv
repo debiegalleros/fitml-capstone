@@ -133,119 +133,111 @@ id,variant,slug
 22322,plum,plum
 23047,forest green,forest-green
 23047,olive,olive
-25908,olive,olive
-25908,navy,navy
-25930,olive,olive
 25930,terracotta,terracotta
-25931,olive,olive
+25930,burgundy,burgundy
 25931,slate blue,slate-blue
+25931,teal,teal
 25972,plum,plum
-25972,slate blue,slate-blue
+25972,olive,olive
 26364,teal,teal
-26364,navy,navy
-27424,burgundy,burgundy
+26364,dusty rose,dusty-rose
 27424,teal,teal
-27426,dusty rose,dusty-rose
-27426,slate blue,slate-blue
-27471,burgundy,burgundy
+27424,navy,navy
+27426,burgundy,burgundy
+27426,teal,teal
 27471,dusty rose,dusty-rose
-27496,olive,olive
-27496,forest green,forest-green
+27471,slate blue,slate-blue
+27496,burgundy,burgundy
+27496,dusty rose,dusty-rose
 27498,slate blue,slate-blue
-27498,navy,navy
-27919,teal,teal
-27919,slate blue,slate-blue
+27498,forest green,forest-green
+27919,olive,olive
+27919,navy,navy
+32394,dusty rose,dusty-rose
 32394,teal,teal
-32394,forest green,forest-green
-32405,forest green,forest-green
-32405,teal,teal
+32405,mustard,mustard
+32405,olive,olive
+32407,burgundy,burgundy
 32407,dusty rose,dusty-rose
-32407,teal,teal
-32585,olive,olive
-32585,forest green,forest-green
-32586,forest green,forest-green
-32586,mustard,mustard
-32587,terracotta,terracotta
+32585,terracotta,terracotta
+32585,plum,plum
+32586,olive,olive
+32586,teal,teal
 32587,forest green,forest-green
-32589,olive,olive
-32589,terracotta,terracotta
-34504,navy,navy
-34504,slate blue,slate-blue
-34588,olive,olive
+32587,terracotta,terracotta
+32589,mustard,mustard
+32589,forest green,forest-green
+34504,teal,teal
+34504,terracotta,terracotta
 34588,navy,navy
-35990,navy,navy
+34588,plum,plum
 35990,mustard,mustard
+35990,slate blue,slate-blue
+37930,navy,navy
 37930,teal,teal
-37930,forest green,forest-green
-39235,burgundy,burgundy
-39235,navy,navy
-40498,mustard,mustard
-40498,burgundy,burgundy
-41153,burgundy,burgundy
-41153,plum,plum
-43309,burgundy,burgundy
-43309,teal,teal
-43633,teal,teal
+40498,slate blue,slate-blue
+40498,dusty rose,dusty-rose
+43309,mustard,mustard
+43309,navy,navy
 43633,forest green,forest-green
-43916,burgundy,burgundy
-43916,plum,plum
+43633,olive,olive
+43916,navy,navy
+43916,teal,teal
 44578,plum,plum
-44578,teal,teal
-44587,forest green,forest-green
-44587,mustard,mustard
-44664,olive,olive
+44578,burgundy,burgundy
 44664,terracotta,terracotta
-46121,olive,olive
-46121,mustard,mustard
-49633,olive,olive
+44664,olive,olive
+46121,forest green,forest-green
+46121,terracotta,terracotta
 49633,plum,plum
-50191,mustard,mustard
-50191,dusty rose,dusty-rose
-50944,olive,olive
-50944,slate blue,slate-blue
-50947,terracotta,terracotta
-50947,olive,olive
-50956,plum,plum
-50956,burgundy,burgundy
-50961,mustard,mustard
-50961,terracotta,terracotta
-50963,forest green,forest-green
-50963,mustard,mustard
-52155,navy,navy
+49633,slate blue,slate-blue
+50191,teal,teal
+50191,forest green,forest-green
+50944,dusty rose,dusty-rose
+50944,teal,teal
+50947,teal,teal
+50947,forest green,forest-green
+50956,teal,teal
+50956,mustard,mustard
+50961,dusty rose,dusty-rose
+50961,olive,olive
+50963,plum,plum
+50963,dusty rose,dusty-rose
 52155,olive,olive
-52465,teal,teal
+52155,slate blue,slate-blue
+52465,burgundy,burgundy
 52465,mustard,mustard
-57046,terracotta,terracotta
 57046,mustard,mustard
+57046,burgundy,burgundy
+57049,slate blue,slate-blue
 57049,navy,navy
-57049,burgundy,burgundy
+57066,plum,plum
 57066,teal,teal
-57066,navy,navy
 57067,dusty rose,dusty-rose
-57067,navy,navy
+57067,slate blue,slate-blue
+57068,dusty rose,dusty-rose
 57068,burgundy,burgundy
-57068,teal,teal
-57084,mustard,mustard
 57084,burgundy,burgundy
-57089,dusty rose,dusty-rose
-57089,mustard,mustard
-57139,teal,teal
-57139,dusty rose,dusty-rose
-57216,burgundy,burgundy
-57216,slate blue,slate-blue
-59892,mustard,mustard
-59892,plum,plum
-59894,plum,plum
-59894,teal,teal
+57084,plum,plum
+57089,burgundy,burgundy
+57089,forest green,forest-green
+57139,burgundy,burgundy
+57139,terracotta,terracotta
+57216,teal,teal
+57216,forest green,forest-green
+59892,forest green,forest-green
+59892,olive,olive
+59894,forest green,forest-green
+59894,slate blue,slate-blue
 9142,plum,plum
 9142,mustard,mustard
-9144,terracotta,terracotta
-9144,dusty rose,dusty-rose
-9146,terracotta,terracotta
-9146,dusty rose,dusty-rose
-9148,forest green,forest-green
-9148,burgundy,burgundy
-9149,forest green,forest-green
-9149,plum,plum
+9144,olive,olive
+9144,forest green,forest-green
+9146,plum,plum
+9146,olive,olive
+9148,olive,olive
+9148,dusty rose,dusty-rose
+9149,dusty rose,dusty-rose
+9149,teal,teal
+9150,plum,plum
 9150,olive,olive
-9150,slate blue,slate-blue

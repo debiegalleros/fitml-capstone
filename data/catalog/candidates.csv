@@ -55,34 +55,34 @@ id,gender,masterCategory,subCategory,articleType,baseColour,season,year,usage,pr
 21115,Women,Apparel,Topwear,Tops,Lavender,Fall,2011.0,Casual,s.Oliver Women Solid Lavender Top,True,women,14,26,False
 13456,Women,Apparel,Topwear,Tops,Pink,Summer,2011.0,Casual,United Colors of Benetton Women Solid Pink Tops,True,women,14,27,False
 19599,Women,Apparel,Topwear,Tops,Blue,Fall,2011.0,Casual,United Colors of Benetton Women Solid Blue Top,True,women,14,28,False
-14197,Women,Apparel,Dress,Dresses,Black,Fall,2011.0,Casual,AND Women Solid Black Dresses,True,women,14,1,True
-13472,Women,Apparel,Dress,Dresses,White,Summer,2011.0,Casual,United Colors of Benetton Women Solid White Dress,True,women,14,2,True
-18897,Women,Apparel,Dress,Dresses,Green,Fall,2011.0,Casual,Arrow Woman Solid Green Dress,True,women,14,3,True
-18896,Women,Apparel,Dress,Dresses,Cream,Fall,2011.0,Casual,Arrow Woman Solid Cream Dress,True,women,14,4,True
-13470,Women,Apparel,Dress,Dresses,Pink,Summer,2011.0,Casual,United Colors of Benetton Women Solid Pink Dress,True,women,14,5,True
-20637,Women,Apparel,Dress,Dresses,Grey,Fall,2011.0,Casual,AND Women Solid Grey and Black Dress,True,women,14,6,True
-10406,Women,Apparel,Dress,Dresses,Grey,Fall,2011.0,Casual,United Colors of Benetton Women Solid Grey Dresses,True,women,14,7,True
-59996,Women,Apparel,Dress,Dresses,Purple,Summer,2014.0,Casual,Avirate Black & Purple Dress,False,women,14,8,True
-48084,Women,Apparel,Dress,Dresses,Red,Summer,2012.0,Casual,French Connection Women Red Dress,False,women,14,9,True
-58489,Women,Apparel,Dress,Dresses,Beige,Summer,2012.0,Casual,Tonga Women Beige Dress,False,women,14,10,True
-42209,Women,Apparel,Dress,Dresses,Purple,Summer,2012.0,Casual,Sepia Women Purple Dress,False,women,14,11,True
-41571,Women,Apparel,Dress,Dresses,Red,Summer,2012.0,Casual,AND Women Red Dress,False,women,14,12,True
-57057,Women,Apparel,Dress,Dresses,Red,Summer,2012.0,Casual,Elle Women Red A-Line Dress,False,women,14,13,True
-43634,Women,Apparel,Dress,Dresses,Beige,Summer,2012.0,Casual,Vero Moda Women Beige Dress,False,women,14,14,True
-48471,Women,Apparel,Dress,Dresses,Purple,Summer,2012.0,Casual,French Connection Purple Dress,False,women,14,15,False
-59986,Women,Apparel,Dress,Dresses,Black,Fall,2012.0,Smart Casual,Avirate Women Black Dress,False,women,14,16,False
-35990,Women,Apparel,Dress,Dresses,Pink,Summer,2012.0,Casual,Flying Machine Women Cotton Pink Dress,False,women,14,17,False
-47651,Women,Apparel,Dress,Dresses,Grey,Summer,2012.0,Casual,Femella Women Grey Lace Dress,False,women,14,18,False
-48470,Women,Apparel,Dress,Dresses,Teal,Summer,2012.0,Casual,French Connection Teal Dress,False,women,14,19,False
-43658,Women,Apparel,Dress,Dresses,Black,Summer,2012.0,Casual,ONLY Women Black Dress,False,women,14,20,False
-54976,Women,Apparel,Dress,Dresses,Pink,Summer,2012.0,Casual,Femella Women Pink Dress,False,women,14,21,False
-57988,Women,Apparel,Dress,Dresses,Orange,Fall,2012.0,Casual,Latin Quarters Women Orange Dress,False,women,14,22,False
-49633,Women,Apparel,Dress,Dresses,Red,Summer,2012.0,Casual,Mineral Coral Dress,False,women,14,23,False
-48481,Women,Apparel,Dress,Dresses,Black,Summer,2012.0,Casual,French Connection Black Dress,False,women,14,24,False
-52155,Women,Apparel,Dress,Dresses,Purple,Summer,2012.0,Casual,Femella Women Purple Color Block Dress,False,women,14,25,False
-57049,Women,Apparel,Dress,Dresses,Black,Summer,2012.0,Casual,Elle Women Black A-Line Dress,False,women,14,26,False
-57999,Women,Apparel,Dress,Dresses,Brown,Fall,2012.0,Casual,Latin Quarters Women Brown Dress,False,women,14,27,False
-44682,Women,Apparel,Dress,Dresses,Blue,Summer,2012.0,Casual,Wills Lifestyle Women Blue Dress,False,women,14,28,False
+14197,Women,Apparel,Dress,Dresses,Black,Fall,2011.0,Casual,AND Women Solid Black Dresses,True,women,12,1,True
+13472,Women,Apparel,Dress,Dresses,White,Summer,2011.0,Casual,United Colors of Benetton Women Solid White Dress,True,women,12,2,True
+18897,Women,Apparel,Dress,Dresses,Green,Fall,2011.0,Casual,Arrow Woman Solid Green Dress,True,women,12,3,True
+18896,Women,Apparel,Dress,Dresses,Cream,Fall,2011.0,Casual,Arrow Woman Solid Cream Dress,True,women,12,4,True
+13470,Women,Apparel,Dress,Dresses,Pink,Summer,2011.0,Casual,United Colors of Benetton Women Solid Pink Dress,True,women,12,5,True
+20637,Women,Apparel,Dress,Dresses,Grey,Fall,2011.0,Casual,AND Women Solid Grey and Black Dress,True,women,12,6,True
+10406,Women,Apparel,Dress,Dresses,Grey,Fall,2011.0,Casual,United Colors of Benetton Women Solid Grey Dresses,True,women,12,7,True
+59996,Women,Apparel,Dress,Dresses,Purple,Summer,2014.0,Casual,Avirate Black & Purple Dress,False,women,12,8,True
+48084,Women,Apparel,Dress,Dresses,Red,Summer,2012.0,Casual,French Connection Women Red Dress,False,women,12,9,True
+58489,Women,Apparel,Dress,Dresses,Beige,Summer,2012.0,Casual,Tonga Women Beige Dress,False,women,12,10,True
+42209,Women,Apparel,Dress,Dresses,Purple,Summer,2012.0,Casual,Sepia Women Purple Dress,False,women,12,11,True
+41571,Women,Apparel,Dress,Dresses,Red,Summer,2012.0,Casual,AND Women Red Dress,False,women,12,12,True
+57057,Women,Apparel,Dress,Dresses,Red,Summer,2012.0,Casual,Elle Women Red A-Line Dress,False,women,12,13,True
+43634,Women,Apparel,Dress,Dresses,Beige,Summer,2012.0,Casual,Vero Moda Women Beige Dress,False,women,12,14,True
+48471,Women,Apparel,Dress,Dresses,Purple,Summer,2012.0,Casual,French Connection Purple Dress,False,women,12,15,False
+59986,Women,Apparel,Dress,Dresses,Black,Fall,2012.0,Smart Casual,Avirate Women Black Dress,False,women,12,16,False
+35990,Women,Apparel,Dress,Dresses,Pink,Summer,2012.0,Casual,Flying Machine Women Cotton Pink Dress,False,women,12,17,False
+47651,Women,Apparel,Dress,Dresses,Grey,Summer,2012.0,Casual,Femella Women Grey Lace Dress,False,women,12,18,False
+48470,Women,Apparel,Dress,Dresses,Teal,Summer,2012.0,Casual,French Connection Teal Dress,False,women,12,19,False
+43658,Women,Apparel,Dress,Dresses,Black,Summer,2012.0,Casual,ONLY Women Black Dress,False,women,12,20,False
+54976,Women,Apparel,Dress,Dresses,Pink,Summer,2012.0,Casual,Femella Women Pink Dress,False,women,12,21,False
+57988,Women,Apparel,Dress,Dresses,Orange,Fall,2012.0,Casual,Latin Quarters Women Orange Dress,False,women,12,22,False
+49633,Women,Apparel,Dress,Dresses,Red,Summer,2012.0,Casual,Mineral Coral Dress,False,women,12,23,False
+48481,Women,Apparel,Dress,Dresses,Black,Summer,2012.0,Casual,French Connection Black Dress,False,women,12,24,False
+52155,Women,Apparel,Dress,Dresses,Purple,Summer,2012.0,Casual,Femella Women Purple Color Block Dress,False,women,12,25,False
+57049,Women,Apparel,Dress,Dresses,Black,Summer,2012.0,Casual,Elle Women Black A-Line Dress,False,women,12,26,False
+57999,Women,Apparel,Dress,Dresses,Brown,Fall,2012.0,Casual,Latin Quarters Women Brown Dress,False,women,12,27,False
+44682,Women,Apparel,Dress,Dresses,Blue,Summer,2012.0,Casual,Wills Lifestyle Women Blue Dress,False,women,12,28,False
 19734,Women,Apparel,Topwear,Shirts,Black,Summer,2011.0,Casual,United Colors of Benetton Women Solid Black Shirt,True,women,10,1,True
 13449,Women,Apparel,Topwear,Shirts,Black,Summer,2011.0,Casual,United Colors of Benetton Women Solid Black Shirts,True,women,10,2,True
 19727,Women,Apparel,Topwear,Shirts,White,Summer,2011.0,Casual,United Colors of Benetton Women Solid White Shirt,True,women,10,3,True
@@ -127,26 +127,26 @@ id,gender,masterCategory,subCategory,articleType,baseColour,season,year,usage,pr
 51504,Women,Apparel,Bottomwear,Jeans,Blue,Summer,2012.0,Casual,Denizen Women Blue Jeans,False,women,12,22,False
 27008,Women,Apparel,Bottomwear,Jeans,Black,Summer,2012.0,Casual,Jealous 21 Women Washed Black Jeggings,False,women,12,23,False
 32559,Women,Apparel,Bottomwear,Jeans,Black,Summer,2012.0,Casual,ONLY Women Black Jeans,False,women,12,24,False
-18713,Women,Apparel,Bottomwear,Skirts,Grey,Fall,2011.0,Formal,Arrow Woman Solid Grey Skirt,True,women,10,1,True
-10366,Women,Apparel,Bottomwear,Skirts,Black,Fall,2011.0,Casual,United Colors of Benetton Women Solid Black Skirt,True,women,10,2,True
-18712,Women,Apparel,Bottomwear,Skirts,Black,Fall,2011.0,Formal,Arrow Women Solid Black Skirt,True,women,10,3,True
-34492,Women,Apparel,Bottomwear,Skirts,Black,Summer,2012.0,Formal,Van Heusen Woman Black Skirt,False,women,10,4,True
-57087,Women,Apparel,Bottomwear,Skirts,Yellow,Summer,2012.0,Casual,Elle Women Yellow Skirt,False,women,10,5,True
-47658,Women,Apparel,Bottomwear,Skirts,Purple,Summer,2012.0,Casual,Femella Women Purple & Black Skirt,False,women,10,6,True
-41153,Women,Apparel,Bottomwear,Skirts,Charcoal,Summer,2012.0,Casual,Allen Solly Woman Charcoal Skirt,False,women,10,7,True
-26364,Women,Apparel,Bottomwear,Skirts,Grey,Summer,2012.0,Formal,Arrow Woman Grey Skirt,False,women,10,8,True
-57082,Women,Apparel,Bottomwear,Skirts,Blue,Summer,2012.0,Casual,Elle Women Blue Skirt,False,women,10,9,True
-40428,Women,Apparel,Bottomwear,Skirts,Grey,Summer,2012.0,Formal,Tonga Women Grey Formal Skirt,False,women,10,10,True
-34494,Women,Apparel,Bottomwear,Skirts,Black,Summer,2012.0,Formal,Van Heusen Woman Black Skirt,False,women,10,11,False
-25930,Women,Apparel,Bottomwear,Skirts,Black,Summer,2012.0,Casual,Femella Women Black Skirt,False,women,10,12,False
-49654,Women,Apparel,Bottomwear,Skirts,Grey,Summer,2012.0,Casual,Mineral Women Grey Skirt,False,women,10,13,False
-35958,Women,Apparel,Bottomwear,Skirts,Black,Summer,2012.0,Casual,Flying Machine Women Viscose Black Skirt,False,women,10,14,False
-40432,Women,Apparel,Bottomwear,Skirts,Black,Summer,2012.0,Formal,Tonga Women Black Skirt,False,women,10,15,False
-57091,Women,Apparel,Bottomwear,Skirts,Black,Summer,2012.0,Casual,Elle Women Black Skirt,False,women,10,16,False
-25931,Women,Apparel,Bottomwear,Skirts,Red,Summer,2012.0,Casual,Femella Women Red Skirt,False,women,10,17,False
-37930,Women,Apparel,Bottomwear,Skirts,Brown,Summer,2012.0,Casual,Mineral Women Brown Skirt,False,women,10,18,False
-57092,Women,Apparel,Bottomwear,Skirts,Off White,Summer,2012.0,Casual,Elle Women Off White Skirt,False,women,10,19,False
-40434,Women,Apparel,Bottomwear,Skirts,Charcoal,Summer,2012.0,Casual,Tonga Women Charcoal Skirt,False,women,10,20,False
+18713,Women,Apparel,Bottomwear,Skirts,Grey,Fall,2011.0,Formal,Arrow Woman Solid Grey Skirt,True,women,9,1,True
+10366,Women,Apparel,Bottomwear,Skirts,Black,Fall,2011.0,Casual,United Colors of Benetton Women Solid Black Skirt,True,women,9,2,True
+18712,Women,Apparel,Bottomwear,Skirts,Black,Fall,2011.0,Formal,Arrow Women Solid Black Skirt,True,women,9,3,True
+34492,Women,Apparel,Bottomwear,Skirts,Black,Summer,2012.0,Formal,Van Heusen Woman Black Skirt,False,women,9,4,True
+57087,Women,Apparel,Bottomwear,Skirts,Yellow,Summer,2012.0,Casual,Elle Women Yellow Skirt,False,women,9,5,True
+47658,Women,Apparel,Bottomwear,Skirts,Purple,Summer,2012.0,Casual,Femella Women Purple & Black Skirt,False,women,9,6,True
+41153,Women,Apparel,Bottomwear,Skirts,Charcoal,Summer,2012.0,Casual,Allen Solly Woman Charcoal Skirt,False,women,9,7,True
+26364,Women,Apparel,Bottomwear,Skirts,Grey,Summer,2012.0,Formal,Arrow Woman Grey Skirt,False,women,9,8,True
+57082,Women,Apparel,Bottomwear,Skirts,Blue,Summer,2012.0,Casual,Elle Women Blue Skirt,False,women,9,9,True
+40428,Women,Apparel,Bottomwear,Skirts,Grey,Summer,2012.0,Formal,Tonga Women Grey Formal Skirt,False,women,9,10,True
+34494,Women,Apparel,Bottomwear,Skirts,Black,Summer,2012.0,Formal,Van Heusen Woman Black Skirt,False,women,9,11,False
+25930,Women,Apparel,Bottomwear,Skirts,Black,Summer,2012.0,Casual,Femella Women Black Skirt,False,women,9,12,False
+49654,Women,Apparel,Bottomwear,Skirts,Grey,Summer,2012.0,Casual,Mineral Women Grey Skirt,False,women,9,13,False
+35958,Women,Apparel,Bottomwear,Skirts,Black,Summer,2012.0,Casual,Flying Machine Women Viscose Black Skirt,False,women,9,14,False
+40432,Women,Apparel,Bottomwear,Skirts,Black,Summer,2012.0,Formal,Tonga Women Black Skirt,False,women,9,15,False
+57091,Women,Apparel,Bottomwear,Skirts,Black,Summer,2012.0,Casual,Elle Women Black Skirt,False,women,9,16,False
+25931,Women,Apparel,Bottomwear,Skirts,Red,Summer,2012.0,Casual,Femella Women Red Skirt,False,women,9,17,False
+37930,Women,Apparel,Bottomwear,Skirts,Brown,Summer,2012.0,Casual,Mineral Women Brown Skirt,False,women,9,18,False
+57092,Women,Apparel,Bottomwear,Skirts,Off White,Summer,2012.0,Casual,Elle Women Off White Skirt,False,women,9,19,False
+40434,Women,Apparel,Bottomwear,Skirts,Charcoal,Summer,2012.0,Casual,Tonga Women Charcoal Skirt,False,women,9,20,False
 48099,Women,Apparel,Bottomwear,Trousers,Brown,Summer,2012.0,Casual,French Connection Women Light Brown Trousers,False,women,8,1,True
 57141,Women,Apparel,Bottomwear,Trousers,Olive,Summer,2012.0,Casual,Elle Women Olive Trousers,False,women,8,2,True
 32405,Women,Apparel,Bottomwear,Trousers,Navy Blue,Fall,2012.0,Formal,Arrow Woman Navy Blue Trousers,False,women,8,3,True
@@ -237,30 +237,30 @@ id,gender,masterCategory,subCategory,articleType,baseColour,season,year,usage,pr
 19788,Men,Apparel,Topwear,Polo,Green,Winter,2016.0,Casual,U.S. Polo Assn. Men Solid Green Tshirt,True,men,3,4,False
 19790,Men,Apparel,Topwear,Polo,Blue,Winter,2016.0,Casual,U.S. Polo Assn. Men Solid Blue Tshirt,True,men,3,5,False
 19787,Men,Apparel,Topwear,Polo,White,Winter,2016.0,Casual,U.S. Polo Assn. Men Solid White Tshirt,True,men,3,6,False
-44587,Men,Apparel,Bottomwear,Jeans,Blue,Summer,2017.0,Casual,Lee Men Blue Rack Jeans,False,men,3,1,True
-11348,Men,Apparel,Bottomwear,Jeans,Navy Blue,Summer,2017.0,Casual,Lee Men Navy Blue Powell Fit Jeans,False,men,3,2,True
-44578,Men,Apparel,Bottomwear,Jeans,Blue,Summer,2017.0,Casual,Lee Men Blue Party Jeans,False,men,3,3,True
-11341,Men,Apparel,Bottomwear,Jeans,Blue,Summer,2017.0,Casual,Lee Men Light Blue Chicago Fit Jeans,False,men,3,4,False
-11344,Men,Apparel,Bottomwear,Jeans,Blue,Summer,2017.0,Casual,Lee Men Blue Chicago Fit Jeans,False,men,3,5,False
-11340,Men,Apparel,Bottomwear,Jeans,Blue,Summer,2017.0,Casual,Lee Men Blue Chicago Fit Jeans,False,men,3,6,False
+44587,Men,Apparel,Bottomwear,Jeans,Blue,Summer,2017.0,Casual,Lee Men Blue Rack Jeans,False,men,2,1,True
+11348,Men,Apparel,Bottomwear,Jeans,Navy Blue,Summer,2017.0,Casual,Lee Men Navy Blue Powell Fit Jeans,False,men,2,2,True
+44578,Men,Apparel,Bottomwear,Jeans,Blue,Summer,2017.0,Casual,Lee Men Blue Party Jeans,False,men,2,3,True
+11341,Men,Apparel,Bottomwear,Jeans,Blue,Summer,2017.0,Casual,Lee Men Light Blue Chicago Fit Jeans,False,men,2,4,False
+11344,Men,Apparel,Bottomwear,Jeans,Blue,Summer,2017.0,Casual,Lee Men Blue Chicago Fit Jeans,False,men,2,5,False
+11340,Men,Apparel,Bottomwear,Jeans,Blue,Summer,2017.0,Casual,Lee Men Blue Chicago Fit Jeans,False,men,2,6,False
 17150,Men,Apparel,Topwear,Jackets,Red,Winter,2016.0,Casual,U.S. Polo Assn. Men Solid Red Jacket,True,men,3,1,True
 17151,Men,Apparel,Topwear,Jackets,Navy Blue,Winter,2016.0,Casual,U.S. Polo Assn. Men Solid Navy Blue Jacket,True,men,3,2,True
 19860,Men,Apparel,Topwear,Jackets,Olive,Winter,2016.0,Casual,U.S. Polo Assn. Men Solid Olive Jacket,True,men,3,3,True
 19856,Men,Apparel,Topwear,Jackets,Olive,Winter,2016.0,Casual,U.S. Polo Assn. Men Solid Olive Jackets,True,men,3,4,False
 17154,Men,Apparel,Topwear,Jackets,Navy Blue,Winter,2016.0,Casual,U.S. Polo Assn. Men Solid Navy Blue Jacket,True,men,3,5,False
 19855,Men,Apparel,Topwear,Jackets,Navy Blue,Winter,2016.0,Casual,U.S. Polo Assn. Men Solid Navy Blue Jackets,True,men,3,6,False
-48085,Women,Apparel,Dress,Dresses,Purple,Summer,2012.0,Casual,French Connection Women Purple Dress,False,women,14,29,False
-25908,Women,Apparel,Dress,Dresses,Red,Summer,2012.0,Casual,Femella Women Red Dress,False,women,14,30,False
-54990,Women,Apparel,Dress,Dresses,Purple,Summer,2012.0,Casual,Femella Women Black & Purple Dress,False,women,14,31,False
-39235,Women,Apparel,Dress,Dresses,Brown,Summer,2012.0,Casual,Femella Women Peach Crepe Front Zipper Dress Dress,False,women,14,32,False
-58504,Women,Apparel,Dress,Dresses,Black,Fall,2012.0,Casual,Tonga Women Black Dress,False,women,14,33,False
-43633,Women,Apparel,Dress,Dresses,Red,Summer,2012.0,Casual,Vero Moda Women Coral Coloured Dress,False,women,14,34,False
-58003,Women,Apparel,Dress,Dresses,Blue,Fall,2012.0,Casual,Latin Quarters Women Blue Dress,False,women,14,35,False
-43513,Women,Apparel,Dress,Dresses,Orange,Summer,2012.0,Casual,French Connection Women Orange Dress,False,women,14,36,False
-39227,Women,Apparel,Dress,Dresses,Purple,Summer,2012.0,Casual,Femella Women Purple Tiered Dress,False,women,14,37,False
-34588,Women,Apparel,Dress,Dresses,Cream,Summer,2012.0,Casual,Tonga Women Cream Dress,False,women,14,38,False
-25972,Women,Apparel,Dress,Dresses,Brown,Summer,2012.0,Casual,Femella Women Brown Dress,False,women,14,39,False
-57046,Women,Apparel,Dress,Dresses,Black,Summer,2012.0,Casual,Elle Women Black Sheath Dress,False,women,14,40,False
+48085,Women,Apparel,Dress,Dresses,Purple,Summer,2012.0,Casual,French Connection Women Purple Dress,False,women,12,29,False
+25908,Women,Apparel,Dress,Dresses,Red,Summer,2012.0,Casual,Femella Women Red Dress,False,women,12,30,False
+54990,Women,Apparel,Dress,Dresses,Purple,Summer,2012.0,Casual,Femella Women Black & Purple Dress,False,women,12,31,False
+39235,Women,Apparel,Dress,Dresses,Brown,Summer,2012.0,Casual,Femella Women Peach Crepe Front Zipper Dress Dress,False,women,12,32,False
+58504,Women,Apparel,Dress,Dresses,Black,Fall,2012.0,Casual,Tonga Women Black Dress,False,women,12,33,False
+43633,Women,Apparel,Dress,Dresses,Red,Summer,2012.0,Casual,Vero Moda Women Coral Coloured Dress,False,women,12,34,False
+58003,Women,Apparel,Dress,Dresses,Blue,Fall,2012.0,Casual,Latin Quarters Women Blue Dress,False,women,12,35,False
+43513,Women,Apparel,Dress,Dresses,Orange,Summer,2012.0,Casual,French Connection Women Orange Dress,False,women,12,36,False
+39227,Women,Apparel,Dress,Dresses,Purple,Summer,2012.0,Casual,Femella Women Purple Tiered Dress,False,women,12,37,False
+34588,Women,Apparel,Dress,Dresses,Cream,Summer,2012.0,Casual,Tonga Women Cream Dress,False,women,12,38,False
+25972,Women,Apparel,Dress,Dresses,Brown,Summer,2012.0,Casual,Femella Women Brown Dress,False,women,12,39,False
+57046,Women,Apparel,Dress,Dresses,Black,Summer,2012.0,Casual,Elle Women Black Sheath Dress,False,women,12,40,False
 57068,Women,Apparel,Topwear,Jackets,Blue,Summer,2012.0,Casual,Elle Women Navy Blue Jacket,False,women,8,17,False
 31317,Women,Apparel,Topwear,Jackets,Teal,Summer,2012.0,Casual,W Women Teal Jacket,False,women,8,18,False
 57069,Women,Apparel,Topwear,Jackets,Charcoal,Summer,2012.0,Casual,Elle Women Charcoal Waistcoat,False,women,8,19,False
@@ -291,9 +291,9 @@ id,gender,masterCategory,subCategory,articleType,baseColour,season,year,usage,pr
 22312,Men,Apparel,Topwear,Jackets,Black,Summer,2015.0,Casual,Wildcraft Men Solid Black Jacket,True,men,3,7,False
 22323,Men,Apparel,Topwear,Jackets,Red,Summer,2015.0,Casual,Wildcraft Men Solid Red Wind Cheater,True,men,3,8,False
 18522,Men,Apparel,Topwear,Jackets,Black,Summer,2015.0,Casual,C Vox Men Solid 1349 Black Jacket,True,men,3,9,False
-57090,Women,Apparel,Bottomwear,Skirts,Navy Blue,Summer,2012.0,Casual,Elle Women Navy Blue Skirt,False,women,10,21,False
-57084,Women,Apparel,Bottomwear,Skirts,Blue,Summer,2012.0,Casual,Elle Women Blue Skirt,False,women,10,22,False
-57089,Women,Apparel,Bottomwear,Skirts,Navy Blue,Summer,2012.0,Casual,Elle Women Blue Skirt,False,women,10,23,False
+57090,Women,Apparel,Bottomwear,Skirts,Navy Blue,Summer,2012.0,Casual,Elle Women Navy Blue Skirt,False,women,9,21,False
+57084,Women,Apparel,Bottomwear,Skirts,Blue,Summer,2012.0,Casual,Elle Women Blue Skirt,False,women,9,22,False
+57089,Women,Apparel,Bottomwear,Skirts,Navy Blue,Summer,2012.0,Casual,Elle Women Blue Skirt,False,women,9,23,False
 27497,Women,Apparel,Innerwear,Camisoles,Black,Winter,2015.0,Casual,Jockey Women Black Camisole,False,women,6,13,False
 52491,Women,Apparel,Innerwear,Camisoles,Black,Winter,2015.0,Casual,Red Rose Black Camisole,False,women,6,14,False
 50191,Women,Apparel,Innerwear,Camisoles,Black,Winter,2015.0,Casual,Hanes Women Black Cotton - Stretch Camisole,False,women,6,15,False
