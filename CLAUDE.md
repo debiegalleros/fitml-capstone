@@ -44,6 +44,13 @@ Two planning docs may exist in `docs/planning/`:
   user renders visibly wider/longer than an M). Lightweight visual size-difference
   cue; the advice text explains the fit tradeoff. Cite fit-aware generative try-on
   (FIT dataset, 2026) as the future-work upgrade path.
+- Alpha-feather: apply a 1–2px Gaussian feather to the garment alpha channel
+  before try-on compositing so edges blend into the user photo instead of
+  showing a hard cutout line.
+- Catalog display convention: catalog cards and item-detail heroes serve the
+  `photo` column (the on-model original photo); the `image` cutout PNG is used
+  only for try-on compositing and color-swatch previews — never as a product
+  shot.
 - Task type: supervised classification (fit/size prediction) on the real women's
   dataset. This is the entire graded ML core.
 - Fairness audit (Step 5, 20 pts): real dataset/model only — disparate impact,

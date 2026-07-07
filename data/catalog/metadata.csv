@@ -34,7 +34,6 @@ item_id,category,gender,color,variant_colors,fabric,size_range,price_php,product
 19342,jacket,women,black,mustard|forest green,cotton twill,"XS,S,M,L,XL",1270,United Colors of Benetton Women Solid Black Jacket,garments/19342.png,photos/19342.jpg
 19331,jacket,women,navy blue,forest green|mustard,polyester shell,"XS,S,M,L,XL",1750,United Colors of Benetton Women Solid Navy Blue Jacket,garments/19331.png,photos/19331.jpg
 46121,jacket,women,black,forest green|terracotta,polyester shell,"XS,S,M,L,XL",1370,Wildcraft Women Black Jacket,garments/46121.png,photos/46121.jpg
-57068,jacket,women,blue,dusty rose|burgundy,cotton twill,"XS,S,M,L,XL",1590,Elle Women Navy Blue Jacket,garments/57068.png,photos/57068.jpg
 57066,jacket,women,pink,plum|teal,cotton twill,"XS,S,M,L,XL",1770,Elle Women Pink Jacket,garments/57066.png,photos/57066.jpg
 57067,jacket,women,green,dusty rose|slate blue,polyester shell,"XS,S,M,L,XL",1530,Elle Women Green Retro Jacket,garments/57067.png,photos/57067.jpg
 11318,jeans,women,black,burgundy|terracotta,stretch denim,"XS,S,M,L,XL",1030,United Colors of Benetton Women Solid Black Jeans,garments/11318.png,photos/11318.jpg
@@ -53,7 +52,6 @@ item_id,category,gender,color,variant_colors,fabric,size_range,price_php,product
 13457,blouse,women,white,slate blue|burgundy,cotton poplin,"XS,S,M,L,XL",850,United Colors of Benetton Women Solid White Shirts,garments/13457.png,photos/13457.jpg
 13448,blouse,women,pink,plum|slate blue,polyester crepe,"XS,S,M,L,XL",990,United Colors of Benetton Women Solid Pink Shirts,garments/13448.png,photos/13448.jpg
 13450,blouse,women,white,slate blue|dusty rose,polyester crepe,"XS,S,M,L,XL",660,United Colors of Benetton Women Solid White Shirts,garments/13450.png,photos/13450.jpg
-13458,blouse,women,black,burgundy|dusty rose,polyester crepe,"XS,S,M,L,XL",920,United Colors of Benetton Women Solid Black Shirts,garments/13458.png,photos/13458.jpg
 20033,blouse,women,lavender,plum|slate blue,polyester crepe,"XS,S,M,L,XL",950,United Colors of Benetton Women Solid Lavender Shirt,garments/20033.png,photos/20033.jpg
 19728,blouse,women,purple,slate blue|mustard,rayon,"XS,S,M,L,XL",900,United Colors of Benetton Women Solid Purple Shirt,garments/19728.png,photos/19728.jpg
 32394,blouse,women,lavender,dusty rose|teal,polyester crepe,"XS,S,M,L,XL",800,Arrow Woman Lavender Shirt,garments/32394.png,photos/32394.jpg
