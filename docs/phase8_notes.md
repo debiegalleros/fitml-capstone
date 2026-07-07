@@ -61,10 +61,34 @@ fitted values *before* calling the pipeline:
   and set the matching `_missing` flag to 1; clamp inputs to the plausible
   ranges in `src/prepare_data.py` (`PLAUSIBLE_RANGES`).
 
-## How /recommend-size uses the model
+## How /recommend-size uses the model (chart-anchored — IMPORTANT)
 
-For each candidate `size_ordered` in the garment's size range, build the
-13-column row, predict fit/small/large probabilities, and recommend the size
-with the highest P(fit). The displayed confidence is that P(fit); the
-borderline rule (near size boundary + low-stretch fabric + fitted cut) then
-lowers confidence, sizes up, and switches the box to the amber state.
+**Do not scan candidate sizes and argmax P(fit).** That was the first design,
+and Phase 8 testing showed it inverts: a petite profile got XL at 90%
+confidence and a large-bodied profile got XS at 99%. Cause: in the training
+data `size_ordered` is the size the customer actually ordered, which tracks
+their own body — so a (petite body, size 17) row is far out of distribution
+and the model's counterfactual answer there is meaningless. It learned the
+between-customer correlation (larger sizes are ordered by larger people, who
+disproportionately report items running small), not the within-person effect
+of changing size.
+
+The in-distribution question the model *can* answer is: "for a customer with
+these measurements ordering this size, does it run small / fit / large" —
+that is literally what each training row records. So /recommend-size does:
+
+1. **Anchor** the size deterministically from the measurements via the demo
+   size chart (hip-keyed for bottoms, bust-keyed for tops/outerwear, the
+   larger of the two for dresses).
+2. **Predict** fit/small/large at that anchor with the weighted-XGBoost
+   pipeline.
+3. **Shift one size** if the model's top class is a misfit (small → size up,
+   large → size down; never past a clamped chart end).
+4. Apply the **borderline blue/amber layer** on top (near size boundary +
+   low-stretch fabric + fitted cut → amber, size up, lowered confidence).
+
+Displayed confidence is P(fit) at the final size (floored so a noisy tail
+probability can't show an absurd number for a chart-grounded anchor).
+Verified sane: petite → XS, average → M, large-bodied → XL.
+This is worth a paragraph in the report (Step 4/9 discussion: correlation vs
+causation in deployed models).

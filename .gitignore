@@ -26,6 +26,12 @@ kaggle.json
 # Uploaded user photos (privacy)
 backend/uploads/
 
+# MediaPipe Tasks model assets (auto-downloaded on first run — see backend/tryon.py)
+backend/mp_models/
+
+# Backend runtime DB (demo sessions/history)
+backend/fitml.db
+
 # Env / secrets
 .env
 *.env
