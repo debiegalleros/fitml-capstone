@@ -187,3 +187,27 @@ pass rate did not justify another replacement round). Final catalog:
 the ~100+ women's / 10-15 men's targets. Category quotas in
 `catalog_select.py` and `candidates.csv` were reduced to match, so the
 shortfall logic does not backfill the four removed slots.
+
+## Catalog display convention: source photos vs cutouts (July 2026)
+
+The catalog browse cards and item-detail hero images show the **original
+on-model source photos** (`data/catalog/photos/{id}.jpg`, standardized to
+1200px max dimension — like real e-commerce listings). The transparent
+garment cutouts (`data/catalog/garments/`) are reserved for two roles:
+
+1. **Try-on compositing** — warped onto the user's photo, where the photo's
+   own context masks the cutouts' residual edge artifacts.
+2. **Color previews** — the original photo represents the item's native
+   color; selecting a different color swatch switches the detail image to
+   the hue-shifted cutout, labeled as a color preview (the recolored
+   garment exists only as a cutout, so this is presented as a preview
+   rather than a product photograph).
+
+metadata.csv carries both paths per item (`photo` for display, `image` for
+compositing). This resolves catalog presentability: cutout edge artifacts
+never appear as standalone product imagery. A segmentation-model comparison
+(SegFormer-B2-clothes vs the pipeline's u2net_cloth_seg, all 121 items,
+source-photo defect audit) found no net quality advantage to switching
+models — 59 vs 56 items with near-identical medians, plus 5 SegFormer
+outright failures — validating the current cutouts for their compositing
+role; transformer-based clothing parsing is noted as future work.

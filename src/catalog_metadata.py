@@ -2,7 +2,12 @@
 
 One row per catalog item (variants share the row via variant_colors):
 item_id, category, gender, color, variant_colors, fabric, size_range,
-price_php, product_name, image.
+price_php, product_name, image, photo.
+
+Display convention: `photo` (the original on-model source photo,
+data/catalog/photos/) is the catalog card / item-detail hero image;
+`image` (the transparent cutout) is used for try-on compositing and as the
+"color preview" shown when a non-native color swatch is selected.
 
 Pricing is programmatically generated demo pricing (documented as such, not
 real merchant data): random.randint within the category band, rounded to the
@@ -84,6 +89,7 @@ def main() -> None:
             "price_php": round(rng.randint(lo, hi) / 10) * 10,
             "product_name": r.productDisplayName,
             "image": f"garments/{int(r.id)}.png",
+            "photo": f"photos/{int(r.id)}.jpg",
         })
 
     out = pd.DataFrame(rows)
