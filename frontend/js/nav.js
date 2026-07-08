@@ -9,7 +9,6 @@
 
 const NAV_LINKS = [
   { href: "index.html", label: "Home", page: "landing" },
-  { href: "about.html", label: "How it works", page: "about" },
   { href: "catalog.html", label: "Catalog", page: "catalog" },
   { href: "history.html", label: "History", page: "history" },
   { href: "catalog.html?wishlist=1", label: "Wishlist", page: "wishlist" },
@@ -94,6 +93,12 @@ function renderFooter() {
       <div class="footer-col">
         <h4>FitML</h4>
         <p>A virtual fitting room with size recommendations and tailored advice.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <p>Debie Galleros</p>
+        <p>0956 926 8328</p>
+        <a href="mailto:debiegalleros@gmail.com">debiegalleros@gmail.com</a>
       </div>
     </div>
     <div class="container footer-bottom">
