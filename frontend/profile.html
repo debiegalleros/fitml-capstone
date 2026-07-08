@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profile setup — FitML</title>
+<link rel="stylesheet" href="css/style.css?v=11">
+</head>
+<body data-page="profile">
+
+<header class="site-header" id="site-header"></header>
+
+<main class="container">
+  <section class="section profile-section">
+    <h2>Set up your profile</h2>
+    <p class="text-muted">Your measurements power the size recommendation. Your photo is
+    used only to pose the try-on preview — it never feeds the sizing model.</p>
+
+    <form id="profile-form" novalidate>
+
+      <fieldset class="form-section">
+        <legend>Your name</legend>
+        <div class="field">
+          <label for="shopper_name" class="visually-hidden">Your name</label>
+          <input type="text" id="shopper_name" name="shopper_name" placeholder="Your name" required>
+        </div>
+      </fieldset>
+
+      <fieldset class="form-section">
+        <legend>Your photos</legend>
+        <p class="hint mt-0">Front photo is required and used for try-on.</p>
+
+        <div class="field">
+          <label>Front photo <span class="text-muted">*</span></label>
+          <div class="file-drop">
+            <div class="photo-upload-actions">
+              <button type="button" class="btn" data-photo-slot="front" data-action="choose">Choose file</button>
+              <button type="button" class="btn" data-photo-slot="front" data-action="camera">Take a photo</button>
+            </div>
+            <input type="file" id="photo-file-front" accept="image/*">
+            <input type="file" id="photo-camera-front" accept="image/*" capture="environment">
+            <span class="hint">For best results, use a full-body photo. Half-body works too —
+            but you'll only be able to try on tops.</span>
+            <img id="photo-preview-front" class="preview" style="display:none;" alt="Front photo preview">
+          </div>
+        </div>
+
+        <div class="accordion-section" data-subsection="extra-photos">
+          <button type="button" class="accordion-header">Add side/back photos (optional) <span class="chev">&#9662;</span></button>
+          <div class="accordion-panel">
+            <div class="accordion-panel-inner">
+              <div class="field">
+                <label>Side photo <span class="text-muted">(optional)</span></label>
+                <div class="file-drop">
+                  <div class="photo-upload-actions">
+                    <button type="button" class="btn" data-photo-slot="side" data-action="choose">Choose file</button>
+                    <button type="button" class="btn" data-photo-slot="side" data-action="camera">Take a photo</button>
+                  </div>
+                  <input type="file" id="photo-file-side" accept="image/*">
+                  <input type="file" id="photo-camera-side" accept="image/*" capture="environment">
+                  <img id="photo-preview-side" class="preview" style="display:none;" alt="Side photo preview">
+                </div>
+              </div>
+
+              <div class="field">
+                <label>Back photo <span class="text-muted">(optional)</span></label>
+                <div class="file-drop">
+                  <div class="photo-upload-actions">
+                    <button type="button" class="btn" data-photo-slot="back" data-action="choose">Choose file</button>
+                    <button type="button" class="btn" data-photo-slot="back" data-action="camera">Take a photo</button>
+                  </div>
+                  <input type="file" id="photo-file-back" accept="image/*">
+                  <input type="file" id="photo-camera-back" accept="image/*" capture="environment">
+                  <img id="photo-preview-back" class="preview" style="display:none;" alt="Back photo preview">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="checkbox-row field">
+          <input type="checkbox" id="face_blur" name="face_blur" checked>
+          <label for="face_blur">Blur my face in stored photos</label>
+        </div>
+
+        <div class="consent-note">
+          We collect your photos and body measurements solely to generate your size
+          recommendation and try-on preview. Photos are stored for at most 24 hours and
+          then automatically deleted. See <a href="about.html">How it works</a> for
+          details.
+        </div>
+      </fieldset>
+
+      <fieldset class="form-section">
+        <legend>Body measurements</legend>
+        <div class="field-row two-col">
+          <div class="field">
+            <label for="height_cm">Height <span class="text-muted">*</span>
+              <span class="unit-toggle" data-field="height"><button type="button" data-unit="cm" class="active">cm</button><button type="button" data-unit="in">in</button></span>
+            </label>
+            <input type="number" id="height_cm" name="height_cm" min="137" max="213" step="0.1" required>
+          </div>
+          <div class="field">
+            <label for="weight_kg">Weight
+              <span class="unit-toggle" data-field="weight"><button type="button" data-unit="kg" class="active">kg</button><button type="button" data-unit="lb">lb</button></span>
+            </label>
+            <input type="number" id="weight_kg" name="weight_kg" min="35" max="180" step="0.1">
+            <span class="hint">Optional</span>
+          </div>
+        </div>
+        <div class="field-row two-col">
+          <div class="field">
+            <label for="waist_cm">Waist
+              <span class="unit-toggle" data-field="waist"><button type="button" data-unit="cm" class="active">cm</button><button type="button" data-unit="in">in</button></span>
+            </label>
+            <input type="number" id="waist_cm" name="waist_cm" min="40" max="160" step="0.1">
+          </div>
+          <div class="field">
+            <label for="hip_cm">Hip
+              <span class="unit-toggle" data-field="hip"><button type="button" data-unit="cm" class="active">cm</button><button type="button" data-unit="in">in</button></span>
+            </label>
+            <input type="number" id="hip_cm" name="hip_cm" min="60" max="180" step="0.1">
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset class="form-section">
+        <legend>Bust</legend>
+        <div class="toggle-group" id="bust-toggle">
+          <button type="button" class="active" data-mode="band_cup">Band + cup</button>
+          <button type="button" data-mode="chest_cm">Chest (cm)</button>
+        </div>
+
+        <div id="bust-band-cup" class="field-row two-col">
+          <div class="field">
+            <label for="bust_band">Band size</label>
+            <select id="bust_band" name="bust_band">
+              <option value="">Select</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="bust_cup">Cup</label>
+            <select id="bust_cup" name="bust_cup">
+              <option value="">Select</option>
+              <option value="aa">AA</option>
+              <option value="a">A</option>
+              <option value="b">B</option>
+              <option value="c">C</option>
+              <option value="d">D</option>
+              <option value="dd/e">DD / E</option>
+              <option value="ddd/f">DDD / F</option>
+              <option value="dddd/g">DDDD / G</option>
+              <option value="h">H</option>
+              <option value="i">I</option>
+              <option value="j">J</option>
+              <option value="k">K</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="bust-chest-cm" class="field" style="display:none;">
+          <label for="chest_cm">Chest
+            <span class="unit-toggle" data-field="chest"><button type="button" data-unit="cm" class="active">cm</button><button type="button" data-unit="in">in</button></span>
+          </label>
+          <input type="number" id="chest_cm" name="chest_cm" min="60" max="160" step="0.1">
+          <span class="hint">Lower precision than band + cup — we'll convert it automatically.</span>
+        </div>
+      </fieldset>
+
+      <fieldset class="form-section">
+        <legend>Body type</legend>
+        <div class="field">
+          <label for="body_type" class="visually-hidden">Body type</label>
+          <select id="body_type" name="body_type">
+            <option value="">Select</option>
+            <option value="hourglass">Hourglass</option>
+            <option value="pear">Pear</option>
+            <option value="apple">Apple</option>
+            <option value="rectangle">Rectangle</option>
+            <option value="athletic">Athletic</option>
+            <option value="petite">Petite</option>
+          </select>
+        </div>
+      </fieldset>
+
+      <button type="submit" class="btn btn-primary btn-block" id="submit-btn">Save profile &amp; continue</button>
+      <div id="form-error" class="error-text" style="display:none;"></div>
+      <div id="form-success" class="success-text" style="display:none;"></div>
+    </form>
+  </section>
+</main>
+
+<footer class="site-footer" id="site-footer"></footer>
+
+<script src="js/api.js?v=11"></script>
+<script src="js/state.js?v=11"></script>
+<script src="js/nav.js?v=11"></script>
+<script src="js/profile.js?v=11"></script>
+</body>
+</html>

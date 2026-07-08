@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How it works — FitML</title>
+<link rel="stylesheet" href="css/style.css?v=11">
+</head>
+<body data-page="about">
+
+<header class="site-header" id="site-header"></header>
+
+<main class="container">
+  <section class="section">
+    <h2>The problem</h2>
+    <p>Online clothing returns run at roughly 35%, versus 8% in physical stores —
+    costing retailers over $100 billion annually. Sizing uncertainty drives most of
+    this, though shoppers also hesitate simply because they can't see how a garment
+    will look on them before buying.</p>
+  </section>
+
+  <section class="section">
+    <h2>How sizing works</h2>
+    <p>Enter your measurements once — height, weight (optional), bust, waist, hip,
+    body type. FitML matches you to a size using the garment's size chart, then
+    verifies that match with a model trained on real fit feedback from past
+    purchases.</p>
+    <ul class="section-list">
+      <li>Several modeling approaches were tested; the best-performing one is in use.</li>
+      <li>When a recommendation sits near a size boundary, FitML flags it — lower
+      confidence, brief explanation of the tradeoff — rather than guessing.</li>
+    </ul>
+  </section>
+
+  <section class="section">
+    <h2>How the try-on works</h2>
+    <p>Upload a photo. Full-body works best; half-body is fine for tops and dresses.
+    FitML detects your pose and overlays the garment, scaled to your proportions and
+    chosen size.</p>
+    <ul class="section-list">
+      <li>Your photo stays otherwise unchanged — background, pose, face all preserved.</li>
+      <li>This is a 2D preview, not a 3D simulation, but enough to show how a size or
+      color will look on you.</li>
+    </ul>
+  </section>
+
+  <section class="section" id="fairness">
+    <h2>Why fairness matters here</h2>
+    <p>Most sizing tools are a black box — a recommendation with no way to check it's
+    reliable across body types. FitML's model was tested directly against that
+    standard, and audited for the reasoning behind its predictions. This surfaced a
+    real performance gap for certain groups, which was corrected and verified with
+    before-and-after results.</p>
+  </section>
+
+  <section class="section" id="privacy">
+    <h2>Privacy</h2>
+    <p>Your photo is used only to pose the try-on preview — it never feeds the sizing
+    model. Uploads are stored for at most 24 hours and then automatically deleted,
+    face-blurring is on by default, and one session's photos can't be retrieved by
+    another. This follows the proportionality, transparency, and retention-limit
+    principles of the Philippines' Data Privacy Act of 2012 (RA 10173).</p>
+  </section>
+</main>
+
+<footer class="site-footer" id="site-footer"></footer>
+
+<script src="js/api.js?v=11"></script>
+<script src="js/state.js?v=11"></script>
+<script src="js/nav.js?v=11"></script>
+</body>
+</html>

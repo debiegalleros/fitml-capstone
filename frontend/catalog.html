@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Catalog — FitML</title>
+<link rel="stylesheet" href="css/style.css?v=11">
+</head>
+<body data-page="catalog">
+
+<header class="site-header" id="site-header"></header>
+
+<nav class="container catalog-gender-nav" id="catalog-gender-nav">
+  <button type="button" class="gender-tab" data-gender="">All</button>
+  <button type="button" class="gender-tab" data-gender="women">Women</button>
+  <button type="button" class="gender-tab" data-gender="men">Men</button>
+</nav>
+
+<main class="container">
+  <div class="catalog-layout">
+
+    <nav class="category-tabs" id="category-tabs"></nav>
+
+    <div class="catalog-toolbar">
+      <div class="toolbar-left">
+        <button type="button" class="filter-order-link" id="filters-toggle">Filter and order</button>
+        <span class="item-count" id="item-count">Loading...</span>
+      </div>
+      <div class="density-toggle" role="group" aria-label="Grid density">
+        <button type="button" class="density-btn" data-density="1" aria-label="1 column"><svg viewBox="0 0 20 20" fill="currentColor"><rect x="1" y="3" width="18" height="14" rx="1.5"/></svg></button>
+        <button type="button" class="density-btn" data-density="2" aria-label="2 columns"><svg viewBox="0 0 20 20" fill="currentColor"><rect x="1" y="3" width="8" height="14" rx="1.5"/><rect x="11" y="3" width="8" height="14" rx="1.5"/></svg></button>
+        <button type="button" class="density-btn" data-density="4" aria-label="4 columns"><svg viewBox="0 0 20 20" fill="currentColor"><rect x="0.5" y="3" width="4" height="14" rx="1"/><rect x="5.5" y="3" width="4" height="14" rx="1"/><rect x="10.5" y="3" width="4" height="14" rx="1"/><rect x="15.5" y="3" width="4" height="14" rx="1"/></svg></button>
+      </div>
+    </div>
+
+    <div class="catalog-grid" id="catalog-grid">
+      <div class="loading">Loading catalog...</div>
+    </div>
+  </div>
+</main>
+
+<div class="drawer-overlay" id="drawer-overlay"></div>
+
+<aside class="filters-drawer" id="filters-drawer">
+  <div class="drawer-header">
+    <h3>Filter &amp; sort</h3>
+    <button class="drawer-close" id="filters-close" aria-label="Close filters">&times;</button>
+  </div>
+
+  <div class="drawer-body">
+
+    <div class="accordion-section open" data-section="sort">
+      <button type="button" class="accordion-header">SORT BY <span class="chev">&#9662;</span></button>
+      <div class="accordion-panel">
+        <div class="accordion-panel-inner">
+          <label class="radio-line"><input type="radio" name="sort" value="default"> Featured</label>
+          <label class="radio-line"><input type="radio" name="sort" value="price_asc"> Price: low to high</label>
+          <label class="radio-line"><input type="radio" name="sort" value="price_desc"> Price: high to low</label>
+          <label class="radio-line"><input type="radio" name="sort" value="name_asc"> Name: A&ndash;Z</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion-section" data-section="gender">
+      <button type="button" class="accordion-header">GENDER <span class="chev">&#9662;</span></button>
+      <div class="accordion-panel">
+        <div class="accordion-panel-inner">
+          <label class="radio-line"><input type="radio" name="gender" value=""> All</label>
+          <label class="radio-line"><input type="radio" name="gender" value="women"> Women</label>
+          <label class="radio-line"><input type="radio" name="gender" value="men"> Men</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion-section" data-section="category">
+      <button type="button" class="accordion-header">CATEGORY <span class="chev">&#9662;</span></button>
+      <div class="accordion-panel">
+        <div class="accordion-panel-inner">
+          <select id="category-select" class="drawer-select">
+            <option value="">All categories</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion-section" data-section="color">
+      <button type="button" class="accordion-header">COLOUR <span class="chev">&#9662;</span></button>
+      <div class="accordion-panel">
+        <div class="accordion-panel-inner">
+          <div class="color-swatch-grid" id="color-filter-grid"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion-section" data-section="size">
+      <button type="button" class="accordion-header">SIZE <span class="chev">&#9662;</span></button>
+      <div class="accordion-panel">
+        <div class="accordion-panel-inner">
+          <div class="pill-group" id="size-pills"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion-section" data-section="fabric">
+      <button type="button" class="accordion-header">FABRIC <span class="chev">&#9662;</span></button>
+      <div class="accordion-panel">
+        <div class="accordion-panel-inner">
+          <select id="fabric-select" class="drawer-select">
+            <option value="">All fabrics</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion-section" data-section="price">
+      <button type="button" class="accordion-header">PRICE <span class="chev">&#9662;</span></button>
+      <div class="accordion-panel">
+        <div class="accordion-panel-inner">
+          <div class="price-range-inputs">
+            <input type="number" id="price-min" placeholder="Min" min="0">
+            <input type="number" id="price-max" placeholder="Max" min="0">
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="drawer-footer">
+    <button class="btn btn-primary btn-block" id="show-items-btn">Show items</button>
+    <button class="clear-filters-link" id="clear-filters-btn">Clear filters</button>
+  </div>
+</aside>
+
+<footer class="site-footer" id="site-footer"></footer>
+
+<script src="js/api.js?v=11"></script>
+<script src="js/state.js?v=11"></script>
+<script src="js/nav.js?v=11"></script>
+<script src="js/catalog.js?v=11"></script>
+</body>
+</html>
