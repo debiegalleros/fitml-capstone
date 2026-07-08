@@ -96,9 +96,9 @@ Two planning docs may exist in `docs/planning/`:
   rembg background removal, ~100+ women's + ~10–15 men's items, 2–3
   hue-shifted variants each. Metadata per item: item_id, category, gender,
   color, plausible fabric, size_range, price via random.randint within
-  category bands, rounded to nearest 10 PHP: tshirt/tank/shorts 400–700 ·
-  polo/blouse 600–1000 · jeans/slacks/sweater 800–1400 · jacket/dress
-  1200–1800. Document as programmatically generated demo pricing.
+  category bands, rounded to nearest 10 PHP: tshirt/tank/shorts 250–450 ·
+  polo/blouse 400–650 · jeans/slacks/sweater 550–900 · jacket/dress
+  750–1200. Document as programmatically generated demo pricing.
 - Color-suitability matching: OUT OF SCOPE. Mention as future work only.
 - Product: functional prototype website — no checkout, no payments, no inventory.
   Describe as "functional prototype", never "an online store".

@@ -11,9 +11,9 @@ data/catalog/photos/) is the catalog card / item-detail hero image;
 
 Pricing is programmatically generated demo pricing (documented as such, not
 real merchant data): random.randint within the category band, rounded to the
-nearest 10 PHP. Bands per CLAUDE.md: tshirt/tank/shorts 400-700,
-polo/blouse 600-1000, jeans/slacks/skirt/sweater 800-1400,
-jacket/dress 1200-1800 (skirts assigned to the jeans/slacks band).
+nearest 10 PHP. Bands per CLAUDE.md: tshirt/tank/shorts 250-450,
+polo/blouse 400-650, jeans/slacks/skirt/sweater 550-900,
+jacket/dress 750-1200 (skirts assigned to the jeans/slacks band).
 
 Fabric is a plausible per-category assignment (not ground truth — documented
 in the data dictionary); low-stretch fabrics matter later for the amber-box
@@ -41,11 +41,11 @@ CATEGORY_MAP = {
 }
 
 PRICE_BANDS = {
-    "tshirt": (400, 700), "tank": (400, 700), "shorts": (400, 700),
-    "polo": (600, 1000), "blouse": (600, 1000),
-    "jeans": (800, 1400), "slacks": (800, 1400), "skirt": (800, 1400),
-    "sweater": (800, 1400),
-    "jacket": (1200, 1800), "dress": (1200, 1800),
+    "tshirt": (250, 450), "tank": (250, 450), "shorts": (250, 450),
+    "polo": (400, 650), "blouse": (400, 650),
+    "jeans": (550, 900), "slacks": (550, 900), "skirt": (550, 900),
+    "sweater": (550, 900),
+    "jacket": (750, 1200), "dress": (750, 1200),
 }
 
 FABRICS = {
@@ -64,6 +64,29 @@ FABRICS = {
 
 SIZE_RANGES = {"women": "XS,S,M,L,XL", "men": "XS,S,M,L,XL,XXL"}  # men per Uniqlo charts
 
+# Simple generated care instructions per fabric (documented demo convention,
+# not manufacturer-verified — shown in the catalog card's Composition & Care panel).
+CARE = {
+    "acrylic knit": "Machine wash cold, lay flat to dry.",
+    "cotton jersey": "Machine wash cold, tumble dry low.",
+    "cotton knit": "Machine wash cold, tumble dry low.",
+    "cotton pique": "Machine wash cold, tumble dry low.",
+    "cotton poplin": "Machine wash cold, hang to dry.",
+    "cotton twill": "Machine wash cold, tumble dry low.",
+    "cotton-modal blend": "Machine wash cold, tumble dry low.",
+    "cotton-spandex blend": "Machine wash cold, tumble dry low, do not bleach.",
+    "linen-cotton blend": "Machine wash cold on gentle cycle, hang to dry.",
+    "polyester crepe": "Machine wash cold on gentle cycle, hang to dry.",
+    "polyester shell": "Machine wash cold, tumble dry low.",
+    "polyester twill": "Machine wash cold, tumble dry low.",
+    "polyester-viscose twill": "Dry clean recommended, or hand wash cold.",
+    "rayon": "Hand wash cold, hang to dry.",
+    "rigid denim": "Machine wash cold inside out, tumble dry low.",
+    "stretch cotton twill": "Machine wash cold, tumble dry low.",
+    "stretch denim": "Machine wash cold inside out, hang to dry.",
+    "viscose jersey": "Hand wash cold, hang to dry.",
+}
+
 
 def main() -> None:
     rng = random.Random(SEED)
@@ -78,13 +101,15 @@ def main() -> None:
         cat = CATEGORY_MAP[r.articleType]
         lo, hi = PRICE_BANDS[cat]
         v = variants[variants.id == r.id].variant.tolist()
+        fabric = rng.choice(FABRICS[cat])
         rows.append({
             "item_id": int(r.id),
             "category": cat,
             "gender": r.target_gender,
             "color": str(r.baseColour).lower(),
             "variant_colors": "|".join(v),
-            "fabric": rng.choice(FABRICS[cat]),
+            "fabric": fabric,
+            "care": CARE[fabric],
             "size_range": SIZE_RANGES[r.target_gender],
             "price_php": round(rng.randint(lo, hi) / 10) * 10,
             "product_name": r.productDisplayName,

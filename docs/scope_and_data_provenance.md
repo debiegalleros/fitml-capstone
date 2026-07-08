@@ -151,7 +151,7 @@ four categories covered by `data/raw/mens_size_charts.csv` (tshirt/polo/
 jeans/jacket) so every men's item is sizeable by the Uniqlo chart lookup.
 Prices are programmatically generated demo pricing (seeded
 `random.randint` within per-category PHP bands, rounded to nearest 10;
-skirts assigned to the jeans/slacks 800–1400 band). Fabric is a
+skirts assigned to the jeans/slacks 550–900 band). Fabric is a
 plausible per-category assignment, not ground truth, mixing stretch and
 low-stretch options because fabric stretch feeds the borderline-sizing
 (amber box) rule.

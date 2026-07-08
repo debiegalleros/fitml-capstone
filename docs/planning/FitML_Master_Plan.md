@@ -176,8 +176,8 @@ photos (busy backgrounds, some with visible third-party photographer/
 publication watermarks) rather than clean product shots, making them a poor
 fit for `rembg` + affine-warp compositing. Pricing is category-bounded, not
 flat-random across the whole catalog
-(tshirt/tank/shorts PHP 400-700, polo/blouse PHP 600-1000, jeans/slacks/sweater
-PHP 800-1400, jacket/dress PHP 1200-1800), generated alongside color variants and
+(tshirt/tank/shorts PHP 250-450, polo/blouse PHP 400-650, jeans/slacks/sweater
+PHP 550-900, jacket/dress PHP 750-1200), generated alongside color variants and
 documented in the report as a demo-catalog convenience, not real merchant pricing.
 
 **Scope note:** this is a functional prototype of an e-commerce sizing/try-on
