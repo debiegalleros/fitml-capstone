@@ -12,14 +12,16 @@ const NAV_LINKS = [
   { href: "catalog.html", label: "Catalog", page: "catalog" },
   { href: "history.html", label: "History", page: "history" },
   { href: "catalog.html?wishlist=1", label: "Wishlist", page: "wishlist" },
-  { type: "search" },
   { href: "profile.html", label: "Profile", page: "profile" },
+  { type: "search" },
 ];
+
+const SEARCH_ICON_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>`;
 
 function _navItemHtml(item, activePage, profile) {
   if (item.type === "search") {
     return `<span class="nav-search-wrap" id="nav-search-wrap">
-      <button type="button" class="nav-search-toggle" id="search-toggle">Search</button>
+      <button type="button" class="nav-search-toggle" id="search-toggle" aria-label="Search">${SEARCH_ICON_SVG}</button>
       <form class="nav-search-inline" id="search-form">
         <input type="search" id="search-input" placeholder="Search" autocomplete="off">
         <button type="button" class="search-close" id="search-close" aria-label="Close search">&times;</button>
