@@ -42,3 +42,11 @@ function addHistoryEntry(entry) {
   history.unshift({ ...entry, created_at: new Date().toISOString() });
   localStorage.setItem(HISTORY_KEY, JSON.stringify(history.slice(0, 100)));
 }
+
+function updateHistoryEntry(tryonId, patch) {
+  const history = getHistory();
+  const idx = history.findIndex((h) => h.tryon_id === tryonId);
+  if (idx === -1) return;
+  history[idx] = { ...history[idx], ...patch };
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+}
