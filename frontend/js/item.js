@@ -20,6 +20,7 @@ let tryonError = null;
 let adviceText = null;
 let adviceLoading = false;
 let tryonLoading = false;
+let recommendationError = null;
 
 function money(n) {
   return `₱${n}`;
@@ -106,9 +107,6 @@ function render() {
         <span class="brand-name">${item.brand}</span>
         <h1>${item.product_name}</h1>
         <div class="price">${money(item.price_php)}</div>
-        <p class="meta-line">${_fabricDescription(item.fabric)}</p>
-        <p class="meta-line">${item.care}</p>
-        <p class="description">${_productDescription(item)}</p>
 
         <span class="size-select-label">Size</span>
         <div class="size-pill-row">${sizePills}</div>
@@ -118,6 +116,54 @@ function render() {
         ${noProfileHtml}
         ${tryOnActionHtml}
         ${adviceHtml}
+
+        <div class="details-panel" id="item-details-panel">
+          <div class="details-fixed">
+            <h4>Sizes</h4>
+            <div class="size-chips">${item.size_range.map((s) => `<span class="chip">${s}</span>`).join("")}</div>
+          </div>
+
+          <div class="accordion-section" data-subsection="measurements">
+            <button type="button" class="accordion-header">Size measurements <span class="chev">&#9662;</span></button>
+            <div class="accordion-panel">
+              <div class="accordion-panel-inner">
+                <table class="size-chart-table"><thead>${_sizeChartHeader(item)}</thead><tbody>${_sizeChartRows(item)}</tbody></table>
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-section" data-subsection="description">
+            <button type="button" class="accordion-header">Description <span class="chev">&#9662;</span></button>
+            <div class="accordion-panel">
+              <div class="accordion-panel-inner"><p>${_productDescription(item)}</p></div>
+            </div>
+          </div>
+
+          <div class="accordion-section" data-subsection="care">
+            <button type="button" class="accordion-header">Composition &amp; Care <span class="chev">&#9662;</span></button>
+            <div class="accordion-panel">
+              <div class="accordion-panel-inner">
+                <p>${_fabricDescription(item.fabric)}</p>
+                <p>${item.care}</p>
+              </div>
+            </div>
+          </div>
+
+          ${profile ? `
+          <div class="accordion-section" data-subsection="recommendation">
+            <button type="button" class="accordion-header">Size recommendation <span class="chev">&#9662;</span></button>
+            <div class="accordion-panel">
+              <div class="accordion-panel-inner recommendation-body">
+                ${recommendation
+                  ? `<p><strong>Recommended size: ${recommendation.recommended_size}</strong> (${recommendation.confidence}% confidence)</p>
+                     ${recommendation.state === "amber" ? '<p class="hint">💡 Sizing tip: this runs a little snug — consider sizing up.</p>' : ""}`
+                  : recommendationError
+                    ? `<p class="error-text">${recommendationError}</p>`
+                    : `<p class="text-muted">Checking your size…</p>`}
+              </div>
+            </div>
+          </div>` : ""}
+        </div>
       </div>
     </div>
   `;
@@ -151,6 +197,12 @@ function wireEvents() {
 
   const tryOnBtn = document.getElementById("try-on-btn");
   if (tryOnBtn) tryOnBtn.addEventListener("click", runTryOn);
+
+  document.querySelectorAll("#item-details-panel .accordion-header").forEach((header) => {
+    header.addEventListener("click", () => {
+      header.closest(".accordion-section").classList.toggle("open");
+    });
+  });
 }
 
 async function loadRecommendation() {
@@ -158,10 +210,11 @@ async function loadRecommendation() {
   try {
     recommendation = await apiPostJSON("/recommend-size", { session_id: profile.session_id, item_id: itemId });
     if (!selectedSize) selectedSize = recommendation.recommended_size;
-    render();
   } catch (err) {
     // Non-fatal: size pills still work without a recommendation.
+    recommendationError = err.message || "Couldn't get a recommendation.";
   }
+  render();
 }
 
 async function runTryOn() {

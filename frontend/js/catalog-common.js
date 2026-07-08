@@ -52,3 +52,52 @@ function _productDescription(item) {
     `designed as an everyday ${_titleCase(item.category)} with a comfortable fit. ` +
     `Shown here in ${_titleCase(item.color)}.${extra}`;
 }
+
+// Informational size charts for the "Size measurements" panel (display
+// only — never used for the actual /recommend-size calculation). Women's
+// bust/hip figures match the demo chart already used server-side for
+// size-proportional try-on rendering (size_logic.py); waist is a newly
+// authored demo row in the same convention, not from that file. Men's
+// figures are the real Uniqlo-derived ranges in data/raw/mens_size_charts.csv
+// (identical across all five chart categories, so one shared table works).
+const WOMENS_CHART = {
+  XS: { bust: 82, waist: 66, hip: 88 },
+  S: { bust: 87, waist: 71, hip: 93 },
+  M: { bust: 93, waist: 77, hip: 99 },
+  L: { bust: 99, waist: 83, hip: 105 },
+  XL: { bust: 106, waist: 90, hip: 112 },
+  XXL: { bust: 113, waist: 97, hip: 119 },
+};
+const MENS_CHART = {
+  XS: { chest: [81, 89], waist: [66, 71] },
+  S: { chest: [89, 97], waist: [69, 76] },
+  M: { chest: [97, 104], waist: [76, 84] },
+  L: { chest: [104, 112], waist: [84, 91] },
+  XL: { chest: [112, 119], waist: [91, 99] },
+  XXL: { chest: [119, 127], waist: [99, 107] },
+};
+
+function _sizeChartHeader(item) {
+  return item.gender === "men"
+    ? "<tr><th>Size</th><th>Chest</th><th>Waist</th></tr>"
+    : "<tr><th>Size</th><th>Bust</th><th>Waist</th><th>Hip</th></tr>";
+}
+
+function _sizeChartRows(item) {
+  if (item.gender === "men") {
+    return item.size_range
+      .filter((s) => MENS_CHART[s])
+      .map((s) => {
+        const c = MENS_CHART[s];
+        return `<tr><td>${s}</td><td>${c.chest[0]}–${c.chest[1]} cm</td><td>${c.waist[0]}–${c.waist[1]} cm</td></tr>`;
+      })
+      .join("");
+  }
+  return item.size_range
+    .filter((s) => WOMENS_CHART[s])
+    .map((s) => {
+      const c = WOMENS_CHART[s];
+      return `<tr><td>${s}</td><td>${c.bust} cm</td><td>${c.waist} cm</td><td>${c.hip} cm</td></tr>`;
+    })
+    .join("");
+}

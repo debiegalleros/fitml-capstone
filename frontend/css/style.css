@@ -903,6 +903,7 @@ main { flex: 1; }
   border-top: 1px solid var(--border);
   padding: 4px 12px 12px;
 }
+.item-info .details-panel { margin-top: 24px; padding: 4px 0 12px; }
 .details-fixed { padding: 10px 2px 4px; }
 .details-fixed h4 {
   font-size: var(--label-size);
