@@ -385,7 +385,7 @@ main { flex: 1; }
 /* --------------------------------------------------------------- sections */
 
 .section {
-  padding: 22px 0;
+  padding: 16px 0 32px;
 }
 .section h2 {
   font-family: var(--font-serif);
@@ -449,8 +449,8 @@ main { flex: 1; }
   max-width: 720px;
   margin: 0 auto;
 }
-.profile-section h2 { font-size: 19px; }
-.profile-section > p { font-size: 13px; }
+.profile-section h2 { font-size: 18px; margin-bottom: 6px; }
+.profile-section > p { font-size: 12.5px; margin: 0 0 16px; }
 .profile-section .field label { font-size: 12px; }
 .profile-section .field input,
 .profile-section .field select { font-size: 13px; min-height: 44px; }
@@ -461,7 +461,7 @@ main { flex: 1; }
 .form-section {
   border: none;
   padding: 0;
-  margin: 0 0 20px;
+  margin: 0 0 14px;
   min-width: 0;
 }
 .form-section legend {
@@ -472,8 +472,8 @@ main { flex: 1; }
   letter-spacing: var(--label-tracking);
   color: var(--label-color);
   width: 100%;
-  padding-bottom: 8px;
-  margin-bottom: 14px;
+  padding-bottom: 5px;
+  margin-bottom: 10px;
   border-bottom: 1px solid var(--border);
 }
 
@@ -487,20 +487,20 @@ main { flex: 1; }
 }
 
 .field {
-  margin-bottom: 14px;
+  margin-bottom: 10px;
 }
 .field label {
   display: block;
   font-size: 13px;
   font-weight: 600;
-  margin-bottom: 5px;
+  margin-bottom: 4px;
 }
 .field .hint {
   display: block;
   font-weight: 400;
   color: var(--text-muted);
   font-size: 12px;
-  margin-top: 4px;
+  margin-top: 3px;
 }
 .field input[type="text"],
 .field input[type="number"],
@@ -523,11 +523,11 @@ main { flex: 1; }
 .field-row {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 12px;
+  gap: 10px;
 }
 .field-row.two-col { grid-template-columns: 1fr 1fr; }
 @media (min-width: 640px) {
-  .field-row { gap: var(--gap); }
+  .field-row { gap: 14px; }
   .field-row.three-col { grid-template-columns: 1fr 1fr 1fr; }
 }
 
@@ -599,7 +599,7 @@ main { flex: 1; }
 .file-drop {
   border: 1px dashed var(--border-strong);
   border-radius: var(--radius);
-  padding: 18px;
+  padding: 12px;
   text-align: center;
   background: var(--bg);
 }
@@ -627,13 +627,13 @@ main { flex: 1; }
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 10px 12px;
-  margin-bottom: 14px;
+  padding: 8px 10px;
+  margin-bottom: 10px;
 }
 
 .accordion-section + .checkbox-row,
 .accordion-section + .consent-note {
-  margin-top: 18px;
+  margin-top: 12px;
 }
 
 /* --------------------------------------------------------------- catalog */
