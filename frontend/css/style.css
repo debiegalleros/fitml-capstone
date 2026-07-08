@@ -1,22 +1,29 @@
-/* FitML — shared styles. Quiet-luxury look: warm beige background, white/
-   off-white cards (no border, soft shadow), deep-charcoal buttons, a deep
-   maroon accent used sparingly (prices, selection states, one signature
-   band). Serif-italic for editorial headlines, clean sans for UI chrome.
-   Reserved blue/amber stay separate for the fit-confidence box. Mobile-first. */
+/* FitML — shared styles. Quiet-luxury look: near-white grey page background,
+   white cards (no border, soft shadow), a charcoal/near-black header bar
+   (light text) and deep-charcoal buttons, a maroon accent used sparingly for
+   selection states (active swatch ring, selected size pill, recommended
+   badge, active nav link) — never for price text, which stays charcoal.
+   Upright Playfair Display for editorial headlines, clean sans for UI
+   chrome. Reserved blue/amber stay separate for the fit-confidence box.
+   Mobile-first. */
 
 :root {
   --border: #e6ded0;
   --border-strong: #d9cbb2;
   --text: #221d18;
   --text-muted: #8a7d6a;
-  --bg: #eeeeec;
-  --surface: #fdfbf7;
+  --bg: #f6f6f5;
+  --surface: #ffffff;
   --accent: #1c1815;
   --accent-dark: #000000;
   --accent-soft: #ece2ce;
   --maroon: #5c1a24;
   --maroon-dark: #45131b;
   --maroon-soft: #f2dde0;
+  --maroon-light: #d98fa0;
+  --header-bg: #1c1815;
+  --header-text: #f6f0e4;
+  --header-text-muted: #b7b0a4;
   --blue-bg: #e6f0fb;
   --blue-border: #bcd7ff;
   --blue-text: #1746a2;
@@ -69,8 +76,8 @@ a:hover { text-decoration: underline; }
 /* ---------------------------------------------------------------- header */
 
 .site-header {
-  background: var(--surface);
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
+  background: var(--header-bg);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
   position: sticky;
   top: 0;
   z-index: 50;
@@ -87,7 +94,7 @@ a:hover { text-decoration: underline; }
   font-weight: 800;
   font-size: 20px;
   letter-spacing: -0.01em;
-  color: var(--text);
+  color: var(--header-text);
 }
 .brand:hover { text-decoration: none; }
 
@@ -105,12 +112,14 @@ a:hover { text-decoration: underline; }
 }
 
 .main-nav a, .nav-search-toggle {
-  color: var(--label-color);
+  color: var(--header-text-muted);
   font-size: var(--label-size);
   font-weight: var(--label-weight);
   text-transform: uppercase;
   letter-spacing: var(--label-tracking);
+  transition: color 0.12s ease;
 }
+.main-nav a:hover, .nav-search-toggle:hover { color: var(--header-text); }
 .nav-search-toggle {
   background: none;
   border: none;
@@ -120,13 +129,14 @@ a:hover { text-decoration: underline; }
 }
 
 .main-nav a.active {
-  color: var(--accent);
+  color: var(--maroon-light);
   font-weight: 600;
 }
 
 .nav-toggle {
-  border: 1px solid var(--border-strong);
-  background: var(--surface);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: none;
+  color: var(--header-text);
   border-radius: var(--radius);
   font-size: 18px;
   padding: 6px 10px;
@@ -149,45 +159,47 @@ a:hover { text-decoration: underline; }
 .nav-search-inline input {
   width: 140px;
   border: none;
-  border-bottom: 1px solid var(--border-strong);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
   font-size: 13px;
   padding: 4px 2px;
   background: none;
-  color: var(--text);
+  color: var(--header-text);
 }
-.nav-search-inline input:focus { outline: none; border-bottom-color: var(--accent); }
+.nav-search-inline input::placeholder { color: var(--header-text-muted); }
+.nav-search-inline input:focus { outline: none; border-bottom-color: var(--header-text); }
 .nav-search-inline .search-close {
   border: none;
   background: none;
   font-size: 16px;
   line-height: 1;
   cursor: pointer;
-  color: var(--text-muted);
+  color: var(--header-text-muted);
   padding: 4px;
 }
+.nav-search-inline .search-close:hover { color: var(--header-text); }
 
 .mobile-nav {
   display: none;
   flex-direction: column;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
   padding: 8px 16px 16px;
 }
 .mobile-nav.open { display: flex; }
 
 .mobile-nav a {
   padding: 10px 0;
-  color: var(--label-color);
+  color: var(--header-text-muted);
   font-size: var(--label-size);
   font-weight: var(--label-weight);
   text-transform: uppercase;
   letter-spacing: var(--label-tracking);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
   min-height: 44px;
   display: flex;
   align-items: center;
 }
 .mobile-nav a:last-child { border-bottom: none; }
-.mobile-nav a.active { color: var(--accent); font-weight: 600; }
+.mobile-nav a.active { color: var(--maroon-light); font-weight: 600; }
 
 @media (min-width: 768px) {
   .main-nav { display: flex; align-items: center; }
