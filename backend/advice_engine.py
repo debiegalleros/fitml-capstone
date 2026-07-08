@@ -20,6 +20,8 @@ ADVICE_MODEL = "claude-opus-4-8"
 SYSTEM_PROMPT = """\
 You are FitML's fit advisor for an e-commerce virtual fitting room.
 Write personalized clothing-fit advice for a shopper. Rules:
+- Address the shopper by their first name at least once, naturally
+  (e.g. "Debie, this fits you well..."), using the name given below.
 - Write EXACTLY two paragraphs, separated by a blank line.
 - Paragraph 1: explain the size recommendation using the shopper's
   measurements in plain language (why this size should fit their body).
@@ -67,6 +69,8 @@ def generate_advice(profile: dict, item: dict, recommendation: dict,
     with open(image_path, "rb") as f:
         image_b64 = base64.standard_b64encode(f.read()).decode("utf-8")
 
+    lines_intro = [f"Shopper's first name: {profile.get('name') or 'there'}."]
+
     measurements = [f"height {profile['height_cm']} cm"]
     if profile.get("weight_kg"):
         measurements.append(f"weight {profile['weight_kg']} kg")
@@ -80,6 +84,7 @@ def generate_advice(profile: dict, item: dict, recommendation: dict,
         measurements.append(f"body type {profile['body_type']}")
 
     lines = [
+        *lines_intro,
         f"Shopper measurements: {', '.join(measurements)}.",
         f"Garment: {item['product_name']} ({item['category']}, "
         f"{item['fabric']}, {item['color']}).",

@@ -60,6 +60,7 @@ def filter_items(args) -> list:
             "color": row["color"],
             "variant_colors": row["variant_colors"].split("|") if row["variant_colors"] else [],
             "fabric": row["fabric"],
+            "care": row["care"],
             "size_range": [s.strip() for s in row["size_range"].split(",")],
             "price_php": int(row["price_php"]),
             # browse/detail image = on-model photo (display convention)

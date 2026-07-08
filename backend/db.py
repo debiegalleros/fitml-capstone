@@ -8,7 +8,10 @@ SCHEMA = """
 CREATE TABLE IF NOT EXISTS profiles (
     session_id TEXT PRIMARY KEY,
     created_at TEXT DEFAULT (datetime('now')),
+    name TEXT,
     photo_path TEXT,
+    photo_side_path TEXT,         -- optional, not pose-extracted (future multi-angle try-on)
+    photo_back_path TEXT,         -- optional, not pose-extracted
     photo_coverage TEXT,          -- full_body / upper_body
     face_blur INTEGER DEFAULT 1,  -- ON by default (privacy-first)
     height_cm REAL,
@@ -42,6 +45,16 @@ CREATE TABLE IF NOT EXISTS tryons (
 def init_db():
     with sqlite3.connect(DB_PATH) as conn:
         conn.executescript(SCHEMA)
+        _migrate(conn)
+
+
+def _migrate(conn):
+    """Add columns introduced after a dev DB was first created (SQLite's
+    CREATE TABLE IF NOT EXISTS won't retrofit an existing table)."""
+    cols = {row[1] for row in conn.execute("PRAGMA table_info(profiles)")}
+    for col, coltype in (("name", "TEXT"), ("photo_side_path", "TEXT"), ("photo_back_path", "TEXT")):
+        if col not in cols:
+            conn.execute(f"ALTER TABLE profiles ADD COLUMN {col} {coltype}")
 
 
 @contextmanager

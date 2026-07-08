@@ -71,6 +71,9 @@ def upload_profile():
         return _error(f"unsupported photo type {ext or '(none)'}")
 
     form = request.form
+    name = (form.get("name") or "").strip()
+    if not name:
+        return _error("name is required")
     try:
         height_cm = _parse_float(form, "height_cm")
         weight_kg = _parse_float(form, "weight_kg")
@@ -115,23 +118,57 @@ def upload_profile():
     cv2.imwrite(photo_path, image, [cv2.IMWRITE_JPEG_QUALITY, 92])
     tryon.save_pose(session_dir, pose)
 
+    # Optional side/back photos — same session folder, same 24h auto-delete,
+    # same face-blur default, but NOT pose-extracted: only the front photo
+    # feeds try-on (locked decision). These are a foundation for a future
+    # multi-angle try-on feature, shown today only as profile thumbnails.
+    photo_side_path = None
+    photo_back_path = None
+    for field, filename in (("photo_side", "photo_side.jpg"), ("photo_back", "photo_back.jpg")):
+        extra = request.files.get(field)
+        if not extra or not extra.filename:
+            continue
+        extra_ext = os.path.splitext(extra.filename)[1].lower()
+        if extra_ext not in ALLOWED_PHOTO_EXT:
+            continue
+        extra_data = np.frombuffer(extra.read(), np.uint8)
+        extra_image = cv2.imdecode(extra_data, cv2.IMREAD_COLOR)
+        if extra_image is None:
+            continue
+        if face_blur:
+            extra_image = tryon.blur_face(extra_image)
+        extra_path = os.path.join(session_dir, filename)
+        cv2.imwrite(extra_path, extra_image, [cv2.IMWRITE_JPEG_QUALITY, 92])
+        if field == "photo_side":
+            photo_side_path = extra_path
+        else:
+            photo_back_path = extra_path
+
     with get_db() as conn:
         conn.execute(
-            """INSERT INTO profiles (session_id, photo_path, photo_coverage,
-               face_blur, height_cm, weight_kg, bust_band, bust_cup,
-               bust_input_method, waist_cm, hip_cm, body_type)
-               VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",
-            (session_id, photo_path, pose["coverage"], int(face_blur),
-             height_cm, weight_kg, bust_band, bust_cup, bust_input_method,
-             waist_cm, hip_cm, form.get("body_type")))
+            """INSERT INTO profiles (session_id, name, photo_path,
+               photo_side_path, photo_back_path, photo_coverage, face_blur,
+               height_cm, weight_kg, bust_band, bust_cup, bust_input_method,
+               waist_cm, hip_cm, body_type)
+               VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+            (session_id, name, photo_path, photo_side_path, photo_back_path,
+             pose["coverage"], int(face_blur), height_cm, weight_kg,
+             bust_band, bust_cup, bust_input_method, waist_cm, hip_cm,
+             form.get("body_type")))
 
-    return jsonify({
+    response = {
         "session_id": session_id,
+        "name": name,
         "photo_coverage": pose["coverage"],
         "face_blur": face_blur,
         "bust_input_method": bust_input_method,
         "photo_url": f"/tryon-image/{session_id}/photo.jpg",
-    })
+    }
+    if photo_side_path:
+        response["photo_side_url"] = f"/tryon-image/{session_id}/photo_side.jpg"
+    if photo_back_path:
+        response["photo_back_url"] = f"/tryon-image/{session_id}/photo_back.jpg"
+    return jsonify(response)
 
 
 @app.get("/catalog")
