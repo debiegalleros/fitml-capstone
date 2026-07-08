@@ -110,7 +110,10 @@ function renderFooter() {
 }
 
 (function init() {
-  const activePage = document.body.getAttribute("data-page");
+  // Item detail is reached by browsing the catalog, so it counts as the
+  // same nav section rather than leaving nothing highlighted.
+  const rawPage = document.body.getAttribute("data-page");
+  const activePage = rawPage === "item" ? "catalog" : rawPage;
   renderHeader(activePage);
   renderFooter();
 })();
