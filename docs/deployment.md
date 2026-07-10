@@ -35,8 +35,16 @@ container's first `/upload-profile` call.
 - `frontend/js/api.js` picks the backend URL by hostname: `localhost`/
   `127.0.0.1` keeps hitting `http://localhost:5001`; any other hostname
   (i.e. the deployed Netlify site) targets `https://fit-ml.onrender.com`.
-- `render.yaml` — Render Blueprint spec (build/start commands, env var
-  list), also mirrored in the actual Render service config.
+- `Dockerfile` (repo root) — the backend runs as a Docker web service on
+  Render, not Render's native Python runtime. Reason: mediapipe's Tasks
+  API (`PoseLandmarker`/`FaceDetector`, used for pose extraction and the
+  privacy face-blur) dlopens `libGLESv2.so.2` even on the CPU delegate,
+  and Render's native runtime image doesn't have it with no way to add
+  system packages. The Dockerfile installs `libgl1 libegl1 libgles2
+  libgbm1` (plus opencv's usual `libglib2.0-0 libsm6 libxext6
+  libxrender1 libgomp1`) before `pip install`, then runs
+  `scripts/fetch_catalog_assets.sh` and starts gunicorn. `render.yaml`
+  mirrors this (`runtime: docker`).
 - `netlify.toml` — tells Netlify to publish the `frontend/` folder as-is
   (no build step, it's plain HTML/CSS/JS).
 
@@ -46,12 +54,12 @@ GitHub, Render, and Netlify were all set up via their CLIs (`gh`, the
 `render` CLI, and `netlify-cli`), each authenticated through a device-code
 browser login — no credentials were typed into this environment directly.
 
-- **Render** web service `fit-ml` (id `srv-d98h9ffavr4c739hn730`) was
-  created via `render services create` with the build/start commands above
-  and `PYTHON_VERSION`/`ANTHROPIC_API_KEY` env vars set via the Render API
-  (`PUT /v1/services/{id}/env-vars`) — the key was read from local
-  `backend/.env` and never printed or committed. Auto-deploy is on, so
-  every push to `main` triggers a new Render build.
+- **Render** web service `fit-ml` (id `srv-d98hhamrnols73fb71e0`) was
+  created via `render services create --runtime docker` (Render
+  auto-detects `./Dockerfile`) with `ANTHROPIC_API_KEY` set via the
+  Render API (`PUT /v1/services/{id}/env-vars`) — the key was read from
+  local `backend/.env` and never printed or committed. Auto-deploy is
+  on, so every push to `main` triggers a new Render build.
 - **Netlify** site `fit-ml` was created via `netlify sites:create` and
   deployed via `netlify deploy --prod --dir=frontend`. This is a one-shot
   CLI deploy, **not** connected to GitHub for auto-deploy — after frontend
@@ -68,11 +76,18 @@ browser login — no credentials were typed into this environment directly.
 
 ## Verifying the live flow
 
-Test end-to-end on the deployed site before calling this phase done:
-Profile setup (photo + measurements) → Catalog (filters load, images
-render) → open an item → size recommendation shows → Try on → advice text
-loads. If `/advice` 503s, the `ANTHROPIC_API_KEY` env var is missing on
-Render.
+Full flow verified directly against the live backend
+(`https://fit-ml.onrender.com`) via curl: `/upload-profile` (multipart
+photo + measurements) → `/recommend-size` → `/try-on` (composited image
+confirmed real: face-blurred, garment overlaid) → `/advice` (real
+Claude API call, two-paragraph output with the "Note:" plain-language
+visual observation). This is what caught the libGL issue above — the
+first Docker deploy still 500'd on `/upload-profile` until `libgles2`/
+`libegl1`/`libgbm1` were added.
+
+If `/advice` 503s, the `ANTHROPIC_API_KEY` env var is missing on Render.
+If `/upload-profile` 500s with an `OSError` about a missing `.so` file,
+a mediapipe system dependency is missing from the Dockerfile.
 
 ## Security / privacy notes carried over from local dev
 
