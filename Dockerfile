@@ -5,6 +5,9 @@ FROM python:3.12.7-slim
 # doesn't have them, so this needs a Docker image where we can install them.
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libgl1 \
+    libegl1 \
+    libgles2 \
+    libgbm1 \
     libglib2.0-0 \
     libsm6 \
     libxext6 \
