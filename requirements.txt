@@ -1,33 +1,38 @@
 # FitML Capstone — dependencies by phase.
 # Install with: pip install -r requirements.txt
+# Pinned to exact versions from the working dev venv (frozen for Phase 10
+# deployment reproducibility on Render).
 
 # Phase 0-2: data acquisition & inspection
-kaggle
-pandas
-numpy
-jupyter
+kaggle==2.2.3
+pandas==3.0.3
+numpy==2.4.6
+jupyter==1.1.1
 
 # Phase 3: EDA / feature engineering
-matplotlib
-seaborn
-scikit-learn
+matplotlib==3.11.0
+seaborn==0.13.2
+scikit-learn==1.9.0
 
 # Phase 5: model training
-xgboost
+xgboost==3.3.0
 
 # Phase 6: fairness audit
-shap
-fairlearn
+shap==0.52.0
+fairlearn==0.14.0
 
 # Phase 7: catalog processing
-rembg[cpu]  # bare rembg has no onnxruntime backend and fails at import
-Pillow
-opencv-python
+rembg[cpu]==2.0.76  # bare rembg has no onnxruntime backend and fails at import
+Pillow==12.3.0
+opencv-python==5.0.0.93
 
 # Phase 8: Flask backend + AR try-on
-flask
-flask-cors
-mediapipe
-python-dotenv
-anthropic
-joblib
+flask==3.1.3
+flask-cors==6.0.5
+mediapipe==0.10.35
+python-dotenv==1.2.2
+anthropic==0.116.0
+joblib==1.5.3
+
+# Phase 10: deployment (production WSGI server for Render)
+gunicorn==26.0.0

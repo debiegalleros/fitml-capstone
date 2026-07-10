@@ -1,6 +1,9 @@
-/* FitML — API client. Backend runs on port 5001 (see backend/app.py). */
+/* FitML — API client. Local dev backend runs on port 5001 (see
+   backend/app.py); the deployed site talks to the Render-hosted backend. */
 
-const API_BASE = "http://localhost:5001";
+const API_BASE = ["localhost", "127.0.0.1"].includes(window.location.hostname)
+  ? "http://localhost:5001"
+  : "https://fitml-capstone.onrender.com";
 
 class ApiError extends Error {
   constructor(message, status) {

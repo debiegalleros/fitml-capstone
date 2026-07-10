@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: fitml-capstone
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt && bash scripts/fetch_catalog_assets.sh
+    startCommand: gunicorn --chdir backend --bind 0.0.0.0:$PORT --timeout 120 app:app
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: ANTHROPIC_API_KEY
+        sync: false
