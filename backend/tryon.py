@@ -67,8 +67,20 @@ L_KNEE, R_KNEE = 25, 26
 
 VISIBILITY_THRESHOLD = 0.5
 
-# Garment width as a multiple of the anchor keypoint distance, per broad type
-WIDTH_FACTORS = {"top": 2.25, "dress": 2.35, "outerwear": 2.45, "bottom": 2.1}
+# Garment *content* width (alpha bounding box, not PNG canvas) as a multiple
+# of the anchor keypoint distance. MediaPipe shoulder/hip keypoints are joint
+# centres — noticeably narrower than the visible body silhouette — so these
+# factors were calibrated visually against a real full-body photo (see
+# docs/phase8_notes.md provenance style): a fitted tank ~1.15x shoulder
+# distance, sleeved tops ~1.3x, outerwear widest; hip keypoints span roughly
+# half the visible hip width, hence the larger bottom factor.
+WIDTH_FACTORS = {"top": 1.32, "dress": 1.32, "outerwear": 1.48, "bottom": 1.9}
+CATEGORY_WIDTH_OVERRIDES = {"tank": 1.15, "sweater": 1.38}
+# Vertical drop of the garment content top above the anchor line, as a
+# fraction of the anchor distance (collar sits above the shoulder joints;
+# a waistband sits above the hip joints).
+TOP_OFFSET_FACTORS = {"top": 0.12, "dress": 0.12, "outerwear": 0.14, "bottom": 0.30}
+CATEGORY_OFFSET_OVERRIDES = {"tank": 0.10}
 TOP_CATEGORIES = {"tshirt", "tank", "polo", "blouse", "sweater"}
 OUTERWEAR_CATEGORIES = {"jacket"}
 BOTTOM_CATEGORIES = {"jeans", "skirt", "shorts", "slacks", "trousers"}
@@ -149,6 +161,15 @@ def _garment_kind(category: str) -> str:
     return "top"
 
 
+def _content_crop(rgba):
+    """Crop to the alpha bounding box so scaling is driven by the garment
+    itself, not the PNG canvas padding (which varies per item)."""
+    ys, xs = np.where(rgba[:, :, 3] > 10)
+    if len(xs) == 0:
+        return rgba
+    return rgba[ys.min():ys.max() + 1, xs.min():xs.max() + 1]
+
+
 def composite(photo_bgr, garment_rgba, pose: dict, category: str,
               width_scale: float = 1.0, length_scale: float = 1.0):
     """Anchor the garment to pose keypoints (tops -> shoulders, bottoms ->
@@ -171,8 +192,10 @@ def composite(photo_bgr, garment_rgba, pose: dict, category: str,
     elif angle_deg < -90:
         angle_deg += 180
 
+    garment_rgba = _content_crop(garment_rgba)
     gh, gw = garment_rgba.shape[:2]
-    target_w = anchor_dist * WIDTH_FACTORS[kind] * width_scale
+    width_factor = CATEGORY_WIDTH_OVERRIDES.get(category, WIDTH_FACTORS[kind])
+    target_w = anchor_dist * width_factor * width_scale
     scale = target_w / gw
     new_w = max(1, int(gw * scale))
     new_h = max(1, int(gh * scale * (length_scale / width_scale)))
@@ -194,12 +217,12 @@ def composite(photo_bgr, garment_rgba, pose: dict, category: str,
 
     garment = feather_alpha(garment)
 
-    # vertical placement: neckline slightly above the shoulder line for
-    # tops/dresses; waistband just above the hip line for bottoms
-    if kind == "bottom":
-        top_y = int(mid_y - 0.06 * new_h)
-    else:
-        top_y = int(mid_y - 0.14 * new_h)
+    # vertical placement: collar/strap top slightly above the shoulder line
+    # for tops/dresses, waistband above the hip line for bottoms — offsets
+    # are fractions of the anchor distance (body-relative), NOT the garment
+    # height, so a long dress doesn't ride higher than a cropped top
+    offset_factor = CATEGORY_OFFSET_OVERRIDES.get(category, TOP_OFFSET_FACTORS[kind])
+    top_y = int(mid_y - offset_factor * anchor_dist)
     left_x = int(mid_x - new_w / 2)
 
     out = photo_bgr.copy()
