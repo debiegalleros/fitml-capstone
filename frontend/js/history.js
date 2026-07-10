@@ -18,9 +18,14 @@ function render() {
 
   grid.innerHTML = history.map((entry) => {
     const badgeLabel = entry.state === "amber" ? "Sizing tip" : "Good fit";
+    // Try-on composites are deleted server-side after 24h (privacy) and on
+    // redeploys; fall back to the item's permanent catalog photo, then to
+    // the neutral silhouette, instead of showing a broken-image icon.
+    const fallback = entry.photo_url ? imageUrl(entry.photo_url) : "images/silhouette.svg";
     return `
     <div class="card history-card">
-      <img src="${imageUrl(entry.image_url)}" alt="${entry.product_name}">
+      <img src="${imageUrl(entry.image_url)}" alt="${entry.product_name}"
+        onerror="this.onerror=null; this.src='${fallback}'">
       <div class="history-body">
         <div class="history-brand">${entry.brand || ""}</div>
         <div class="history-name">${entry.product_name}</div>

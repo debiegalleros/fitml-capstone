@@ -254,6 +254,10 @@ async function runTryOn() {
       product_name: item.product_name,
       brand: item.brand,
       image_url: res.image_url,
+      // Permanent fallback thumbnail: composites are deleted server-side
+      // after 24h (privacy) and on redeploys, but history entries persist
+      // in localStorage — the card falls back to the catalog photo.
+      photo_url: item.photo_url,
       size: res.size,
       recommended_size: res.recommended_size,
       confidence: res.confidence,
