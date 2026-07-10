@@ -1,11 +1,9 @@
 /* FitML — Catalog page: category tab bar, filter drawer (draft-until-"Show
    items"), sort, search, wishlist, and a grid of items with per-item color
    swatch dots that swap the card image to that color's cutout preview
-   inline (no navigation). Non-native colors composite over a neutral
-   silhouette placeholder so the preview never reads as a disembodied
-   garment. Each card also has a collapsible details panel (sizes, size
-   measurements, description, composition & care, and — if a profile
-   exists — a size recommendation). */
+   inline (no navigation). Each card also has a collapsible details panel
+   (sizes, size measurements, description, composition & care, and — if a
+   profile exists — a size recommendation). */
 
 const CATEGORIES = [
   "blouse", "dress", "jacket", "jeans", "polo", "shorts",
@@ -33,8 +31,8 @@ const COLORS = [
   "purple", "red", "white", "yellow",
 ];
 
-// COLOR_HEX, BOTTOM_CATEGORIES/_silhouetteFor, and the small templated
-// description helpers live in catalog-common.js (shared with item.js).
+// COLOR_HEX and the small templated description helpers live in
+// catalog-common.js (shared with item.js).
 
 const WISHLIST_KEY = "fitml_wishlist";
 
@@ -386,7 +384,6 @@ function renderGrid() {
       return `
     <div class="card item-card" data-item-id="${item.item_id}">
       <div class="thumb-wrap">
-        <img class="thumb-silhouette" src="${_silhouetteFor(item.category)}" alt="" aria-hidden="true">
         <img class="thumb" src="${photoUrl}" data-photo="${photoUrl}" data-cutout="${cutoutUrl}" data-native="${item.color}" alt="${item.product_name}" loading="lazy">
         <button type="button" class="wishlist-heart${wished ? " active" : ""}" data-item-id="${item.item_id}" aria-label="Save to wishlist">${wished ? "&#9829;" : "&#9825;"}</button>
       </div>
@@ -508,38 +505,24 @@ document.getElementById("catalog-grid").addEventListener("click", (e) => {
   const card = dot.closest(".item-card");
   const wrap = card.querySelector(".thumb-wrap");
   const img = card.querySelector(".thumb");
-  const sil = card.querySelector(".thumb-silhouette");
   const color = dot.dataset.color;
   const native = img.dataset.native;
   const isNative = color === native;
   if (isNative) {
     img.src = img.dataset.photo;
     wrap.classList.remove("showing-cutout");
-    _resetSilhouette(sil);
   } else {
-    const item = itemsById[card.dataset.itemId];
-    // Swap only once the cutout has decoded — flipping the class first left
-    // a silhouette-only grey card while the PNG streamed in.
+    // Swap only once the cutout has decoded — swapping src immediately left
+    // an empty card while the PNG streamed in.
     _swapWhenLoaded(img, _variantCutoutUrl(img.dataset.cutout, color), (ok) => {
       if (!ok) return;
       wrap.classList.add("showing-cutout");
-      _alignSilhouette(img, sil, item ? item.category : "");
     });
   }
   card.querySelectorAll(".swatch-dot").forEach((d) => d.classList.toggle("active", d === dot));
   const tryOnLink = card.querySelector("a.btn");
   const itemId = card.dataset.itemId;
   tryOnLink.href = `item.html?item_id=${encodeURIComponent(itemId)}&color=${encodeURIComponent(color)}`;
-});
-
-// Re-derive silhouette geometry when the viewport (and thus card size) changes
-window.addEventListener("resize", () => {
-  document.querySelectorAll(".thumb-wrap.showing-cutout").forEach((wrap) => {
-    const card = wrap.closest(".item-card");
-    const item = itemsById[card.dataset.itemId];
-    _alignSilhouette(wrap.querySelector(".thumb"), wrap.querySelector(".thumb-silhouette"),
-      item ? item.category : "");
-  });
 });
 
 loadCatalog();

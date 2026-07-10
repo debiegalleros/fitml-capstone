@@ -29,7 +29,10 @@ function _navItemHtml(item, activePage, profile) {
     </span>`;
   }
   const activeAttr = item.page === activePage ? ' class="active"' : "";
-  const label = item.page === "profile" && profile && profile.name ? `Hi, ${profile.name}` : item.label;
+  // Profile link greets by name; without a saved name it's just "Hi"
+  const label = item.page === "profile"
+    ? (profile && profile.name ? `Hi, ${profile.name}` : "Hi")
+    : item.label;
   return `<a href="${item.href}" data-page="${item.page}"${activeAttr}>${label}</a>`;
 }
 

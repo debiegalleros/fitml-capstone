@@ -787,23 +787,8 @@ main { flex: 1; }
   background: var(--surface);
   overflow: hidden;
 }
-.item-card .thumb-silhouette {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  padding: 6%;
-  box-sizing: border-box;
-  opacity: 0;
-  transition: opacity 0.15s ease;
-}
-/* Subtle body hint behind the cutout — kept translucent so the aligned
-   silhouette (see _alignSilhouette) reads as intent, not an artifact */
-.item-card .thumb-wrap.showing-cutout .thumb-silhouette { opacity: 0.45; }
 .item-card .thumb {
   position: relative;
-  z-index: 1;
   display: block;
   width: 100%;
   height: 100%;
@@ -1226,8 +1211,6 @@ button.size-chip.active {
   padding: 6%;
   box-sizing: border-box;
 }
-.item-hero-wrap .item-hero-silhouette { opacity: 0; }
-.item-hero-wrap.showing-cutout .item-hero-silhouette { opacity: 0.45; }
 .item-hero-loading {
   position: absolute;
   inset: 0;
