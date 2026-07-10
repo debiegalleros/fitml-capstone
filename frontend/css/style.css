@@ -953,6 +953,15 @@ main { flex: 1; }
   padding: 2px 8px;
   color: var(--text-muted);
 }
+/* Item-page "Sizes" chips are buttons that select the size (kept in sync
+   with the main pill row) */
+button.size-chip { cursor: pointer; font-family: inherit; padding: 4px 10px; }
+button.size-chip:hover { border-color: var(--text-muted); }
+button.size-chip.active {
+  background: var(--maroon-soft);
+  border-color: var(--maroon);
+  color: var(--maroon);
+}
 .item-card .btn { margin-top: 8px; }
 
 .empty-state {

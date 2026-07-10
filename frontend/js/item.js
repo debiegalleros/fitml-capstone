@@ -93,6 +93,11 @@ function render() {
     }
   }
 
+  // Preserve which accordion subsections are open across re-renders
+  // (size/color clicks re-render the whole panel).
+  const openSections = [...root.querySelectorAll(".accordion-section.open")]
+    .map((s) => s.dataset.subsection);
+
   root.innerHTML = `
     <div class="item-detail-grid">
       <div>
@@ -120,7 +125,8 @@ function render() {
         <div class="details-panel" id="item-details-panel">
           <div class="details-fixed">
             <h4>Sizes</h4>
-            <div class="size-chips">${item.size_range.map((s) => `<span class="chip">${s}</span>`).join("")}</div>
+            <div class="size-chips">${item.size_range.map((s) =>
+              `<button type="button" class="chip size-chip${selectedSize === s ? " active" : ""}" data-size="${s}">${s}</button>`).join("")}</div>
           </div>
 
           <div class="accordion-section" data-subsection="measurements">
@@ -168,6 +174,11 @@ function render() {
     </div>
   `;
 
+  openSections.forEach((name) => {
+    const section = root.querySelector(`.accordion-section[data-subsection="${name}"]`);
+    if (section) section.classList.add("open");
+  });
+
   wireEvents();
 }
 
@@ -185,7 +196,10 @@ function wireEvents() {
     });
   });
 
-  document.querySelectorAll(".size-pill").forEach((pill) => {
+  // Main size-pill row AND the "Sizes" chips in the details panel both
+  // select the size (the chips read as pills to shoppers, so they must act
+  // like them — inert spans tested as a broken control).
+  document.querySelectorAll(".size-pill, .size-chip").forEach((pill) => {
     pill.addEventListener("click", () => {
       selectedSize = pill.dataset.size;
       tryonResult = null;
