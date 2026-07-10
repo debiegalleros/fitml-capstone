@@ -508,15 +508,38 @@ document.getElementById("catalog-grid").addEventListener("click", (e) => {
   const card = dot.closest(".item-card");
   const wrap = card.querySelector(".thumb-wrap");
   const img = card.querySelector(".thumb");
+  const sil = card.querySelector(".thumb-silhouette");
   const color = dot.dataset.color;
   const native = img.dataset.native;
   const isNative = color === native;
-  img.src = isNative ? img.dataset.photo : _variantCutoutUrl(img.dataset.cutout, color);
-  wrap.classList.toggle("showing-cutout", !isNative);
+  if (isNative) {
+    img.src = img.dataset.photo;
+    wrap.classList.remove("showing-cutout");
+    _resetSilhouette(sil);
+  } else {
+    const item = itemsById[card.dataset.itemId];
+    // Swap only once the cutout has decoded — flipping the class first left
+    // a silhouette-only grey card while the PNG streamed in.
+    _swapWhenLoaded(img, _variantCutoutUrl(img.dataset.cutout, color), (ok) => {
+      if (!ok) return;
+      wrap.classList.add("showing-cutout");
+      _alignSilhouette(img, sil, item ? item.category : "");
+    });
+  }
   card.querySelectorAll(".swatch-dot").forEach((d) => d.classList.toggle("active", d === dot));
   const tryOnLink = card.querySelector("a.btn");
   const itemId = card.dataset.itemId;
   tryOnLink.href = `item.html?item_id=${encodeURIComponent(itemId)}&color=${encodeURIComponent(color)}`;
+});
+
+// Re-derive silhouette geometry when the viewport (and thus card size) changes
+window.addEventListener("resize", () => {
+  document.querySelectorAll(".thumb-wrap.showing-cutout").forEach((wrap) => {
+    const card = wrap.closest(".item-card");
+    const item = itemsById[card.dataset.itemId];
+    _alignSilhouette(wrap.querySelector(".thumb"), wrap.querySelector(".thumb-silhouette"),
+      item ? item.category : "");
+  });
 });
 
 loadCatalog();

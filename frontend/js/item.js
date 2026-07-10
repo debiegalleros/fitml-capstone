@@ -179,6 +179,16 @@ function render() {
     if (section) section.classList.add("open");
   });
 
+  // Align the hero silhouette to the garment's drawn rect once the cutout
+  // has dimensions (see _alignSilhouette in catalog-common.js).
+  if (!tryonResult && !isNative) {
+    const heroImg = root.querySelector(".item-hero-img");
+    const heroSil = root.querySelector(".item-hero-silhouette");
+    const align = () => _alignSilhouette(heroImg, heroSil, item.category);
+    if (heroImg.complete && heroImg.naturalWidth) align();
+    else heroImg.addEventListener("load", align, { once: true });
+  }
+
   wireEvents();
 }
 
@@ -188,11 +198,22 @@ function wireEvents() {
 
   document.querySelectorAll(".swatch-dot").forEach((dot) => {
     dot.addEventListener("click", () => {
-      selectedColor = dot.dataset.color;
-      tryonResult = null;
-      tryonError = null;
-      adviceText = null;
-      render();
+      const color = dot.dataset.color;
+      const isNative = color.toLowerCase() === item.color.toLowerCase();
+      const apply = () => {
+        selectedColor = color;
+        tryonResult = null;
+        tryonError = null;
+        adviceText = null;
+        render();
+      };
+      if (isNative) {
+        apply();
+      } else {
+        // Preload the variant cutout so the hero never shows the grey
+        // silhouette alone while the PNG streams in.
+        _swapWhenLoaded(new Image(), _variantCutoutUrl(imageUrl(item.cutout_url), color), apply);
+      }
     });
   });
 
@@ -287,6 +308,14 @@ async function loadAdvice(tryonId) {
     render();
   }
 }
+
+window.addEventListener("resize", () => {
+  const heroImg = document.querySelector(".item-hero-img");
+  const heroSil = document.querySelector(".item-hero-silhouette");
+  if (item && heroImg && heroSil && document.querySelector(".item-hero-wrap.showing-cutout")) {
+    _alignSilhouette(heroImg, heroSil, item.category);
+  }
+});
 
 async function init() {
   if (!itemId) {

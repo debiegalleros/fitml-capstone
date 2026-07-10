@@ -30,6 +30,71 @@ function _silhouetteFor(category) {
   return BOTTOM_CATEGORIES.has(category) ? "images/silhouette-bottom.svg" : "images/silhouette.svg";
 }
 
+// ------------------------------------------------- silhouette alignment
+// The silhouette and the garment cutout used to be two independent
+// object-fit:contain images, each scaled by its own intrinsic aspect ratio —
+// so the grey body poked out unpredictably (head over collars, torso below
+// short jackets, legs beside narrow jeans) and read as a rendering artifact.
+// Instead, compute the garment's actual drawn rectangle inside its contain
+// box and size/position the silhouette against it.
+//
+// Geometry constants from the SVGs themselves:
+//   silhouette.svg (300x370): torso spans x 82-218 (w 136), shoulder line y~111
+//   silhouette-bottom.svg (200x460): legs span x 38-162 (w 124), waist top y~8
+function _alignSilhouette(imgEl, silEl, category) {
+  const iw = imgEl.naturalWidth, ih = imgEl.naturalHeight;
+  if (!iw || !ih) return;
+  const cs = getComputedStyle(imgEl);
+  const padX = parseFloat(cs.paddingLeft) || 0;
+  const padY = parseFloat(cs.paddingTop) || 0;
+  const boxW = imgEl.clientWidth - 2 * padX;
+  const boxH = imgEl.clientHeight - 2 * padY;
+  if (boxW <= 0 || boxH <= 0) return;
+  const s = Math.min(boxW / iw, boxH / ih);
+  const gw = iw * s, gh = ih * s;                    // garment drawn size
+  const gx = padX + (boxW - gw) / 2;                 // garment drawn origin
+  const gy = padY + (boxH - gh) / 2;
+
+  let silW, silH, silX, silY;
+  if (BOTTOM_CATEGORIES.has(category)) {
+    silW = gw * (200 / 124);
+    silH = silW * (460 / 200);
+    silX = gx + gw / 2 - silW / 2;
+    silY = gy + 0.01 * gh - silH * (8 / 460);        // waistband at garment top
+  } else {
+    silW = gw * (300 / 136);
+    silH = silW * (370 / 300);
+    silX = gx + gw / 2 - silW / 2;
+    silY = gy + 0.04 * gh - silH * (111 / 370);      // shoulders near garment top
+  }
+  silEl.style.left = `${silX}px`;
+  silEl.style.top = `${silY}px`;
+  silEl.style.width = `${silW}px`;
+  silEl.style.height = `${silH}px`;
+  silEl.style.right = "auto";
+  silEl.style.bottom = "auto";
+  silEl.style.padding = "0";
+}
+
+function _resetSilhouette(silEl) {
+  ["left", "top", "width", "height", "right", "bottom", "padding"]
+    .forEach((p) => silEl.style.removeProperty(p));
+}
+
+// Swap an <img> to a new source only after the file has decoded, so the
+// grey silhouette is never shown alone while a large cutout PNG streams in
+// (on the deployed site this used to leave silhouette-only cards for
+// seconds). Calls done(ok) after the swap — or with ok=false on error.
+function _swapWhenLoaded(imgEl, newSrc, done) {
+  const pre = new Image();
+  pre.onload = () => {
+    imgEl.src = newSrc;
+    done(true);
+  };
+  pre.onerror = () => done(false);
+  pre.src = newSrc;
+}
+
 function _titleCase(s) {
   return s.replace(/(^|\s|-)\w/g, (c) => c.toUpperCase());
 }
