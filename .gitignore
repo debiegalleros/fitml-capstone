@@ -50,3 +50,6 @@ models/random_forest.joblib
 
 # Claude Code local tooling state
 .claude/
+
+# Local Netlify folder
+.netlify
