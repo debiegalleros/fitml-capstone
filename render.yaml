@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: fitml-capstone
+    name: fit-ml
     runtime: python
     plan: free
     buildCommand: pip install -r requirements.txt && bash scripts/fetch_catalog_assets.sh

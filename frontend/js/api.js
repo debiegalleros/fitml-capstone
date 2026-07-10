@@ -3,7 +3,7 @@
 
 const API_BASE = ["localhost", "127.0.0.1"].includes(window.location.hostname)
   ? "http://localhost:5001"
-  : "https://fitml-capstone.onrender.com";
+  : "https://fit-ml.onrender.com";
 
 class ApiError extends Error {
   constructor(message, status) {
