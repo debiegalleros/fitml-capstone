@@ -33,66 +33,58 @@ so ("items from this brand have run true to size for you").
   rendered composite — it changes no prediction, no confidence score, and no
   stored data.
 
-**Integration code** (planned implementation for `backend/app.py`, Phase 8 —
-this document will be updated to match the final code if it drifts):
+**Integration code** — implemented in
+[`backend/advice_engine.py`](../backend/advice_engine.py), called by the
+`/advice` route in [`backend/app.py`](../backend/app.py). The core call
+(abridged from the real file):
 
 ```python
-import base64
+# backend/advice_engine.py (abridged)
+ADVICE_MODEL = "claude-opus-4-8"
 
-import anthropic
+SYSTEM_PROMPT = """\
+You are FitML's fit advisor for an e-commerce virtual fitting room.
+Write personalized clothing-fit advice for a shopper. Rules:
+- Write EXACTLY two paragraphs, separated by a blank line.
+- Paragraph 1: explain the size recommendation using the shopper's
+  measurements in plain language (why this size should fit their body).
+- Paragraph 2: must start with the word "Note:" followed by visual
+  observations from the attached try-on photo. Use simple everyday language
+  a non-technical shopper understands. NO tailoring jargon ...
+- The try-on image is a 2D preview composite, so comment on overall size and
+  placement, not fabric texture or lighting.
+...
+"""
 
-client = anthropic.Anthropic()  # key from ANTHROPIC_API_KEY, never committed
-
-ADVICE_SYSTEM_PROMPT = (
-    "You are a fitting-room assistant for FitML. You receive a customer's "
-    "self-reported measurements, a size recommendation produced by a trained "
-    "classifier, and a composited try-on image. Write 2-4 sentences of "
-    "friendly, concrete fit advice. You may comment on what is visible in "
-    "the image (shoulder seam alignment, hem length, fabric pull). Never "
-    "estimate the customer's measurements and never contradict or second-"
-    "guess the recommended size — explain it."
-)
-
-
-@app.route("/advice", methods=["POST"])
-def advice():
-    payload = request.get_json()
-    composite_path = validate_session_image(payload["composite_id"])
-    with open(composite_path, "rb") as f:
-        image_b64 = base64.standard_b64encode(f.read()).decode("utf-8")
-
+def generate_advice(profile, item, recommendation, size, image_path):
+    client = anthropic.Anthropic()  # key from ANTHROPIC_API_KEY, never committed
+    ...  # context lines: measurements, garment metadata, recommended size +
+    # confidence, amber/borderline flag, non-recommended-size note, and any
+    # rule-based history note — assembled server-side, never free-form user text
     response = client.messages.create(
-        model="claude-opus-4-8",
-        max_tokens=1024,
-        system=ADVICE_SYSTEM_PROMPT,
+        model=ADVICE_MODEL,
+        max_tokens=400,
+        system=SYSTEM_PROMPT,
         messages=[{
             "role": "user",
             "content": [
-                {
-                    "type": "image",  # the composited try-on image
-                    "source": {
-                        "type": "base64",
-                        "media_type": "image/png",
-                        "data": image_b64,
-                    },
-                },
-                {
-                    "type": "text",
-                    "text": build_advice_context(payload),
-                    # measurements, garment metadata, recommended size +
-                    # confidence, borderline/fabric flags, and any rule-based
-                    # history note ("2 prior items from this brand ran true
-                    # to size") — assembled server-side, never free-form
-                    # user text
-                },
+                {"type": "image",   # the composited try-on image
+                 "source": {"type": "base64", "media_type": media_type,
+                            "data": image_b64}},
+                {"type": "text", "text": "\n".join(lines)},
             ],
         }],
     )
-    advice_text = next(
-        (b.text for b in response.content if b.type == "text"), ""
-    )
-    return jsonify({"advice": advice_text})
+    return next(b.text for b in response.content if b.type == "text").strip()
 ```
+
+The deployed prompt enforces the product's plain-language rule: the second
+paragraph must open with "Note:" and describe the try-on photo in everyday
+words (jargon like "seam alignment" or "hem" is explicitly banned — a
+deliberate change from the early draft of this document, which had suggested
+Claude could use those terms). The history lookup (`history_note()` in the
+same file) is a plain SQL query — 2+ prior items from the same brand or
+fabric with identical fit feedback adds one context line to the prompt.
 
 Documented per the project's locked decisions as a **multimodal AI
 integration**: image + structured text in, advice text out, nothing written
