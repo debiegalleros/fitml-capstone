@@ -53,3 +53,6 @@ models/random_forest.joblib
 
 # Local Netlify folder
 .netlify
+
+# Phase 11: deck preview mirrors (renders of the pptx content, not deliverables)
+submission/*_preview.pdf

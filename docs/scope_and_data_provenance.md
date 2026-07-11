@@ -204,7 +204,17 @@ garment cutouts (`data/catalog/garments/`) are reserved for two roles:
    rather than a product photograph).
 
 metadata.csv carries both paths per item (`photo` for display, `image` for
-compositing). This resolves catalog presentability: cutout edge artifacts
+compositing).
+
+**Final catalog counts (post-Phase-7 reviews, July 2026):** two later QA
+rounds each excluded 2 more items with residual cutout flaws (a post-review
+cleanup: 57068, 13458; then a Phase 9 live-site review: 22322, 44578 — all
+logged in `src/catalog_exclusions.csv`), and the Phase 9 polish pass baked
+the 1px Gaussian alpha edge feather into every garment PNG and removed
+hairline strand remnants (`src/catalog_polish.py`). Final catalog: **117
+items (106 women's across 10 categories, 11 men's across the 4
+chart-covered categories), 234 color variants** — still above the ~100+
+women's / 10–15 men's targets. This resolves catalog presentability: cutout edge artifacts
 never appear as standalone product imagery. A segmentation-model comparison
 (SegFormer-B2-clothes vs the pipeline's u2net_cloth_seg, all 121 items,
 source-photo defect audit) found no net quality advantage to switching
