@@ -12,6 +12,7 @@ Endpoints:
 
 Plus image-serving routes for catalog files and session try-on results.
 """
+import gc
 import os
 import uuid
 
@@ -37,6 +38,11 @@ CORS(app)
 app.config["MAX_CONTENT_LENGTH"] = MAX_UPLOAD_MB * 1024 * 1024
 app.register_blueprint(vision_tryon_bp)
 
+# Memory hardening (512 MB Render instance): phone photos arrive at 4000px+;
+# every downstream step (face blur, pose, compositing, inpainting mask) works
+# fine at 1280px and the arrays are ~10x smaller.
+MAX_PHOTO_SIDE = 1280
+
 os.makedirs(UPLOADS_DIR, exist_ok=True)
 init_db()
 purge_expired_uploads()
@@ -58,6 +64,15 @@ def _parse_float(form, key):
     if value is None or str(value).strip() == "":
         return None
     return float(value)
+
+
+def _downscale(image):
+    h, w = image.shape[:2]
+    scale = MAX_PHOTO_SIDE / max(h, w)
+    if scale >= 1.0:
+        return image
+    return cv2.resize(image, (int(w * scale), int(h * scale)),
+                      interpolation=cv2.INTER_AREA)
 
 
 # --------------------------------------------------------------- endpoints
@@ -102,8 +117,10 @@ def upload_profile():
 
     data = np.frombuffer(photo.read(), np.uint8)
     image = cv2.imdecode(data, cv2.IMREAD_COLOR)
+    del data
     if image is None:
         return _error("could not decode photo")
+    image = _downscale(image)
 
     # Face blur ON by default — an unblurred version never persists unless
     # the user explicitly opts out (privacy-first, docs/privacy.md)
@@ -138,8 +155,10 @@ def upload_profile():
             continue
         extra_data = np.frombuffer(extra.read(), np.uint8)
         extra_image = cv2.imdecode(extra_data, cv2.IMREAD_COLOR)
+        del extra_data
         if extra_image is None:
             continue
+        extra_image = _downscale(extra_image)
         if face_blur:
             extra_image = tryon.blur_face(extra_image)
         extra_path = os.path.join(session_dir, filename)
@@ -173,6 +192,8 @@ def upload_profile():
         response["photo_side_url"] = f"/tryon-image/{session_id}/photo_side.jpg"
     if photo_back_path:
         response["photo_back_url"] = f"/tryon-image/{session_id}/photo_back.jpg"
+    del image
+    gc.collect()
     return jsonify(response)
 
 
@@ -260,6 +281,9 @@ def try_on():
              item["category"], size, color or item["color"],
              rec["recommended_size"], rec["confidence"], rec["state"],
              out_path))
+
+    del photo, garment, result
+    gc.collect()
 
     return jsonify({
         "tryon_id": tryon_id,

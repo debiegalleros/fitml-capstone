@@ -27,4 +27,6 @@ COPY . .
 RUN bash scripts/fetch_catalog_assets.sh
 
 EXPOSE 10000
-CMD ["sh", "-c", "gunicorn --chdir backend --bind 0.0.0.0:${PORT:-10000} --timeout 120 app:app"]
+# One worker only: multiple workers each load MediaPipe + the XGBoost model
+# into RAM and blow the 512 MB instance; threads share them.
+CMD ["sh", "-c", "gunicorn --chdir backend --bind 0.0.0.0:${PORT:-10000} --workers 1 --threads 4 --timeout 120 app:app"]
