@@ -62,8 +62,11 @@ def _get_face_detector():
 
 # Landmark indices (MediaPipe Pose)
 L_SHOULDER, R_SHOULDER = 11, 12
+L_ELBOW, R_ELBOW = 13, 14
+L_WRIST, R_WRIST = 15, 16
 L_HIP, R_HIP = 23, 24
 L_KNEE, R_KNEE = 25, 26
+L_ANKLE, R_ANKLE = 27, 28
 
 VISIBILITY_THRESHOLD = 0.5
 
@@ -104,8 +107,11 @@ def extract_pose(image_bgr) -> dict:
 
     keypoints = {
         "l_shoulder": point(L_SHOULDER), "r_shoulder": point(R_SHOULDER),
+        "l_elbow": point(L_ELBOW), "r_elbow": point(R_ELBOW),
+        "l_wrist": point(L_WRIST), "r_wrist": point(R_WRIST),
         "l_hip": point(L_HIP), "r_hip": point(R_HIP),
         "l_knee": point(L_KNEE), "r_knee": point(R_KNEE),
+        "l_ankle": point(L_ANKLE), "r_ankle": point(R_ANKLE),
     }
     shoulders_ok = (keypoints["l_shoulder"]["v"] > VISIBILITY_THRESHOLD
                     and keypoints["r_shoulder"]["v"] > VISIBILITY_THRESHOLD)

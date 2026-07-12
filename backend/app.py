@@ -1,11 +1,14 @@
-"""FitML Flask backend — Phase 8.
+"""FitML Flask backend — Phase 8 (+ vision try-on rebuild).
 
-Five endpoints (CLAUDE.md phase plan):
+Endpoints:
   POST /upload-profile   photo + measurements -> session_id, photo_coverage
   GET  /catalog          filterable garment list (serves on-model photos)
   POST /recommend-size   class-weighted XGBoost + validation & borderline layers
-  POST /try-on           pose-anchored 2D compositing, size-proportional, feathered
+  POST /try-on           legacy pose-anchored 2D compositing (fallback path)
   POST /advice           Claude multimodal advice text (two paragraphs)
+  POST /api/tryon        generative try-on: Claude Vision + SDXL inpainting
+                         (plus /api/generate-tryon-prompt and
+                         /api/generate-tryon-image — see vision_tryon.py)
 
 Plus image-serving routes for catalog files and session try-on results.
 """
@@ -27,10 +30,12 @@ from cleanup_uploads import purge_expired_uploads
 from config import (ALLOWED_PHOTO_EXT, BOTTOM_CATEGORIES, CATALOG_DIR,
                     MAX_UPLOAD_MB, UPLOADS_DIR)
 from db import get_db, init_db
+from vision_tryon import vision_tryon_bp
 
 app = Flask(__name__)
 CORS(app)
 app.config["MAX_CONTENT_LENGTH"] = MAX_UPLOAD_MB * 1024 * 1024
+app.register_blueprint(vision_tryon_bp)
 
 os.makedirs(UPLOADS_DIR, exist_ok=True)
 init_db()
