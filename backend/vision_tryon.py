@@ -299,12 +299,21 @@ def _build_mask(photo: Image.Image, pose: dict, category: str,
         top = (top[1], top[0])
         bottom = (bottom[1], bottom[0])
 
-    # Generous padding so no old clothing survives at the mask boundary:
-    # ~25% of shoulder width horizontally, and for tops the mask is raised
-    # ~18% of shoulder width above the shoulder line to cover collars and
-    # necklines of whatever the shopper is currently wearing.
+    # Generous padding so no old clothing survives at the mask boundary.
+    # Tops: ~25% of shoulder width each side, mask raised ~18% above the
+    # shoulder line to cover collars/necklines of the current outfit.
+    # Bottoms: hip keypoints are joint centres spanning only ~half the
+    # visible hip width (cf. the compositor's 1.9x bottom width factor), so
+    # 25% padding left old trousers visible at both hips — use ~55%.
+    # Dresses: shoulder-anchored, but the skirt flares well past shoulder
+    # width — widen the bottom edge of the trapezoid to ~60%.
     span = abs(top[0][0] - top[1][0]) or w * 0.25
-    pad_top_x = pad_bot_x = span * 0.25
+    if cat in LOWER_BODY_CATEGORIES:
+        pad_top_x = pad_bot_x = span * 0.55
+    elif cat in FULL_LENGTH_CATEGORIES:
+        pad_top_x, pad_bot_x = span * 0.25, span * 0.60
+    else:
+        pad_top_x = pad_bot_x = span * 0.25
     pad_y = abs(bottom[0][1] - top[0][1]) * 0.08
     neck_raise = span * 0.18 if cat not in LOWER_BODY_CATEGORIES else 0
 
