@@ -36,21 +36,21 @@ Two planning docs may exist in `docs/planning/`:
   baseline — for a sizing assistant, catching misfits (small/large) matters more
   than raw accuracy; the confidence % and amber-box layer already communicate
   uncertainty to the user. Document this reasoning in docs/model_selection.md.
-- Try-on: 2D body-wrap compositing (MediaPipe pose keypoints + affine-warped
-  transparent garment PNG, alpha-composited on HTML5 Canvas). **NOT 3D, NOT Three.js,
-  NOT WebGL.** Do not suggest 3D. Size-proportional rendering: when compositing a
-  size other than the model-recommended one, scale the garment PNG proportionally
-  to that size's measurement ratios from the size chart (an XL on a small-framed
-  user renders visibly wider/longer than an M). Lightweight visual size-difference
-  cue; the advice text explains the fit tradeoff. Cite fit-aware generative try-on
-  (FIT dataset, 2026) as the future-work upgrade path.
-  **Superseded (vision-tryon branch, in progress):** the primary renderer is
-  now generative — Claude Vision + IDM-VTON (garment-conditioned diffusion,
-  default) with SDXL inpainting and this 2D compositor as successive
-  fallbacks. Full doc rewrite reconciling this paragraph is pending (planned
-  Phase 5 pass across CLAUDE.md/report/decks/README); until then this bullet
-  describes the pre-rebuild architecture and the one below describes a rule
-  that applies to the new renderer.
+- Try-on: generative AI compositing, three engines tried in order per request.
+  Claude Vision first analyzes the shopper photo + garment image and returns a
+  structured JSON prompt (pose, garment placement, fit cues); that prompt
+  drives (1) IDM-VTON — garment-conditioned diffusion, the default renderer —
+  then on failure (2) SDXL inpainting, then on failure (3) the original 2D
+  body-wrap compositor (MediaPipe pose keypoints + affine-warped transparent
+  garment PNG, alpha-composited on HTML5 Canvas) as the final, always-available
+  fallback. **NOT 3D, NOT Three.js, NOT WebGL** at any tier — do not suggest 3D.
+  Size-proportional rendering carries through every tier: when compositing a
+  size other than the model-recommended one, scale to that size's measurement
+  ratios from the size chart (an XL on a small-framed user renders visibly
+  wider/longer than an M). Cite fit-aware generative try-on (FIT dataset, 2026)
+  as the future-work upgrade path beyond what already ships here. See
+  `docs/genai_usage.md` for the full engine-selection rationale and prompt
+  design.
   **Universal lower-body standardization (deliberate design decision, not a
   bug):** for any top/outerwear try-on on a full-body photo, the lower-body
   region (hip-to-ankle) is always standardized to plain black fitted
@@ -178,11 +178,10 @@ Two planning docs may exist in `docs/planning/`:
   there's nothing left to protect there) and carried in pose.json so every
   generated try-on image gets the real face region re-pasted back over
   whatever the engine rendered there, with a feathered edge
-  (`_paste_source_face` in `backend/vision_tryon.py`) — the same mechanism
-  used earlier this session, reinstated for this path only. This closes
-  the earlier IDM-VTON synthetic-face-regeneration finding for both
-  checkbox states. See `docs/privacy.md` and `docs/genai_usage.md` for the
-  full mechanism and its history.
+  (`_paste_source_face` in `backend/vision_tryon.py`). This closes the
+  IDM-VTON synthetic-face-regeneration risk for both checkbox states. See
+  `docs/privacy.md` and `docs/genai_usage.md` for the full mechanism and its
+  history.
 - Presentation branding: White background on all slides. AIM logo
   (`docs/assets/AIM_logo_2017.svg.png`) in the upper left corner of every slide,
   small (~1 inch / 2.5cm height). No other logos. Title slide of both decks,

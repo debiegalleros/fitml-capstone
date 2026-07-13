@@ -82,17 +82,29 @@ fairness audit.
    finding, by two different means: removing the face from the input
    entirely (checked) versus restoring the real face onto the output
    (unchecked).
-4. **HTTPS-only transmission.** Both deployed surfaces
+4. **Third-party processing disclosure — generative try-on sends the
+   photo to Replicate.** The IDM-VTON and SDXL rendering engines run on
+   Replicate's hosted infrastructure (see
+   [genai_usage.md](genai_usage.md)), so the shopper's photo — already
+   cropped above the nose first, if that checkbox was used — is
+   transmitted to Replicate as a data processor, for the sole purpose of
+   generating the try-on render. Replicate never receives body
+   measurements, name, or any other profile field, only the image and
+   the derived mask/prompt; FitML's 24-hour deletion window governs the
+   copy on FitML's own infrastructure regardless of this external call.
+   This is disclosed in the upload consent text
+   ([frontend/profile.html](../frontend/profile.html)).
+5. **HTTPS-only transmission.** Both deployed surfaces
    (`https://fit-ml.netlify.app`, `https://fit-ml.onrender.com`) serve
    over TLS; local dev photos stay on the developer machine
    (FileVault-encrypted disk).
-5. **Never committed.** `backend/uploads/` is gitignored; no user photo
+6. **Never committed.** `backend/uploads/` is gitignored; no user photo
    can enter the repository or its history.
-6. **Consent notice at the point of collection.** The profile upload
+7. **Consent notice at the point of collection.** The profile upload
    screen ([frontend/profile.html](../frontend/profile.html)) states
    what is collected, what it is used for, and the 24-hour retention
    limit before the user submits anything.
-7. **Minimal collection.** Weight, side/back photos, and name are all
+8. **Minimal collection.** Weight, side/back photos, and name are all
    optional; the upload cap is 10 MB with an allow-listed set of image
    types ([backend/config.py](../backend/config.py)).
 
@@ -105,12 +117,13 @@ The prototype is framed against the Philippines' Data Privacy Act of
   purpose, and the retention period before collection happens (§1, §6
   above); this document is public in the repository.
 - **Legitimate purpose** — photos are collected for exactly one declared
-  purpose (try-on rendering). They are not used for model training, not
-  used for measurement inference, and not shared with third parties.
-  The one external call that sees a derived image — the Claude advice
-  endpoint receives the *composited* try-on image (no face pixels ever
-  present, per §3) for qualitative fit commentary — serves the same
-  declared purpose and is documented in [genai_usage.md](genai_usage.md).
+  purpose (try-on rendering). They are not used for model training and
+  not used for measurement inference. The two external calls that see
+  an image — Replicate (IDM-VTON/SDXL) receiving the shopper's photo to
+  render the try-on, and Claude receiving the *composited* try-on image
+  for qualitative fit commentary — both serve that same declared
+  purpose, are disclosed in the consent text, and are documented in
+  [genai_usage.md](genai_usage.md).
 - **Proportionality** — only data necessary for the feature is
   collected (§"What is collected"); the face crop removes identity
   information the try-on does not need, at the source, rather than

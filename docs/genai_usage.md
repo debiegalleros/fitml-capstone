@@ -297,5 +297,5 @@ size; generative AI only renders and explains it.**
 | Fairness audit | Metrics + SHAP on the above | Offline, Phase 6 | Audits the graded ML |
 | Fit advice text | Claude API, multimodal (image + text in, text out) | Per request, after prediction | No — read-only consumer |
 | History suggestions | Rule-based SQL lookup (not ML at all) | Per request, feeds the advice prompt | No |
-| Generative virtual try-on | Claude Vision + IDM-VTON (primary) / SDXL inpainting (fallback) | Per request, after prediction | No — renders the recommended size, never estimates it |
+| Generative virtual try-on | Claude Vision + IDM-VTON (primary) → SDXL inpainting (fallback) → 2D affine-warp compositor (final fallback) | Per request, after prediction | No — renders the recommended size, never estimates it |
 | Catalog background removal | rembg / U²-Net (pretrained CNN) | Once, catalog build (Phase 7) | No — asset prep only |

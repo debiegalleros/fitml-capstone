@@ -49,7 +49,7 @@ Full reasoning in [docs/model_selection.md](docs/model_selection.md) and
 | [docs/fairness_report.md](docs/fairness_report.md) | Full bias audit: groups, disparate impact, equalized odds, SHAP, mitigation before/after |
 | [docs/scope_and_data_provenance.md](docs/scope_and_data_provenance.md) | Real vs synthetic data boundaries, catalog image sourcing decisions |
 | [docs/privacy.md](docs/privacy.md) | Photo-upload protections (24 h TTL, opt-in crop-at-upload face privacy, UUID sessions), RA 10173 framing |
-| [docs/genai_usage.md](docs/genai_usage.md) | Where generative AI is used (advice text, background removal) and why it is fenced off from the graded ML |
+| [docs/genai_usage.md](docs/genai_usage.md) | Where generative AI is used (advice text, generative try-on rendering, background removal) and why it is fenced off from the graded ML |
 | [docs/deployment.md](docs/deployment.md) | Render + Netlify setup, Docker rationale, redeploy steps |
 | [docs/planning/FitML_Master_Plan.md](docs/planning/FitML_Master_Plan.md) | Authoritative project plan (scope, data sources, locked decisions) |
 
@@ -112,8 +112,11 @@ python backend/app.py             # Flask API on http://localhost:5001
 python frontend/devserver.py      # frontend on http://localhost:8000
 ```
 
-The advice endpoint needs `ANTHROPIC_API_KEY` in `backend/.env` (every
-other feature works without it).
+The advice endpoint needs `ANTHROPIC_API_KEY` in `backend/.env`; the
+generative try-on engines (IDM-VTON, SDXL) need `REPLICATE_API_TOKEN`.
+Without a Replicate token, `/api/tryon` errors on both engines and the
+frontend automatically falls back to the 2D compositor
+(`window.legacyTryOn`) — every other feature works without either key.
 
 ## Privacy
 
