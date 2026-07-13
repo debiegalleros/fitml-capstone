@@ -120,8 +120,10 @@ other feature works without it).
 Uploaded photos are stored under anonymous UUID session folders and
 auto-deleted after 24 hours. An opt-in checkbox at upload (unchecked by
 default) crops the photo above the nose before it's ever written to disk,
-so no face pixels reach storage. Details and RA 10173 framing in
-[docs/privacy.md](docs/privacy.md).
+so no face pixels reach storage; left unchecked, generated try-on images
+still get the shopper's real face re-composited back on, protecting
+against the generative engine drawing an incorrect one. Details and RA
+10173 framing in [docs/privacy.md](docs/privacy.md).
 
 ## Data & asset attribution
 

@@ -1,7 +1,14 @@
 """Pose extraction, privacy crop, and 2D body-wrap compositing (locked
 decision: MediaPipe keypoints + affine-warped transparent garment PNG on the
 user photo — no 3D, no WebGL). Alpha channel gets a 1-2px Gaussian feather
-before compositing so edges blend into the photo (locked decision)."""
+before compositing so edges blend into the photo (locked decision).
+
+Privacy crop (`crop_above_nose`) is opt-in via a checkbox on the upload
+form. When checked, no face bounding box is ever computed. When left
+unchecked (the default), `detect_face_bbox` locates the face once so the
+generative try-on pipeline can re-paste it after generation — see
+vision_tryon.py's `_paste_source_face` for the defense-in-depth this
+supports."""
 import json
 import math
 import os
@@ -165,6 +172,34 @@ def crop_above_nose(image_bgr):
     if y0 >= image_bgr.shape[0] - 1:
         return None
     return image_bgr[y0:, :, :]
+
+
+def detect_face_bbox(image_bgr):
+    """Detect the primary face's bounding box (x0, y0, x1, y1) in pixel
+    space, expanded 25% to cover hairline/jaw, or None if no face is found.
+
+    Called only on the crop_face-UNCHECKED upload path (see app.py) — the
+    face is already fully present in that stored photo regardless, so this
+    box carries no additional privacy exposure. It tells the try-on
+    pipeline which region of that same stored photo to re-paste onto every
+    generated render, as defense-in-depth against IDM-VTON occasionally
+    regenerating a synthetic, incorrect face on full-body renders (see
+    docs/genai_usage.md). Never called on the crop_face-checked path: once
+    the face is cropped out, there is nothing left to protect, and
+    computing this box would collect face-region data the crop-at-upload
+    guarantee is meant to avoid entirely."""
+    h, w = image_bgr.shape[:2]
+    result = _get_face_detector().detect(_mp_image(image_bgr))
+    if not result.detections:
+        return None
+    box = result.detections[0].bounding_box
+    x0 = int(max(0, box.origin_x - 0.125 * box.width))
+    y0 = int(max(0, box.origin_y - 0.125 * box.height))
+    x1 = int(min(w, box.origin_x + 1.125 * box.width))
+    y1 = int(min(h, box.origin_y + 1.125 * box.height))
+    if x1 <= x0 or y1 <= y0:
+        return None
+    return (x0, y0, x1, y1)
 
 
 def feather_alpha(rgba, sigma: float = 1.5):

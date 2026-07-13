@@ -246,6 +246,71 @@ def test_crop_above_nose_returns_none_when_nose_at_frame_bottom(monkeypatch):
     assert tryon.crop_above_nose(image) is None
 
 
+# ------------------------------------------------ face-bbox / paste-back
+
+class _FakeBox:
+    def __init__(self, x, y, w, h):
+        self.origin_x, self.origin_y, self.width, self.height = x, y, w, h
+
+
+class _FakeDetection:
+    def __init__(self, box):
+        self.bounding_box = box
+
+
+class _FakeFaceResult:
+    def __init__(self, detections):
+        self.detections = detections
+
+
+def test_detect_face_bbox_expands_and_clamps(monkeypatch):
+    """Mechanical bbox math only (expand 25%, clamp to frame) — mocks the
+    MediaPipe detector itself since this only ever runs on the crop_face
+    UNCHECKED path (see app.py); live detection is verified separately."""
+    fake_detector = type("D", (), {
+        "detect": lambda self, img: _FakeFaceResult(
+            [_FakeDetection(_FakeBox(100, 100, 80, 80))])
+    })()
+    monkeypatch.setattr(tryon, "_get_face_detector", lambda: fake_detector)
+    image = np.zeros((600, 400, 3), dtype=np.uint8)
+    bbox = tryon.detect_face_bbox(image)
+    assert bbox == (90, 90, 190, 190)
+
+
+def test_detect_face_bbox_returns_none_when_no_face(monkeypatch):
+    fake_detector = type("D", (), {
+        "detect": lambda self, img: _FakeFaceResult([])
+    })()
+    monkeypatch.setattr(tryon, "_get_face_detector", lambda: fake_detector)
+    image = np.zeros((600, 400, 3), dtype=np.uint8)
+    assert tryon.detect_face_bbox(image) is None
+
+
+def test_paste_source_face_is_noop_when_bbox_none():
+    """The crop_face-checked path always sets face_bbox=None (nothing to
+    protect); paste-back must be a true no-op there."""
+    result = Image.new("RGB", (200, 200), (10, 20, 30))
+    source = Image.new("RGB", (200, 200), (200, 210, 220))
+    out = vt._paste_source_face(result, source, None)
+    assert list(out.getdata()) == list(result.getdata())
+
+
+def test_paste_source_face_pastes_source_region():
+    """The center of the pasted region should end up close to the SOURCE
+    photo's face color, not the generated render's — confirming the real
+    face pixels win inside the bbox. Bbox is well over 2x the 50px feather
+    radius in each dimension so the blurred mask actually saturates near
+    the center instead of degenerating to a thin line."""
+    result = Image.new("RGB", (400, 400), (10, 20, 30))
+    source = Image.new("RGB", (400, 400), (200, 210, 220))
+    out = vt._paste_source_face(result, source, (50, 50, 350, 350))
+    r, g, b = out.getpixel((200, 200))
+    assert (r, g, b) != (10, 20, 30)
+    assert abs(r - 200) < 25 and abs(g - 210) < 25 and abs(b - 220) < 25
+    # far outside the bbox, the generated render should survive untouched
+    assert out.getpixel((5, 5)) == (10, 20, 30)
+
+
 # ---------------------------------------------------------- engine dispatch
 
 def test_idm_category_mapping():

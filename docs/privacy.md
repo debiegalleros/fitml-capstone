@@ -58,23 +58,30 @@ fairness audit.
    exposed, which would be worse than asking for a clearer photo.
 
    **When left unchecked (the default), the photo is stored and processed
-   with the face visible, and the residual risk below applies.** This
-   feature replaced an earlier design: face blur applied to every upload
-   by default, plus a post-generation face-region paste-back
-   (`_paste_source_face`, now removed) that guarded against generative
-   engines regenerating the blurred area — specifically because
-   benchmarking found IDM-VTON can regenerate a fully synthetic,
-   unrelated face on some full-body renders (see
-   [genai_usage.md](genai_usage.md)). Cropping structurally closes that
-   finding **only when the checkbox is used** — an uncropped photo goes
-   into the same try-on pipeline with no equivalent protection today,
-   since the paste-back mechanism was retired rather than kept
-   conditionally. This is a known, currently-unmitigated gap for the
-   unchecked path, not an oversight being glossed over — flagged here
-   for the record and left as a decision point on whether to (a)
-   reintroduce paste-back protection conditionally for uncropped photos,
-   (b) make the checkbox default to checked, or (c) accept the risk as
-   documented.
+   with the face visible — and gets a second, defense-in-depth
+   protection instead of the structural guarantee above.** This feature
+   replaced an earlier design: face blur applied to every upload by
+   default, plus a post-generation face-region paste-back
+   (`_paste_source_face`) that guarded against generative engines
+   regenerating the blurred area — specifically because benchmarking
+   found IDM-VTON can regenerate a fully synthetic, unrelated face on
+   some full-body renders (see [genai_usage.md](genai_usage.md)).
+   Cropping structurally closes that finding when the checkbox is used —
+   there is no face pixel in the input for any engine to regenerate
+   incorrectly. When the checkbox is left unchecked, `detect_face_bbox`
+   (in [backend/tryon.py](../backend/tryon.py)) locates the face once on
+   the raw upload — never on the checked path, where there is nothing
+   left to protect — and that box travels with the session's `pose.json`
+   so `_paste_source_face` (in
+   [backend/vision_tryon.py](../backend/vision_tryon.py)) re-composites
+   the real face region from the stored photo onto every generated
+   try-on render, with a feathered edge, regardless of what the engine
+   drew there. This is the same mechanism the earlier mandatory-blur
+   design used, reinstated specifically for the unchecked path — so both
+   checkbox states now close the IDM-VTON synthetic-face-regeneration
+   finding, by two different means: removing the face from the input
+   entirely (checked) versus restoring the real face onto the output
+   (unchecked).
 4. **HTTPS-only transmission.** Both deployed surfaces
    (`https://fit-ml.netlify.app`, `https://fit-ml.onrender.com`) serve
    over TLS; local dev photos stay on the developer machine

@@ -164,31 +164,36 @@ a simple parameter issue:
   remaining known weakness). SDXL therefore stays a fallback path only —
   used automatically if IDM-VTON errors — never the primary engine.
 
-**Privacy guard — structural fix, opt-in.** SDXL's pure mask-constrained
-inpainting preserves the face and background outside the mask by
-construction. IDM-VTON does not offer the same guarantee — benchmarking
-found it can regenerate the entire frame, including a fully synthetic,
-unrelated face, on some full-body renders. The original fix for this
-(`_paste_source_face`, re-compositing the detected face region from the
-stored photo back onto every generated render) has since been retired in
-favor of a stronger, structural guarantee: if the shopper checks the
-opt-in `crop_face` checkbox at upload, the photo is cropped above the
-nose before any storage or processing (see `docs/privacy.md`), so there
-is no face pixel in the input for any engine to regenerate incorrectly in
-the first place. This is a case where a documented bug (a bounded,
-per-render defensive patch) led to a stronger architectural fix (removing
-the input the bug depended on) rather than staying a patch — worth
-highlighting honestly rather than just noting the newer mechanism
-replaced the older one.
+**Privacy guard — two mechanisms, one per checkbox state.** SDXL's pure
+mask-constrained inpainting preserves the face and background outside the
+mask by construction. IDM-VTON does not offer the same guarantee —
+benchmarking found it can regenerate the entire frame, including a fully
+synthetic, unrelated face, on some full-body renders. Two protections now
+cover this, one per state of the opt-in `crop_face` checkbox:
 
-**Residual risk when the checkbox is left unchecked (the default).** The
-structural fix only applies to cropped photos. An uncropped photo goes
-into the same IDM-VTON pipeline with no equivalent protection today — the
-paste-back mechanism was retired outright rather than kept as a fallback
-for the unchecked path, so the original synthetic-face-regeneration
-finding this section describes can still occur for shoppers who don't
-check the box. This is disclosed as a known, currently-accepted gap (see
-`docs/privacy.md` §3) rather than silently left out of the documentation.
+- **Checked — structural fix.** The photo is cropped above the nose
+  before any storage or processing (see `docs/privacy.md`), so there is
+  no face pixel in the input for any engine to regenerate incorrectly in
+  the first place.
+- **Unchecked (the default) — reinstated paste-back.** `_paste_source_face`
+  re-composites the detected face region from the stored photo back onto
+  every generated render, with a feathered edge. This is the same
+  mechanism the original always-on-blur design used; it was retired when
+  crop-at-upload first shipped (mandatory, no toggle) on the reasoning
+  that a face-free input made it unnecessary, and reinstated once the
+  checkbox became opt-in, specifically scoped to the unchecked path only
+  — `detect_face_bbox` (in `backend/tryon.py`) is never called on the
+  checked path, since a cropped photo has nothing left to protect.
+
+Both states now close the finding this section describes, by two
+different means: removing the face from the input entirely (checked)
+versus restoring the real face onto the output regardless of what the
+engine drew there (unchecked). This is a case where a documented bug (a
+bounded, per-render defensive patch) led first to a stronger structural
+fix, and then — once the toggle reopened a gap for the unchecked path —
+to that original patch being deliberately brought back for the one case
+that still needed it, rather than leaving the gap disclosed-but-live in
+a shipping product.
 
 **What it explicitly does NOT do:** the same measurement/audit boundaries as
 the advice text (§1) apply here too — the analyzer prompt never estimates or

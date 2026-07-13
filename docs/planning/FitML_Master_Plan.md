@@ -248,11 +248,13 @@ name/email-linked. Excluded from git via `.gitignore`.
   pose extraction, or any try-on generation — stronger than blur, since no
   face pixels exist in the stored photo or any generated image at all, rather
   than an obscured-but-present face. When left unchecked, the photo (face
-  included) is used as uploaded, and the earlier IDM-VTON
-  synthetic-face-regeneration finding is not mitigated for that path (the
-  defensive paste-back fix was retired rather than kept conditionally). See
-  CLAUDE.md and docs/privacy.md for the current mechanism and the disclosed
-  residual risk.
+  included) is used as uploaded — that path keeps a second, defense-in-depth
+  protection instead: a detected face bounding box travels with the
+  session's pose data so every generated try-on image gets the real face
+  region re-pasted back over whatever the engine rendered there, closing
+  the earlier IDM-VTON synthetic-face-regeneration finding for this path
+  too, by a different mechanism than the checked path. See CLAUDE.md and
+  docs/privacy.md for the current mechanism.
 - Session-scoped access — one session's token can't retrieve another's photos
 - Consent notice on the upload screen: what's collected, why, retention period
 

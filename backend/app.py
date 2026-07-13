@@ -130,9 +130,19 @@ def upload_profile():
     # detected nose position (no bbox, no landmarks) is persisted either
     # way. If the box is checked but the nose can't be confidently found,
     # ask for a re-upload rather than guess a crop boundary — a wrong guess
-    # could leave part of the face exposed. If the box is left unchecked,
-    # the photo (face included) is used as uploaded.
+    # could leave part of the face exposed.
+    #
+    # If the box is left unchecked, the photo (face included) is used as
+    # uploaded. That path still gets one piece of protection: a face
+    # bounding box is detected (non-blocking — a miss just means no
+    # protection for this session) and carried in pose.json so the
+    # generative try-on pipeline can re-paste the real face onto every
+    # render afterward, guarding against IDM-VTON's documented tendency to
+    # occasionally regenerate a synthetic face (see docs/genai_usage.md).
+    # This box is never computed on the checked path — once the face is
+    # cropped out, there's nothing left to protect.
     crop_face = form.get("crop_face", "false").strip().lower() == "true"
+    face_bbox = None
     if crop_face:
         cropped = tryon.crop_above_nose(image)
         if cropped is None:
@@ -140,11 +150,14 @@ def upload_profile():
                           "to safely crop your photo for privacy. Please "
                           "upload a clearer, forward-facing photo.", 422)
         image = cropped
+    else:
+        face_bbox = tryon.detect_face_bbox(image)
 
     pose = tryon.extract_pose(image)
     if not pose.get("ok"):
         return _error("We couldn't detect a person in this photo. Please use "
                       "a clear, front-facing photo.", 422)
+    pose["face_bbox"] = list(face_bbox) if face_bbox else None
 
     session_id = str(uuid.uuid4())
     session_dir = os.path.join(UPLOADS_DIR, session_id)

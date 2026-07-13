@@ -172,11 +172,17 @@ Two planning docs may exist in `docs/planning/`:
   stored photo, in pose.json, or in any generated try-on image. If checked but
   the nose can't be confidently detected, the upload is rejected with a
   friendly re-upload prompt rather than guessing a crop boundary. When left
-  unchecked (the default), the photo is used as uploaded, face included — see
-  `docs/privacy.md` for the residual risk this reopens (the earlier IDM-VTON
-  synthetic-face-regeneration finding, previously mitigated by a paste-back
-  mechanism that this feature retired) and `docs/genai_usage.md` for the
-  full history.
+  unchecked (the default), the photo is used as uploaded, face included —
+  that path still gets a second, defense-in-depth protection: a face
+  bounding box is detected once (never computed on the checked path, since
+  there's nothing left to protect there) and carried in pose.json so every
+  generated try-on image gets the real face region re-pasted back over
+  whatever the engine rendered there, with a feathered edge
+  (`_paste_source_face` in `backend/vision_tryon.py`) — the same mechanism
+  used earlier this session, reinstated for this path only. This closes
+  the earlier IDM-VTON synthetic-face-regeneration finding for both
+  checkbox states. See `docs/privacy.md` and `docs/genai_usage.md` for the
+  full mechanism and its history.
 - Presentation branding: White background on all slides. AIM logo
   (`docs/assets/AIM_logo_2017.svg.png`) in the upper left corner of every slide,
   small (~1 inch / 2.5cm height). No other logos. Title slide of both decks,

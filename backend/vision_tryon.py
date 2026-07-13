@@ -16,15 +16,21 @@ compositor as the primary renderer (the compositor stays as fallback).
 Design notes:
   * Inpainting (not full generation) is deliberate: the mask covers only the
     clothing region derived from the MediaPipe pose keypoints extracted at
-    upload time. Everything outside the mask — background, and whatever of
-    the shopper's own body is in frame below the nose (see the crop-at-upload
-    privacy guard in tryon.py — no face pixels ever reach this pipeline) — is
-    preserved pixel-for-pixel.
+    upload time. Everything outside the mask is preserved pixel-for-pixel by
+    construction for the SDXL path; IDM-VTON offers no equivalent guarantee
+    (see the face-preservation note below).
   * The Claude Vision analyzer produces prompt JSON only. It never estimates
     measurements (hard-banned in the system prompt and asserted by the smoke
     test) and never feeds the graded size model.
   * Privacy guarantees carry over: results land in backend/uploads/{session}/,
     covered by the existing 24h purge; nothing new is keyed to a name/email.
+  * Face preservation: crop-at-upload (tryon.py) is opt-in — when the
+    shopper checks it, no face pixels ever reach this pipeline at all. When
+    left unchecked (the default), `_paste_source_face` below re-composites
+    the real face region from the stored photo onto every generated render,
+    with a feathered edge, as defense-in-depth against IDM-VTON occasionally
+    regenerating a synthetic face. See docs/privacy.md and
+    docs/genai_usage.md for the full mechanism and its history.
 """
 
 import base64
@@ -188,7 +194,8 @@ def _load_session_pose(session_id: str) -> dict:
             keypoints[long] = [pt["x"], pt["y"]]
         else:
             keypoints[long] = None
-    return {"keypoints": keypoints, "photo_coverage": raw.get("coverage")}
+    return {"keypoints": keypoints, "photo_coverage": raw.get("coverage"),
+            "face_bbox": raw.get("face_bbox")}
 
 
 def _load_garment(item_id: str, color_variant: str | None = None) -> tuple[Image.Image, dict]:
@@ -248,10 +255,12 @@ def _img_to_b64(img: Image.Image, fmt: str = "JPEG", max_side: int = 1024) -> st
 # ---------------------------------------------------------------------------
 
 ANALYZER_SYSTEM = """You are a fashion try-on prompt engineer. You will receive
-two images: IMAGE 1 is a shopper's photo (cropped just below the nose for
-privacy — the frame starts at the mouth/chin, no eyes or upper face visible),
-IMAGE 2 is a garment product photo. Respond with ONLY a JSON object, no
-markdown fences, no preamble, with exactly these keys:
+two images: IMAGE 1 is a shopper's photo (depending on their own privacy
+preference, it may be cropped just below the nose — frame starting at the
+mouth/chin, no eyes or upper face visible — or it may show their full face
+as uploaded; treat either as normal and never comment on which), IMAGE 2 is
+a garment product photo. Respond with ONLY a JSON object, no markdown
+fences, no preamble, with exactly these keys:
 
 {
   "person": {
@@ -460,6 +469,55 @@ def _build_mask(photo: Image.Image, pose: dict, category: str,
 
 
 # ---------------------------------------------------------------------------
+# Privacy guard — re-paste the source photo's face region onto every render
+# ---------------------------------------------------------------------------
+
+FACE_PASTE_FEATHER_PX = 50
+
+
+def _paste_source_face(result_img: Image.Image, source_img: Image.Image,
+                       face_bbox) -> Image.Image:
+    """Re-composite whatever was in face_bbox on the ORIGINAL session photo
+    back onto a generated render, with a soft feathered edge.
+
+    Only ever called with a real face_bbox on the crop_face-UNCHECKED
+    upload path (see app.py / tryon.detect_face_bbox) — on the checked
+    path pose["face_bbox"] is always None, so this is a no-op there, which
+    is correct: a cropped photo has no face to protect. Defense-in-depth
+    for the unchecked path: SDXL's pure inpainting already preserves the
+    face outside the mask by construction, but IDM-VTON may internally
+    regenerate the whole frame, including the face, so this makes "face
+    preserved" a code-enforced guarantee rather than an assumption about
+    engine behavior."""
+    if not face_bbox:
+        return result_img
+
+    src = source_img.convert("RGB")
+    if src.size != result_img.size:
+        sx, sy = result_img.width / src.width, result_img.height / src.height
+        src = src.resize(result_img.size)
+        face_bbox = [face_bbox[0] * sx, face_bbox[1] * sy,
+                     face_bbox[2] * sx, face_bbox[3] * sy]
+
+    x0, y0, x1, y1 = (int(round(v)) for v in face_bbox)
+    x0, y0 = max(0, x0), max(0, y0)
+    x1, y1 = min(result_img.width, x1), min(result_img.height, y1)
+    if x1 <= x0 or y1 <= y0:
+        return result_img
+
+    patch = src.crop((x0, y0, x1, y1))
+    pw, ph = patch.size
+    inset = min(FACE_PASTE_FEATHER_PX, pw // 2, ph // 2)
+    mask = Image.new("L", (pw, ph), 0)
+    ImageDraw.Draw(mask).rectangle([inset, inset, pw - inset, ph - inset], fill=255)
+    mask = mask.filter(ImageFilter.GaussianBlur(radius=FACE_PASTE_FEATHER_PX))
+
+    out = result_img.convert("RGB").copy()
+    out.paste(patch, (x0, y0), mask)
+    return out
+
+
+# ---------------------------------------------------------------------------
 # Stage 2 — SDXL inpainting via Replicate
 # ---------------------------------------------------------------------------
 
@@ -611,6 +669,7 @@ def generate_tryon_image():
                 "text, watermark, logo, cartoon, illustration"),
             seed=int(data.get("seed", 42)),
         )
+        result = _paste_source_face(result, photo, pose.get("face_bbox"))
 
         out_name = f"tryon_{uuid.uuid4().hex[:12]}.png"
         out_path = os.path.join(_session_dir(session_id), out_name)
@@ -779,6 +838,8 @@ def tryon_pipeline():
                                         prompt=prompt,
                                         negative_prompt=analysis["negative_prompt"],
                                         seed=seed)
+
+        result = _paste_source_face(result, photo, pose.get("face_bbox"))
 
         out_name = f"tryon_{uuid.uuid4().hex[:12]}.png"
         out_path = os.path.join(_session_dir(session_id), out_name)
