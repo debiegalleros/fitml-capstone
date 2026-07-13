@@ -130,7 +130,8 @@ def _load_session_pose(session_id: str) -> dict:
             keypoints[long] = [pt["x"], pt["y"]]
         else:
             keypoints[long] = None
-    return {"keypoints": keypoints, "photo_coverage": raw.get("coverage")}
+    return {"keypoints": keypoints, "photo_coverage": raw.get("coverage"),
+            "face_bbox": raw.get("face_bbox")}
 
 
 def _load_garment(item_id: str, color_variant: str | None = None) -> tuple[Image.Image, dict]:
@@ -369,6 +370,55 @@ def _build_mask(photo: Image.Image, pose: dict, category: str,
 
 
 # ---------------------------------------------------------------------------
+# Privacy guard — re-paste the source photo's face region onto every render
+# ---------------------------------------------------------------------------
+
+FACE_PASTE_FEATHER_PX = 50
+
+
+def _paste_source_face(result_img: Image.Image, source_img: Image.Image,
+                       face_bbox) -> Image.Image:
+    """Re-composite whatever was in face_bbox on the ORIGINAL session photo
+    back onto a generated render, with a soft feathered edge.
+
+    This makes "face preserved outside the mask" a code-enforced guarantee
+    rather than an assumption about engine behavior: SDXL's pure inpainting
+    already preserves it by construction, but IDM-VTON (and any future
+    engine) may internally regenerate the whole frame, including the face.
+    Applied identically to both engines for defense-in-depth.
+
+    face_bbox holds whatever pixels actually exist in that region on the
+    stored session photo — blurred (default) or real (user opted out of
+    blur) — this function is agnostic to which; it just copies pixels."""
+    if not face_bbox:
+        return result_img
+
+    src = source_img.convert("RGB")
+    if src.size != result_img.size:
+        sx, sy = result_img.width / src.width, result_img.height / src.height
+        src = src.resize(result_img.size)
+        face_bbox = [face_bbox[0] * sx, face_bbox[1] * sy,
+                     face_bbox[2] * sx, face_bbox[3] * sy]
+
+    x0, y0, x1, y1 = (int(round(v)) for v in face_bbox)
+    x0, y0 = max(0, x0), max(0, y0)
+    x1, y1 = min(result_img.width, x1), min(result_img.height, y1)
+    if x1 <= x0 or y1 <= y0:
+        return result_img
+
+    patch = src.crop((x0, y0, x1, y1))
+    pw, ph = patch.size
+    inset = min(FACE_PASTE_FEATHER_PX, pw // 2, ph // 2)
+    mask = Image.new("L", (pw, ph), 0)
+    ImageDraw.Draw(mask).rectangle([inset, inset, pw - inset, ph - inset], fill=255)
+    mask = mask.filter(ImageFilter.GaussianBlur(radius=FACE_PASTE_FEATHER_PX))
+
+    out = result_img.convert("RGB").copy()
+    out.paste(patch, (x0, y0), mask)
+    return out
+
+
+# ---------------------------------------------------------------------------
 # Stage 2 — SDXL inpainting via Replicate
 # ---------------------------------------------------------------------------
 
@@ -511,6 +561,7 @@ def generate_tryon_image():
                 "text, watermark, logo, cartoon, illustration"),
             seed=int(data.get("seed", 42)),
         )
+        result = _paste_source_face(result, photo, pose.get("face_bbox"))
 
         out_name = f"tryon_{uuid.uuid4().hex[:12]}.png"
         out_path = os.path.join(_session_dir(session_id), out_name)
@@ -653,6 +704,8 @@ def tryon_pipeline():
                                         prompt=analysis["prompt"],
                                         negative_prompt=analysis["negative_prompt"],
                                         seed=seed)
+
+        result = _paste_source_face(result, photo, pose.get("face_bbox"))
 
         out_name = f"tryon_{uuid.uuid4().hex[:12]}.png"
         out_path = os.path.join(_session_dir(session_id), out_name)

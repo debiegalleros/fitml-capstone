@@ -44,17 +44,38 @@ fairness audit.
    blur happens pre-save, **an unblurred version never persists** unless
    the user explicitly opts out on the upload form. This was deliberately
    flipped from "show by default" to privacy-first.
-4. **HTTPS-only transmission.** Both deployed surfaces
+4. **Face region re-applied to every generated try-on render — a
+   code-enforced step, not an assumption about the generative models.**
+   The face box is detected at upload time regardless of the blur
+   setting (`detect_face_bbox` in
+   [backend/tryon.py](../backend/tryon.py)) and saved to the session's
+   `pose.json`. After Claude Vision + SDXL or IDM-VTON generate a
+   try-on, `_paste_source_face` in
+   [backend/vision_tryon.py](../backend/vision_tryon.py) re-composites
+   whatever pixels actually occupy that box on the *stored* session
+   photo — blurred, or unblurred if the shopper opted out — back onto
+   the generated image, with a softly feathered edge so the seam is
+   invisible. This runs identically for both engines. It exists because
+   SDXL's pure mask-constrained inpainting preserves the face by
+   construction, but garment-conditioned engines like IDM-VTON can
+   internally regenerate the entire frame, including the face — verified
+   during engine benchmarking, where IDM-VTON produced a fully
+   synthetic, unrelated face on some full-body renders. Rather than
+   trust each engine's behavior (which can also change with a model
+   version bump), the box is re-applied in code after every render, for
+   both engines, so the guarantee holds even if an engine's internals
+   change.
+5. **HTTPS-only transmission.** Both deployed surfaces
    (`https://fit-ml.netlify.app`, `https://fit-ml.onrender.com`) serve
    over TLS; local dev photos stay on the developer machine
    (FileVault-encrypted disk).
-5. **Never committed.** `backend/uploads/` is gitignored; no user photo
+6. **Never committed.** `backend/uploads/` is gitignored; no user photo
    can enter the repository or its history.
-6. **Consent notice at the point of collection.** The profile upload
+7. **Consent notice at the point of collection.** The profile upload
    screen ([frontend/profile.html](../frontend/profile.html)) states
    what is collected, what it is used for, and the 24-hour retention
    limit before the user submits anything.
-7. **Minimal collection.** Weight, side/back photos, and name are all
+8. **Minimal collection.** Weight, side/back photos, and name are all
    optional; the upload cap is 10 MB with an allow-listed set of image
    types ([backend/config.py](../backend/config.py)).
 
@@ -64,7 +85,7 @@ The prototype is framed against the Philippines' Data Privacy Act of
 2012 (Republic Act No. 10173) and its implementing principles:
 
 - **Transparency** — the upload screen discloses what is collected, the
-  purpose, and the retention period before collection happens (§1, §6
+  purpose, and the retention period before collection happens (§1, §7
   above); this document is public in the repository.
 - **Legitimate purpose** — photos are collected for exactly one declared
   purpose (try-on rendering). They are not used for model training, not

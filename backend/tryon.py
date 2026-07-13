@@ -125,28 +125,47 @@ def extract_pose(image_bgr) -> dict:
             "hips_visible": hips_ok}
 
 
-def blur_face(image_bgr):
-    """Gaussian-blur the detected face region (privacy default ON). Falls back
-    to no-op if no face is found — an unblurred face never persists because
-    this runs before the photo is first written to disk."""
+def detect_face_bbox(image_bgr):
+    """Detect the primary face and return its blur-expansion box (x0,y0,x1,y1)
+    in pixel space, or None if no face is found. Detection runs regardless of
+    the face_blur setting — the vision try-on pipeline needs this box to know
+    which region of the ORIGINAL photo to re-paste after generation, whether
+    that region holds a blurred or an unblurred face."""
     h, w = image_bgr.shape[:2]
     result = _get_face_detector().detect(_mp_image(image_bgr))
     if not result.detections:
-        return image_bgr
+        return None
+    box = result.detections[0].bounding_box  # pixel-space origin/width/height
+    # expand the box 25% so hairline/jaw edges are covered too
+    x0 = int(max(0, box.origin_x - 0.125 * box.width))
+    y0 = int(max(0, box.origin_y - 0.125 * box.height))
+    x1 = int(min(w, box.origin_x + 1.125 * box.width))
+    y1 = int(min(h, box.origin_y + 1.125 * box.height))
+    if x1 <= x0 or y1 <= y0:
+        return None
+    return (x0, y0, x1, y1)
+
+
+def blur_bbox(image_bgr, bbox):
+    """Gaussian-blur an already-detected face box in place (copy)."""
+    x0, y0, x1, y1 = bbox
     out = image_bgr.copy()
-    for det in result.detections:
-        box = det.bounding_box  # pixel-space origin/width/height
-        # expand the box 25% so hairline/jaw edges blur too
-        x0 = int(max(0, box.origin_x - 0.125 * box.width))
-        y0 = int(max(0, box.origin_y - 0.125 * box.height))
-        x1 = int(min(w, box.origin_x + 1.125 * box.width))
-        y1 = int(min(h, box.origin_y + 1.125 * box.height))
-        if x1 <= x0 or y1 <= y0:
-            continue
-        region = out[y0:y1, x0:x1]
-        k = max(31, (2 * ((x1 - x0) // 6) + 1))
-        out[y0:y1, x0:x1] = cv2.GaussianBlur(region, (k, k), 0)
+    region = out[y0:y1, x0:x1]
+    k = max(31, (2 * ((x1 - x0) // 6) + 1))
+    out[y0:y1, x0:x1] = cv2.GaussianBlur(region, (k, k), 0)
     return out
+
+
+def blur_face(image_bgr):
+    """Gaussian-blur the detected face region (privacy default ON). Falls back
+    to no-op if no face is found — an unblurred face never persists because
+    this runs before the photo is first written to disk. Convenience wrapper
+    over detect_face_bbox + blur_bbox for callers that don't need the box
+    (side/back profile photos)."""
+    bbox = detect_face_bbox(image_bgr)
+    if bbox is None:
+        return image_bgr
+    return blur_bbox(image_bgr, bbox)
 
 
 def feather_alpha(rgba, sigma: float = 1.5):

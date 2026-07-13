@@ -123,15 +123,20 @@ def upload_profile():
     image = _downscale(image)
 
     # Face blur ON by default — an unblurred version never persists unless
-    # the user explicitly opts out (privacy-first, docs/privacy.md)
+    # the user explicitly opts out (privacy-first, docs/privacy.md). Detection
+    # runs either way: the vision try-on pipeline re-pastes whatever ends up
+    # in this box (blurred or not) onto every generated render, so it needs
+    # the box regardless of the flag.
     face_blur = form.get("face_blur", "true").strip().lower() != "false"
-    if face_blur:
-        image = tryon.blur_face(image)
+    face_bbox = tryon.detect_face_bbox(image)
+    if face_blur and face_bbox:
+        image = tryon.blur_bbox(image, face_bbox)
 
     pose = tryon.extract_pose(image)
     if not pose.get("ok"):
         return _error("We couldn't detect a person in this photo. Please use "
                       "a clear, front-facing photo.", 422)
+    pose["face_bbox"] = list(face_bbox) if face_bbox else None
 
     session_id = str(uuid.uuid4())
     session_dir = os.path.join(UPLOADS_DIR, session_id)

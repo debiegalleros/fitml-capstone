@@ -1,6 +1,6 @@
 # Generative AI Usage in FitML (Step 9)
 
-FitML uses generative/deep-learning AI in exactly two places, both deliberately
+FitML uses generative/deep-learning AI in three places, all deliberately
 **outside** the graded ML pipeline (the trained size classifiers and their
 fairness audit). This document describes each use, shows the integration code,
 and explains the boundaries that keep GenAI separate from the graded work. It
@@ -107,6 +107,79 @@ used purely as an **image-processing utility at catalog-build time**: it runs
 offline, once per image, and its output is a static asset. It sees no user
 data, produces no labels, and touches no training data.
 
+## 3. Generative virtual try-on — Claude Vision + IDM-VTON / SDXL
+
+**What it does.** The try-on renderer shows the shopper wearing the actual
+catalog garment on their own uploaded photo. MediaPipe pose keypoints (already
+extracted at upload time for the legacy 2D compositor) locate the shoulders,
+hips, elbows/wrists, and ankles; the pipeline uses these to build a
+clothing-region mask and to select which garment-conditioned generative
+engine renders the result. Two engines are implemented behind a
+`TRYON_ENGINE` flag, with the legacy 2D affine-warp compositor retained as a
+final fallback:
+
+- **IDM-VTON (primary, garment-conditioned diffusion, via Replicate).** Takes
+  the shopper's photo and the actual catalog garment cutout directly; masking
+  and blending happen inside the model. Selected as the default engine after
+  a head-to-head benchmark (`docs/assets/tryon_samples/`) on 3 clean cases
+  (a top on a full-body photo, a top on an upper-body photo, and a dress):
+  IDM-VTON rendered the correct garment — color, silhouette, and detail — in
+  all 3; the SDXL fallback (below) got the garment wrong in all 3.
+- **SDXL inpainting (fallback, `lucataco/sdxl-inpainting` on Replicate).**
+  Claude Vision (`claude-sonnet-4-6`) first analyzes the shopper's photo and
+  the garment image, producing a structured JSON prompt (pose, framing,
+  lighting, garment description, and one SDXL prompt + negative prompt — the
+  analyzer is hard-banned from mentioning body measurements, enforced by an
+  automated smoke-test assertion). SDXL then inpaints only the pose-derived
+  clothing-region mask.
+
+**Engine-selection rationale — SDXL fork limitation, investigated and
+documented rather than silently worked around.** During benchmarking, SDXL
+consistently rendered a garment resembling the shopper's *original* clothing
+(wrong color, wrong style) rather than the requested catalog item, despite a
+prompt explicitly describing the target garment and a negative prompt banning
+"original clothing visible." This was investigated rather than assumed to be
+a simple parameter issue:
+
+- The model's own schema states `strength: 1.0` means "full destruction of
+  information in image." Raising `strength` from 0.99 to the maximum 1.0 was
+  tested — this made things *categorically worse*, not better: the mask
+  boundary itself broke, and the face/background outside the mask (which
+  should never change under masked inpainting) were also visibly regenerated
+  and distorted, while the garment *still* did not match the requested
+  color or style.
+- Raising `guidance_scale` to its maximum (10) and switching schedulers
+  (`DPMSolverMultistep`) were also tested against the same case; neither
+  changed the outcome.
+- Conclusion: this is a fork/implementation limitation, not a tunable
+  parameter — this specific community-maintained cog wrapper does not
+  reliably implement mask-constrained inpainting the way the standard HF
+  diffusers pipeline is documented to. `strength=0.99` (not 1.0) is kept in
+  the shipped fallback specifically because it is the less-broken of the two
+  tested extremes (mask boundary respected; garment fidelity is the
+  remaining known weakness). SDXL therefore stays a fallback path only —
+  used automatically if IDM-VTON errors — never the primary engine.
+
+**Privacy guard applied to both engines.** SDXL's pure mask-constrained
+inpainting preserves the face and background outside the mask by
+construction. IDM-VTON does not offer the same guarantee — benchmarking
+found it can regenerate the entire frame, including a fully synthetic,
+unrelated face, on some full-body renders. Rather than rely on either
+engine's internal behavior, `_paste_source_face` in
+`backend/vision_tryon.py` re-composites whatever pixels actually occupy the
+detected face region on the *stored* session photo (blurred, or real if the
+shopper opted out of blur) back onto every generated render, with a
+feathered edge, for both engines. See `docs/privacy.md` for the full
+description of this as a code-enforced guarantee.
+
+**What it explicitly does NOT do:** the same measurement/audit boundaries as
+the advice text (§1) apply here too — the analyzer prompt never estimates or
+mentions body measurements (enforced by an automated test), and nothing from
+the try-on pipeline feeds the graded size model. Seed defaults to 42 for
+both engines for reproducibility, and both Replicate model versions are
+pinned in code (not floating on a bare model slug) for the same reason
+`seed=42` is fixed throughout the graded pipeline.
+
 ## Responsible boundaries — why GenAI is kept out of the graded pipeline
 
 The graded core of this capstone (Steps 4–5: model implementation and the
@@ -130,10 +203,11 @@ deliberately fenced off from it, for three reasons:
    models, audit numbers) is reproducible from fixed seeds and committed
    code. Generative API output is non-deterministic and
    service-dependent, so it is confined to surfaces where variation is
-   harmless: advice prose and one-time asset preparation.
+   harmless: advice prose, one-time asset preparation, and try-on
+   rendering (seeded, and never fed back into the sizing model).
 
 The result is a clean separation: **deterministic, audited ML decides the
-size; generative AI only explains it and helps build the demo catalog.**
+size; generative AI only renders and explains it.**
 
 | Component | AI type | When it runs | Touches graded ML? |
 |---|---|---|---|
@@ -141,4 +215,5 @@ size; generative AI only explains it and helps build the demo catalog.**
 | Fairness audit | Metrics + SHAP on the above | Offline, Phase 6 | Audits the graded ML |
 | Fit advice text | Claude API, multimodal (image + text in, text out) | Per request, after prediction | No — read-only consumer |
 | History suggestions | Rule-based SQL lookup (not ML at all) | Per request, feeds the advice prompt | No |
+| Generative virtual try-on | Claude Vision + IDM-VTON (primary) / SDXL inpainting (fallback) | Per request, after prediction | No — renders the recommended size, never estimates it |
 | Catalog background removal | rembg / U²-Net (pretrained CNN) | Once, catalog build (Phase 7) | No — asset prep only |
