@@ -180,6 +180,23 @@ both engines for reproducibility, and both Replicate model versions are
 pinned in code (not floating on a bare model slug) for the same reason
 `seed=42` is fixed throughout the graded pipeline.
 
+**Known limitation — bottoms try-on on a photo where the top garment's hem
+sits near the waistband.** Re-tested with a proper top+separate-bottom
+stand-in photo (not a dress) after the initial benchmark's dress-source
+result turned out to be confounded. Results were mixed rather than clean:
+SDXL again failed to change the garment (consistent with the fork
+limitation above); IDM-VTON showed a plausible color match for a black-jeans
+request but negligible change for a blue-jeans request on the same photo.
+The photo used has a long puffer jacket whose hem sits close to where the
+jeans begin — plausibly making it harder for IDM-VTON's internal body-part
+segmentation (which we don't control or supply a mask for) to isolate the
+existing bottoms region cleanly, similar in kind to the dress confound.
+Not pursued further given the cost/benefit of chasing a third stand-in
+photo; documented here rather than silently accepted. The lower-body
+standardization feature (below) does not share this failure mode, since it
+deliberately targets the full hip-to-ankle region rather than relying on
+the engine to auto-detect existing bottoms.
+
 ## Responsible boundaries — why GenAI is kept out of the graded pipeline
 
 The graded core of this capstone (Steps 4–5: model implementation and the
