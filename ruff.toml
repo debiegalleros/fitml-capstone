@@ -1,0 +1,7 @@
+line-length = 100
+
+[lint.per-file-ignores]
+# backend/app.py loads .env before importing local modules that read
+# REPLICATE_API_TOKEN/ANTHROPIC_API_KEY at import time — the import order
+# is load-bearing, not a lint oversight.
+"backend/app.py" = ["E402"]

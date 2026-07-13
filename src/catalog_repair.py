@@ -20,7 +20,6 @@ before/after review sheet. Variants must be regenerated afterwards.
 """
 
 import shutil
-from pathlib import Path
 
 import cv2
 import numpy as np
@@ -146,7 +145,7 @@ def source_occluders(item_id: int, article: str, rgba: np.ndarray) -> np.ndarray
     cutout. Returns None if the crop cannot be reproduced.
     """
     from catalog_isolate import (ALPHA_MIN, BAND_PREFS, BBOX_MARGIN, IMAGES_DIR,
-                                 MAX_DIM, MIN_COVERAGE, cleanup_mask)
+                                 MIN_COVERAGE, cleanup_mask)
     from rembg import new_session, remove
 
     src_img = Image.open(IMAGES_DIR / f"{item_id}.jpg").convert("RGB")

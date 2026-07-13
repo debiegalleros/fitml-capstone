@@ -21,7 +21,6 @@ from the same category, keeping per-category quotas intact.
 """
 
 import argparse
-from pathlib import Path
 
 import cv2
 import numpy as np

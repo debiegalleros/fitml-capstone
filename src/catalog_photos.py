@@ -8,7 +8,6 @@ data/catalog/photos/{id}.jpg (gitignored, like the garment PNGs),
 downscaled to a consistent max dimension.
 """
 
-from pathlib import Path
 
 from PIL import Image
 

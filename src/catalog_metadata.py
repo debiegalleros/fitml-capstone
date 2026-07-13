@@ -21,7 +21,6 @@ borderline rule, so each category pool mixes stretch and low-stretch options.
 """
 
 import random
-from pathlib import Path
 
 import pandas as pd
 
