@@ -1,0 +1,6 @@
+run_id,phase,date,model,hyperparameters,seed,n_train,n_test,accuracy,f1_macro,f1_fit,f1_large,f1_small,recall_fit,recall_large,recall_small,notes
+1,phase5_baseline,2026-07-09,logistic_regression,"max_iter=2000",42,200837,50210,0.7267,0.2822,0.8418,0.0000,0.0046,,,,"unweighted; equal-footing comparison across all four families"
+2,phase5_baseline,2026-07-09,random_forest,"n_estimators=200, min_samples_leaf=10",42,200837,50210,0.7278,0.2848,0.8424,0.0101,0.0018,,,,"unweighted"
+3,phase5_baseline,2026-07-09,mlp,"hidden_layer_sizes=(64,32), max_iter=200, early_stopping=True, n_iter_no_change=10",42,200837,50210,0.7272,0.2825,0.8420,0.0043,0.0012,,,,"unweighted"
+4,phase5_baseline,2026-07-09,xgboost,"n_estimators=300, max_depth=6, learning_rate=0.1, tree_method=hist",42,200837,50210,0.7272,0.2918,0.8418,0.0219,0.0115,0.9967,0.0112,0.0059,"unweighted; selected on f1_macro for the fairness audit baseline (models/comparison.csv)"
+5,phase6_fairness_mitigation,2026-07-10,xgboost_weighted,"same as run 4 + sample_weight=balanced (compute_sample_weight, identical pipeline/split)",42,200837,50210,0.3959,0.3596,0.4846,0.2924,0.3018,0.3507,0.4864,0.5463,"class-weighted mitigation; accuracy drops but f1_macro/minority recall improve — the honest before/after (models/fairness_audit_summary.json); this is the model served in production (docs/model_selection.md)"
