@@ -7,9 +7,11 @@ Run: python -m pytest tests/test_unit.py
 import json
 import re
 
+import numpy as np
 import pytest
 from PIL import Image
 
+import tryon
 import vision_tryon as vt
 
 
@@ -212,6 +214,36 @@ def test_fit_context_falls_back_to_client_value():
     ctx = vt._build_fit_context(ITEM, "M", {"recommended_size": "M"},
                                 client_fit_context="relaxed fit")
     assert ctx == "relaxed fit"
+
+
+# ---------------------------------------------------- privacy crop-at-upload
+
+def test_crop_above_nose_slices_at_detected_y(monkeypatch):
+    """Mechanical crop math only — mocks detect_nose_y so this stays a fast,
+    offline unit test (no MediaPipe model, no real face needed); the actual
+    detection is verified live against real photos, not here."""
+    monkeypatch.setattr(tryon, "detect_nose_y", lambda img: 300.0)
+    image = np.zeros((600, 400, 3), dtype=np.uint8)
+    image[300:, :, 0] = 255  # mark everything at/below the mocked nose line
+    cropped = tryon.crop_above_nose(image)
+    assert cropped.shape == (300, 400, 3)
+    assert (cropped[:, :, 0] == 255).all()  # only the below-nose region survived
+
+
+def test_crop_above_nose_returns_none_when_nose_undetectable(monkeypatch):
+    """The fallback path: no guessed crop boundary when detection fails —
+    the caller (app.py) turns this into a friendly re-upload prompt."""
+    monkeypatch.setattr(tryon, "detect_nose_y", lambda img: None)
+    image = np.zeros((600, 400, 3), dtype=np.uint8)
+    assert tryon.crop_above_nose(image) is None
+
+
+def test_crop_above_nose_returns_none_when_nose_at_frame_bottom(monkeypatch):
+    """Guards against a degenerate zero-height crop if detection returns a
+    y-coordinate at or past the bottom of the frame."""
+    monkeypatch.setattr(tryon, "detect_nose_y", lambda img: 599.0)
+    image = np.zeros((600, 400, 3), dtype=np.uint8)
+    assert tryon.crop_above_nose(image) is None
 
 
 # ---------------------------------------------------------- engine dispatch

@@ -38,7 +38,8 @@ container's first `/upload-profile` call.
 - `Dockerfile` (repo root) — the backend runs as a Docker web service on
   Render, not Render's native Python runtime. Reason: mediapipe's Tasks
   API (`PoseLandmarker`/`FaceDetector`, used for pose extraction and the
-  privacy face-blur) dlopens `libGLESv2.so.2` even on the CPU delegate,
+  privacy crop-at-upload nose detection) dlopens `libGLESv2.so.2` even on
+  the CPU delegate,
   and Render's native runtime image doesn't have it with no way to add
   system packages. The Dockerfile installs `libgl1 libegl1 libgles2
   libgbm1` (plus opencv's usual `libglib2.0-0 libsm6 libxext6

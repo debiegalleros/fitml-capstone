@@ -121,10 +121,14 @@ final fallback:
 - **IDM-VTON (primary, garment-conditioned diffusion, via Replicate).** Takes
   the shopper's photo and the actual catalog garment cutout directly; masking
   and blending happen inside the model. Selected as the default engine after
-  a head-to-head benchmark (`docs/assets/tryon_samples/`) on 3 clean cases
-  (a top on a full-body photo, a top on an upper-body photo, and a dress):
-  IDM-VTON rendered the correct garment — color, silhouette, and detail — in
-  all 3; the SDXL fallback (below) got the garment wrong in all 3.
+  a head-to-head benchmark (`docs/assets/tryon_samples/` — **stale as of the
+  crop-at-upload change below: these were generated against the earlier
+  blurred-face photos, not the current cropped-above-the-nose ones. Flagged
+  for regeneration before final submission; not blocking the engine
+  decision, which the crop doesn't change**) on 3 clean cases (a top on a
+  full-body photo, a top on an upper-body photo, and a dress): IDM-VTON
+  rendered the correct garment — color, silhouette, and detail — in all 3;
+  the SDXL fallback (below) got the garment wrong in all 3.
 - **SDXL inpainting (fallback, `lucataco/sdxl-inpainting` on Replicate).**
   Claude Vision (`claude-sonnet-4-6`) first analyzes the shopper's photo and
   the garment image, producing a structured JSON prompt (pose, framing,
@@ -160,17 +164,31 @@ a simple parameter issue:
   remaining known weakness). SDXL therefore stays a fallback path only —
   used automatically if IDM-VTON errors — never the primary engine.
 
-**Privacy guard applied to both engines.** SDXL's pure mask-constrained
+**Privacy guard — structural fix, opt-in.** SDXL's pure mask-constrained
 inpainting preserves the face and background outside the mask by
 construction. IDM-VTON does not offer the same guarantee — benchmarking
 found it can regenerate the entire frame, including a fully synthetic,
-unrelated face, on some full-body renders. Rather than rely on either
-engine's internal behavior, `_paste_source_face` in
-`backend/vision_tryon.py` re-composites whatever pixels actually occupy the
-detected face region on the *stored* session photo (blurred, or real if the
-shopper opted out of blur) back onto every generated render, with a
-feathered edge, for both engines. See `docs/privacy.md` for the full
-description of this as a code-enforced guarantee.
+unrelated face, on some full-body renders. The original fix for this
+(`_paste_source_face`, re-compositing the detected face region from the
+stored photo back onto every generated render) has since been retired in
+favor of a stronger, structural guarantee: if the shopper checks the
+opt-in `crop_face` checkbox at upload, the photo is cropped above the
+nose before any storage or processing (see `docs/privacy.md`), so there
+is no face pixel in the input for any engine to regenerate incorrectly in
+the first place. This is a case where a documented bug (a bounded,
+per-render defensive patch) led to a stronger architectural fix (removing
+the input the bug depended on) rather than staying a patch — worth
+highlighting honestly rather than just noting the newer mechanism
+replaced the older one.
+
+**Residual risk when the checkbox is left unchecked (the default).** The
+structural fix only applies to cropped photos. An uncropped photo goes
+into the same IDM-VTON pipeline with no equivalent protection today — the
+paste-back mechanism was retired outright rather than kept as a fallback
+for the unchecked path, so the original synthetic-face-regeneration
+finding this section describes can still occur for shoppers who don't
+check the box. This is disclosed as a known, currently-accepted gap (see
+`docs/privacy.md` §3) rather than silently left out of the documentation.
 
 **What it explicitly does NOT do:** the same measurement/audit boundaries as
 the advice text (§1) apply here too — the analyzer prompt never estimates or

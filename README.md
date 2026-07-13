@@ -48,7 +48,7 @@ Full reasoning in [docs/model_selection.md](docs/model_selection.md) and
 | [docs/model_selection.md](docs/model_selection.md) | 4-model comparison, why macro-F1, why the class-weighted model is served |
 | [docs/fairness_report.md](docs/fairness_report.md) | Full bias audit: groups, disparate impact, equalized odds, SHAP, mitigation before/after |
 | [docs/scope_and_data_provenance.md](docs/scope_and_data_provenance.md) | Real vs synthetic data boundaries, catalog image sourcing decisions |
-| [docs/privacy.md](docs/privacy.md) | Photo-upload protections (24 h TTL, default face blur, UUID sessions), RA 10173 framing |
+| [docs/privacy.md](docs/privacy.md) | Photo-upload protections (24 h TTL, opt-in crop-at-upload face privacy, UUID sessions), RA 10173 framing |
 | [docs/genai_usage.md](docs/genai_usage.md) | Where generative AI is used (advice text, background removal) and why it is fenced off from the graded ML |
 | [docs/deployment.md](docs/deployment.md) | Render + Netlify setup, Docker rationale, redeploy steps |
 | [docs/planning/FitML_Master_Plan.md](docs/planning/FitML_Master_Plan.md) | Authoritative project plan (scope, data sources, locked decisions) |
@@ -117,9 +117,10 @@ other feature works without it).
 
 ## Privacy
 
-Uploaded photos are stored under anonymous UUID session folders,
-face-blurred by default before ever being written to disk, and
-auto-deleted after 24 hours. Details and RA 10173 framing in
+Uploaded photos are stored under anonymous UUID session folders and
+auto-deleted after 24 hours. An opt-in checkbox at upload (unchecked by
+default) crops the photo above the nose before it's ever written to disk,
+so no face pixels reach storage. Details and RA 10173 framing in
 [docs/privacy.md](docs/privacy.md).
 
 ## Data & asset attribution

@@ -165,7 +165,7 @@ const KG_PER_LB = 0.453592;
     const bodyType = document.getElementById("body_type").value;
     if (bodyType) formData.append("body_type", bodyType);
 
-    formData.append("face_blur", document.getElementById("face_blur").checked ? "true" : "false");
+    formData.append("crop_face", document.getElementById("crop_face").checked ? "true" : "false");
 
     submitBtn.disabled = true;
     submitBtn.textContent = "Saving...";
@@ -179,7 +179,7 @@ const KG_PER_LB = 0.453592;
         photo_url: res.photo_url,
         photo_side_url: res.photo_side_url || null,
         photo_back_url: res.photo_back_url || null,
-        face_blur: res.face_blur,
+        face_cropped: res.face_cropped,
         height_cm: heightCm,
         weight_kg: weightKg || null,
         waist_cm: waistCm || null,

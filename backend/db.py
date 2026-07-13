@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS profiles (
     photo_side_path TEXT,         -- optional, not pose-extracted (future multi-angle try-on)
     photo_back_path TEXT,         -- optional, not pose-extracted
     photo_coverage TEXT,          -- full_body / upper_body
-    face_blur INTEGER DEFAULT 1,  -- ON by default (privacy-first)
+    face_cropped INTEGER DEFAULT 0, -- opt-in checkbox; OFF by default
     height_cm REAL,
     weight_kg REAL,
     bust_band INTEGER,
@@ -52,7 +52,8 @@ def _migrate(conn):
     """Add columns introduced after a dev DB was first created (SQLite's
     CREATE TABLE IF NOT EXISTS won't retrofit an existing table)."""
     cols = {row[1] for row in conn.execute("PRAGMA table_info(profiles)")}
-    for col, coltype in (("name", "TEXT"), ("photo_side_path", "TEXT"), ("photo_back_path", "TEXT")):
+    for col, coltype in (("name", "TEXT"), ("photo_side_path", "TEXT"), ("photo_back_path", "TEXT"),
+                        ("face_cropped", "INTEGER DEFAULT 0")):
         if col not in cols:
             conn.execute(f"ALTER TABLE profiles ADD COLUMN {col} {coltype}")
 

@@ -39,8 +39,8 @@ app.config["MAX_CONTENT_LENGTH"] = MAX_UPLOAD_MB * 1024 * 1024
 app.register_blueprint(vision_tryon_bp)
 
 # Memory hardening (512 MB Render instance): phone photos arrive at 4000px+;
-# every downstream step (face blur, pose, compositing, inpainting mask) works
-# fine at 1280px and the arrays are ~10x smaller.
+# every downstream step (privacy crop, pose, compositing, inpainting mask)
+# works fine at 1280px and the arrays are ~10x smaller.
 MAX_PHOTO_SIDE = 1280
 
 os.makedirs(UPLOADS_DIR, exist_ok=True)
@@ -122,21 +122,29 @@ def upload_profile():
         return _error("could not decode photo")
     image = _downscale(image)
 
-    # Face blur ON by default — an unblurred version never persists unless
-    # the user explicitly opts out (privacy-first, docs/privacy.md). Detection
-    # runs either way: the vision try-on pipeline re-pastes whatever ends up
-    # in this box (blurred or not) onto every generated render, so it needs
-    # the box regardless of the flag.
-    face_blur = form.get("face_blur", "true").strip().lower() != "false"
-    face_bbox = tryon.detect_face_bbox(image)
-    if face_blur and face_bbox:
-        image = tryon.blur_bbox(image, face_bbox)
+    # Privacy crop — OPT-IN (checkbox on the upload form, unchecked by
+    # default): if selected, remove everything above the nose BEFORE any
+    # other processing or storage. The uncropped image only ever exists in
+    # this local variable, transiently — cropping happens (if at all)
+    # before the image is ever written to disk, and nothing about the
+    # detected nose position (no bbox, no landmarks) is persisted either
+    # way. If the box is checked but the nose can't be confidently found,
+    # ask for a re-upload rather than guess a crop boundary — a wrong guess
+    # could leave part of the face exposed. If the box is left unchecked,
+    # the photo (face included) is used as uploaded.
+    crop_face = form.get("crop_face", "false").strip().lower() == "true"
+    if crop_face:
+        cropped = tryon.crop_above_nose(image)
+        if cropped is None:
+            return _error("We couldn't get a clear enough view of your nose "
+                          "to safely crop your photo for privacy. Please "
+                          "upload a clearer, forward-facing photo.", 422)
+        image = cropped
 
     pose = tryon.extract_pose(image)
     if not pose.get("ok"):
         return _error("We couldn't detect a person in this photo. Please use "
                       "a clear, front-facing photo.", 422)
-    pose["face_bbox"] = list(face_bbox) if face_bbox else None
 
     session_id = str(uuid.uuid4())
     session_dir = os.path.join(UPLOADS_DIR, session_id)
@@ -146,9 +154,13 @@ def upload_profile():
     tryon.save_pose(session_dir, pose)
 
     # Optional side/back photos — same session folder, same 24h auto-delete,
-    # same face-blur default, but NOT pose-extracted: only the front photo
-    # feeds try-on (locked decision). These are a foundation for a future
-    # multi-angle try-on feature, shown today only as profile thumbnails.
+    # same crop_face preference, but NOT pose-extracted: only the front
+    # photo feeds try-on (locked decision). These are a foundation for a
+    # future multi-angle try-on feature, shown today only as profile
+    # thumbnails. Optional and non-blocking: if crop_face is checked but the
+    # nose can't be confidently found on one of these, skip saving it rather
+    # than reject the whole upload — unlike the required front photo,
+    # there's nothing else depending on it.
     photo_side_path = None
     photo_back_path = None
     for field, filename in (("photo_side", "photo_side.jpg"), ("photo_back", "photo_back.jpg")):
@@ -164,8 +176,11 @@ def upload_profile():
         if extra_image is None:
             continue
         extra_image = _downscale(extra_image)
-        if face_blur:
-            extra_image = tryon.blur_face(extra_image)
+        if crop_face:
+            extra_cropped = tryon.crop_above_nose(extra_image)
+            if extra_cropped is None:
+                continue
+            extra_image = extra_cropped
         extra_path = os.path.join(session_dir, filename)
         cv2.imwrite(extra_path, extra_image, [cv2.IMWRITE_JPEG_QUALITY, 92])
         if field == "photo_side":
@@ -176,12 +191,12 @@ def upload_profile():
     with get_db() as conn:
         conn.execute(
             """INSERT INTO profiles (session_id, name, photo_path,
-               photo_side_path, photo_back_path, photo_coverage, face_blur,
+               photo_side_path, photo_back_path, photo_coverage, face_cropped,
                height_cm, weight_kg, bust_band, bust_cup, bust_input_method,
                waist_cm, hip_cm, body_type)
                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
             (session_id, name, photo_path, photo_side_path, photo_back_path,
-             pose["coverage"], int(face_blur), height_cm, weight_kg,
+             pose["coverage"], int(crop_face), height_cm, weight_kg,
              bust_band, bust_cup, bust_input_method, waist_cm, hip_cm,
              form.get("body_type")))
 
@@ -189,7 +204,7 @@ def upload_profile():
         "session_id": session_id,
         "name": name,
         "photo_coverage": pose["coverage"],
-        "face_blur": face_blur,
+        "face_cropped": crop_face,
         "bust_input_method": bust_input_method,
         "photo_url": f"/tryon-image/{session_id}/photo.jpg",
     }

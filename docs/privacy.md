@@ -37,45 +37,55 @@ fairness audit.
    as a standalone scheduled script. On the deployed Render instance the
    disk is ephemeral, so every redeploy wipes uploads as well — a
    stricter version of the same guarantee.
-3. **Face blur ON by default.** Before the photo is ever written to
-   disk, MediaPipe's face detector locates the face and a Gaussian blur
-   is applied over a region expanded 25% beyond the detected box
-   (`blur_face` in [backend/tryon.py](../backend/tryon.py)). Because the
-   blur happens pre-save, **an unblurred version never persists** unless
-   the user explicitly opts out on the upload form. This was deliberately
-   flipped from "show by default" to privacy-first.
-4. **Face region re-applied to every generated try-on render — a
-   code-enforced step, not an assumption about the generative models.**
-   The face box is detected at upload time regardless of the blur
-   setting (`detect_face_bbox` in
-   [backend/tryon.py](../backend/tryon.py)) and saved to the session's
-   `pose.json`. After Claude Vision + SDXL or IDM-VTON generate a
-   try-on, `_paste_source_face` in
-   [backend/vision_tryon.py](../backend/vision_tryon.py) re-composites
-   whatever pixels actually occupy that box on the *stored* session
-   photo — blurred, or unblurred if the shopper opted out — back onto
-   the generated image, with a softly feathered edge so the seam is
-   invisible. This runs identically for both engines. It exists because
-   SDXL's pure mask-constrained inpainting preserves the face by
-   construction, but garment-conditioned engines like IDM-VTON can
-   internally regenerate the entire frame, including the face — verified
-   during engine benchmarking, where IDM-VTON produced a fully
-   synthetic, unrelated face on some full-body renders. Rather than
-   trust each engine's behavior (which can also change with a model
-   version bump), the box is re-applied in code after every render, for
-   both engines, so the guarantee holds even if an engine's internals
-   change.
-5. **HTTPS-only transmission.** Both deployed surfaces
+3. **Crop-at-upload (opt-in) — when selected, the face region is removed
+   before it is ever stored or processed, not obscured after the fact.**
+   A `crop_face` checkbox on the upload form, **unchecked by default**.
+   When checked, MediaPipe's face detector runs once on the raw upload to
+   locate the nose tip (`detect_nose_y` in
+   [backend/tryon.py](../backend/tryon.py)); that detection result is
+   used immediately to compute a single crop boundary and then discarded
+   — no bounding box, landmarks, or face data of any kind is ever saved.
+   `crop_above_nose` removes everything above that boundary before the
+   photo is downscaled, written to disk, pose-extracted, or sent to any
+   try-on engine. When selected, this is a **stronger, code-enforced
+   data-minimization guarantee than blurring**: a blurred face is still
+   face data present in the file (obscured, but there); a cropped photo
+   has no face pixels at all, in the stored photo, in `pose.json`, or in
+   any generated try-on image. If checked but the nose can't be
+   confidently detected (face turned away, occluded, poor lighting), the
+   upload is rejected with a friendly re-upload prompt rather than
+   guessing a crop boundary — a wrong guess could leave part of the face
+   exposed, which would be worse than asking for a clearer photo.
+
+   **When left unchecked (the default), the photo is stored and processed
+   with the face visible, and the residual risk below applies.** This
+   feature replaced an earlier design: face blur applied to every upload
+   by default, plus a post-generation face-region paste-back
+   (`_paste_source_face`, now removed) that guarded against generative
+   engines regenerating the blurred area — specifically because
+   benchmarking found IDM-VTON can regenerate a fully synthetic,
+   unrelated face on some full-body renders (see
+   [genai_usage.md](genai_usage.md)). Cropping structurally closes that
+   finding **only when the checkbox is used** — an uncropped photo goes
+   into the same try-on pipeline with no equivalent protection today,
+   since the paste-back mechanism was retired rather than kept
+   conditionally. This is a known, currently-unmitigated gap for the
+   unchecked path, not an oversight being glossed over — flagged here
+   for the record and left as a decision point on whether to (a)
+   reintroduce paste-back protection conditionally for uncropped photos,
+   (b) make the checkbox default to checked, or (c) accept the risk as
+   documented.
+4. **HTTPS-only transmission.** Both deployed surfaces
    (`https://fit-ml.netlify.app`, `https://fit-ml.onrender.com`) serve
    over TLS; local dev photos stay on the developer machine
    (FileVault-encrypted disk).
-6. **Never committed.** `backend/uploads/` is gitignored; no user photo
+5. **Never committed.** `backend/uploads/` is gitignored; no user photo
    can enter the repository or its history.
-7. **Consent notice at the point of collection.** The profile upload
+6. **Consent notice at the point of collection.** The profile upload
    screen ([frontend/profile.html](../frontend/profile.html)) states
    what is collected, what it is used for, and the 24-hour retention
    limit before the user submits anything.
-8. **Minimal collection.** Weight, side/back photos, and name are all
+7. **Minimal collection.** Weight, side/back photos, and name are all
    optional; the upload cap is 10 MB with an allow-listed set of image
    types ([backend/config.py](../backend/config.py)).
 
@@ -85,18 +95,19 @@ The prototype is framed against the Philippines' Data Privacy Act of
 2012 (Republic Act No. 10173) and its implementing principles:
 
 - **Transparency** — the upload screen discloses what is collected, the
-  purpose, and the retention period before collection happens (§1, §7
+  purpose, and the retention period before collection happens (§1, §6
   above); this document is public in the repository.
 - **Legitimate purpose** — photos are collected for exactly one declared
   purpose (try-on rendering). They are not used for model training, not
   used for measurement inference, and not shared with third parties.
   The one external call that sees a derived image — the Claude advice
-  endpoint receives the *composited, face-blurred* try-on image for
-  qualitative fit commentary — serves the same declared purpose and is
-  documented in [genai_usage.md](genai_usage.md).
+  endpoint receives the *composited* try-on image (no face pixels ever
+  present, per §3) for qualitative fit commentary — serves the same
+  declared purpose and is documented in [genai_usage.md](genai_usage.md).
 - **Proportionality** — only data necessary for the feature is
-  collected (§"What is collected"); face blur removes identity
-  information the try-on does not need.
+  collected (§"What is collected"); the face crop removes identity
+  information the try-on does not need, at the source, rather than
+  merely obscuring it downstream.
 - **Retention limitation** — hard 24-hour TTL, enforced in code rather
   than by policy alone (§2 above).
 - **Security** — TLS in transit, encrypted disk at rest (Render

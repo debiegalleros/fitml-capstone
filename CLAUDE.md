@@ -159,8 +159,24 @@ Two planning docs may exist in `docs/planning/`:
   nicely on your shoulders and the length is just right for you." This
   plain-language requirement goes into the Claude API prompt template in the
   /advice endpoint (Phase 8).
-- Privacy: uploads under `backend/uploads/{uuid}/`, 24h auto-delete, face blur ON by
-  default (MediaPipe + Gaussian), HTTPS only, cite RA 10173 in `docs/privacy.md`.
+- Privacy: uploads under `backend/uploads/{uuid}/`, 24h auto-delete, HTTPS only,
+  cite RA 10173 in `docs/privacy.md`. **Crop-at-upload (opt-in checkbox,
+  supersedes the earlier always-applied face-blur design — a stronger,
+  data-minimization guarantee when selected, not an obscuration-after-the-fact
+  one):** a `crop_face` checkbox on the upload form, unchecked by default.
+  When checked, MediaPipe face detection locates the nose tip on the raw
+  upload, used once to compute a single crop boundary and then discarded — no
+  bounding box, landmarks, or face data of any kind persists — and everything
+  above the nose is cropped off before the photo is downscaled, saved,
+  pose-extracted, or sent to any try-on engine, so no face pixels exist in the
+  stored photo, in pose.json, or in any generated try-on image. If checked but
+  the nose can't be confidently detected, the upload is rejected with a
+  friendly re-upload prompt rather than guessing a crop boundary. When left
+  unchecked (the default), the photo is used as uploaded, face included — see
+  `docs/privacy.md` for the residual risk this reopens (the earlier IDM-VTON
+  synthetic-face-regeneration finding, previously mitigated by a paste-back
+  mechanism that this feature retired) and `docs/genai_usage.md` for the
+  full history.
 - Presentation branding: White background on all slides. AIM logo
   (`docs/assets/AIM_logo_2017.svg.png`) in the upper left corner of every slide,
   small (~1 inch / 2.5cm height). No other logos. Title slide of both decks,

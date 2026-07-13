@@ -1,7 +1,7 @@
-"""Pose extraction, face blur, and 2D body-wrap compositing (locked decision:
-MediaPipe keypoints + affine-warped transparent garment PNG on the user photo —
-no 3D, no WebGL). Alpha channel gets a 1-2px Gaussian feather before
-compositing so edges blend into the photo (locked decision)."""
+"""Pose extraction, privacy crop, and 2D body-wrap compositing (locked
+decision: MediaPipe keypoints + affine-warped transparent garment PNG on the
+user photo — no 3D, no WebGL). Alpha channel gets a 1-2px Gaussian feather
+before compositing so edges blend into the photo (locked decision)."""
 import json
 import math
 import os
@@ -125,47 +125,46 @@ def extract_pose(image_bgr) -> dict:
             "hips_visible": hips_ok}
 
 
-def detect_face_bbox(image_bgr):
-    """Detect the primary face and return its blur-expansion box (x0,y0,x1,y1)
-    in pixel space, or None if no face is found. Detection runs regardless of
-    the face_blur setting — the vision try-on pipeline needs this box to know
-    which region of the ORIGINAL photo to re-paste after generation, whether
-    that region holds a blurred or an unblurred face."""
-    h, w = image_bgr.shape[:2]
+# BlazeFace short-range detector keypoint order (MediaPipe Tasks
+# FaceDetector): 0=right eye, 1=left eye, 2=nose tip, 3=mouth center,
+# 4=right ear tragion, 5=left ear tragion. Verified empirically against a
+# real photo (keypoint 2 sits ~50% down the face bounding box, between the
+# eyes at ~15% and the mouth at ~65% — consistent with "nose tip").
+NOSE_TIP_KEYPOINT_INDEX = 2
+
+
+def detect_nose_y(image_bgr):
+    """Detect the nose tip's y-coordinate (pixel space), for the privacy
+    crop below. Returns None if no face/nose is confidently detected. This
+    detection result is used once, to compute a single crop boundary —
+    nothing about it (no bounding box, no landmarks, no face data of any
+    kind) is ever persisted."""
     result = _get_face_detector().detect(_mp_image(image_bgr))
     if not result.detections:
         return None
-    box = result.detections[0].bounding_box  # pixel-space origin/width/height
-    # expand the box 25% so hairline/jaw edges are covered too
-    x0 = int(max(0, box.origin_x - 0.125 * box.width))
-    y0 = int(max(0, box.origin_y - 0.125 * box.height))
-    x1 = int(min(w, box.origin_x + 1.125 * box.width))
-    y1 = int(min(h, box.origin_y + 1.125 * box.height))
-    if x1 <= x0 or y1 <= y0:
+    keypoints = result.detections[0].keypoints
+    if not keypoints or len(keypoints) <= NOSE_TIP_KEYPOINT_INDEX:
         return None
-    return (x0, y0, x1, y1)
+    h = image_bgr.shape[0]
+    return keypoints[NOSE_TIP_KEYPOINT_INDEX].y * h
 
 
-def blur_bbox(image_bgr, bbox):
-    """Gaussian-blur an already-detected face box in place (copy)."""
-    x0, y0, x1, y1 = bbox
-    out = image_bgr.copy()
-    region = out[y0:y1, x0:x1]
-    k = max(31, (2 * ((x1 - x0) // 6) + 1))
-    out[y0:y1, x0:x1] = cv2.GaussianBlur(region, (k, k), 0)
-    return out
-
-
-def blur_face(image_bgr):
-    """Gaussian-blur the detected face region (privacy default ON). Falls back
-    to no-op if no face is found — an unblurred face never persists because
-    this runs before the photo is first written to disk. Convenience wrapper
-    over detect_face_bbox + blur_bbox for callers that don't need the box
-    (side/back profile photos)."""
-    bbox = detect_face_bbox(image_bgr)
-    if bbox is None:
-        return image_bgr
-    return blur_bbox(image_bgr, bbox)
+def crop_above_nose(image_bgr):
+    """Privacy crop (opt-in, via the crop_face checkbox on the upload form;
+    replaces the earlier always-applied face-blur design): removes
+    everything above the nose tip, before the photo is ever saved or
+    processed further. When the caller applies this, no face pixels ever
+    reach disk, pose extraction, or generative try-on. Returns the cropped
+    image, or None if the nose could not be confidently detected — callers should
+    ask for a re-upload rather than guess a crop boundary, since a wrong
+    guess could leave part of the face exposed."""
+    nose_y = detect_nose_y(image_bgr)
+    if nose_y is None:
+        return None
+    y0 = max(0, int(nose_y))
+    if y0 >= image_bgr.shape[0] - 1:
+        return None
+    return image_bgr[y0:, :, :]
 
 
 def feather_alpha(rgba, sigma: float = 1.5):

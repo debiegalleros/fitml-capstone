@@ -240,9 +240,19 @@ name/email-linked. Excluded from git via `.gitignore`.
 - HTTPS-only transmission; disk-level encryption at rest (Render default / Mac
   FileVault for local dev)
 - Auto-deletion after 24 hours via scheduled cleanup script
-- **Face blur by default** (flipped from "show by default" to privacy-first) —
-  MediaPipe detects face region, Gaussian-blurs it before saving, so an unblurred
-  version never persists unless the user explicitly opts in to show it
+- **Face privacy — REVISED (vision-tryon rebuild, July 2026):** superseded the
+  original always-on face-blur design with an **opt-in crop-at-upload
+  checkbox**, unchecked by default. When checked, MediaPipe detects only the
+  nose tip on the raw upload (used once, then discarded — no bounding box or
+  landmarks persist) and the photo is cropped above that point before saving,
+  pose extraction, or any try-on generation — stronger than blur, since no
+  face pixels exist in the stored photo or any generated image at all, rather
+  than an obscured-but-present face. When left unchecked, the photo (face
+  included) is used as uploaded, and the earlier IDM-VTON
+  synthetic-face-regeneration finding is not mitigated for that path (the
+  defensive paste-back fix was retired rather than kept conditionally). See
+  CLAUDE.md and docs/privacy.md for the current mechanism and the disclosed
+  residual risk.
 - Session-scoped access — one session's token can't retrieve another's photos
 - Consent notice on the upload screen: what's collected, why, retention period
 
