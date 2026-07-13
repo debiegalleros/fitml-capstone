@@ -180,22 +180,32 @@ both engines for reproducibility, and both Replicate model versions are
 pinned in code (not floating on a bare model slug) for the same reason
 `seed=42` is fixed throughout the graded pipeline.
 
-**Known limitation — bottoms try-on on a photo where the top garment's hem
-sits near the waistband.** Re-tested with a proper top+separate-bottom
-stand-in photo (not a dress) after the initial benchmark's dress-source
-result turned out to be confounded. Results were mixed rather than clean:
-SDXL again failed to change the garment (consistent with the fork
-limitation above); IDM-VTON showed a plausible color match for a black-jeans
-request but negligible change for a blue-jeans request on the same photo.
-The photo used has a long puffer jacket whose hem sits close to where the
-jeans begin — plausibly making it harder for IDM-VTON's internal body-part
-segmentation (which we don't control or supply a mask for) to isolate the
-existing bottoms region cleanly, similar in kind to the dress confound.
-Not pursued further given the cost/benefit of chasing a third stand-in
-photo; documented here rather than silently accepted. The lower-body
-standardization feature (below) does not share this failure mode, since it
-deliberately targets the full hip-to-ankle region rather than relying on
-the engine to auto-detect existing bottoms.
+**Bottoms try-on — root-caused to source-photo confound, resolved with a
+clean stand-in.** Two rounds of testing isolated the cause of the earlier
+"garment barely changes" result. Round 1 used a dress-source photo (the
+one-piece garment gives IDM-VTON's internal segmentation no separate
+"existing bottoms" region to detect). Round 2 used a jacket+jeans photo
+where the long jacket's hem sits close to the waistband — same failure,
+milder. Round 3 used a genuinely clean stand-in (a fitted tank ending
+well above the waist, belted, with unambiguous jeans below, confirmed via
+a programmatic color-heuristic scan of the catalog rather than eyeballing
+candidates) and the segmentation-confusion failure did not reproduce:
+both a blue-jeans and a black-jeans request visibly regenerated the
+region (the original belt disappeared, denim texture was redrawn), and
+the black-jeans request measurably shifted color — mean region RGB moved
+from (155, 155, 158) on the source to (145, 138, 138), a shift toward
+darker and less blue-dominant, vs. (156, 155, 158) for the blue-jeans
+request landing almost exactly on the source. The remaining gap — the
+black-jeans result reads as a darker wash rather than a confidently black
+garment — is a color-fidelity nuance, not the segmentation failure the
+first two rounds showed, so bottoms try-on ships rather than being pulled
+from the live catalog. SDXL failed to change the garment in all three
+rounds (consistent with the fork limitation above) — bottoms try-on is
+IDM-VTON-reliant in practice, with SDXL as a same-tier fallback that
+inherits its general limitation here too. The lower-body standardization
+feature (below) is unaffected either way, since it deliberately targets
+the full hip-to-ankle region rather than relying on the engine to
+auto-detect existing bottoms.
 
 ## Responsible boundaries — why GenAI is kept out of the graded pipeline
 
