@@ -1,10 +1,10 @@
 # FitML Capstone — Project Instructions for Claude Code
 
 ## What this project is
-FitML: a fairness-audited size-recommendation + 2D augmented-reality try-on system for e-commerce.
+FitML: a fairness-audited size-recommendation + intelligent virtual try-on system for e-commerce.
 Capstone for AIM PGDAIML, LMS assignment "Pillar 5: Capstone Project", **due July 17, 2026**.
 Folder/repo on disk: `~/pillar5-capstone`. GitHub repo name: `fitml-capstone`.
-Report title: "FitML: A Fairness-Audited Machine Learning System for Sizing and Augmented Reality Try-On in E-Commerce".
+Report title: "FitML: A Fairness-Audited Machine Learning System for Sizing and Intelligent Virtual Try-On in E-Commerce".
 
 ## Source-of-truth rule (IMPORTANT)
 Two planning docs may exist in `docs/planning/`:
@@ -138,8 +138,8 @@ Two planning docs may exist in `docs/planning/`:
   (`docs/assets/AIM_logo_2017.svg.png`) in the upper left corner of every slide,
   small (~1 inch / 2.5cm height). No other logos. Title slide of both decks,
   top to bottom: AIM logo upper left, then project title "FitML: A
-  Fairness-Audited Machine Learning System for Sizing and Augmented Reality
-  Try-On in E-Commerce", then "Pillar 5: Capstone Project", then the program
+  Fairness-Audited Machine Learning System for Sizing and Intelligent
+  Virtual Try-On in E-Commerce", then "Pillar 5: Capstone Project", then the program
   name "Postgraduate Diploma in Artificial Intelligence and Machine Learning",
   then "Debie Galleros · July 2026", then the tagline "A virtual fitting room
   with size recommendations and tailored advice".

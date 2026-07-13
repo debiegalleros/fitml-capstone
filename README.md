@@ -1,4 +1,4 @@
-# FitML — A Fairness-Audited ML System for Sizing and AR Try-On in E-Commerce
+# FitML — A Fairness-Audited ML System for Sizing and Intelligent Virtual Try-On in E-Commerce
 
 **Live demo:** [fit-ml.netlify.app](https://fit-ml.netlify.app) · **API:** [fit-ml.onrender.com](https://fit-ml.onrender.com) *(free tiers — first request after idle may take 30–60 s to cold-start)*
 
@@ -15,9 +15,10 @@ addresses both:
   runs large) trained on 251,047 real customer fit reviews (ModCloth +
   RentTheRunway), served with a confidence score and a plain-language
   sizing tip for borderline cases.
-- **2D AR try-on** — MediaPipe pose keypoints + affine-warped,
-  background-removed garment PNGs composited onto the shopper's own photo
-  (plain HTML5 Canvas, no 3D).
+- **Intelligent virtual try-on** — a generative renderer shows the actual
+  catalog garment worn on the shopper's own photo (garment-conditioned
+  diffusion via Replicate), with the original 2D pose-anchored compositor
+  (MediaPipe keypoints + affine-warped cutout PNGs) as automatic fallback.
 - **A published fairness audit** — disparate impact, equalized odds, and
   SHAP explainability across body-type / height / size groups, with a
   class-weighted mitigation and honest before/after numbers. This is the

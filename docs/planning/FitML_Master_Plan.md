@@ -1,5 +1,5 @@
 # FitML — Master Project Plan
-A Fairness-Audited Machine Learning System for Sizing and Augmented Reality
+A Fairness-Audited Machine Learning System for Sizing and Intelligent Virtual
 Try-On in E-Commerce
 Capstone Project — AI/ML Postgraduate Diploma | Due July 17, 2026
 
@@ -11,8 +11,8 @@ Capstone Project — AI/ML Postgraduate Diploma | Due July 17, 2026
 costing retailers $100B+ annually. Sizing uncertainty is the leading driver, but
 shoppers also hesitate due to uncertainty about fit and appearance — not knowing
 how a garment will actually look on their body. FitML addresses both: a
-fairness-audited sizing model for the "will it fit" question, and an AR try-on
-feature so shoppers can see the garment on their own photo before buying —
+fairness-audited sizing model for the "will it fit" question, and an intelligent
+virtual try-on feature so shoppers can see the garment on their own photo before buying —
 addressing "how will this actually look on me." Color-suitability matching (does
 this shade complement the shopper) is identified as a natural extension, out of
 scope for this submission.
@@ -138,19 +138,18 @@ measurement ratios when a non-recommended size is selected).
 
 ## 7. Product: Virtual Fitting Room + Try-On
 
-**Rendering approach — CONFIRMED, do not revisit:** 2D body-wrap compositing
-("static-image AR"), not 3D/Three.js. Full 3D (rigid or draped) was
-considered and ruled out: realistic 3D requires either cloth-simulation
-physics or a diffusion-model approach, both out of scope for a solo build
-in the remaining timeline before July 17. 2D compositing still qualifies
-as genuine AR — the original uploaded photo (background, pose, face)
-remains fully visible; only the garment layer is added, scaled and rotated
-using real MediaPipe pose keypoints so it tracks the user's actual body
-proportions. It won't simulate fabric folds or shadows, but it correctly
-and convincingly positions the garment on the person's real photo, which
-is sufficient for the demo — none of this AR fidelity is part of the
-graded rubric (Steps 4 and 5, worth 40/100 points, are the model and
-fairness audit, not the visual).
+**Rendering approach — REVISED (vision-tryon rebuild, July 2026):** the
+primary renderer is now generative virtual try-on (garment-conditioned
+diffusion via Replicate), with the original 2D body-wrap compositing kept
+as the automatic fallback. The original 2D approach — not 3D/Three.js —
+composites the garment onto the user's photo: the original uploaded photo
+(background, pose, face) remains fully visible; only the garment layer is
+added, scaled and rotated using real MediaPipe pose keypoints so it tracks
+the user's actual body proportions. It won't simulate fabric folds or
+shadows, but it correctly positions the garment on the person's real
+photo. None of this rendering fidelity is part of the graded rubric
+(Steps 4 and 5, worth 40/100 points, are the model and fairness audit,
+not the visual).
 
 MediaPipe extracts pose keypoints from the user's uploaded photo; a
 background-removed garment PNG is scaled/rotated (affine transform) to
@@ -183,7 +182,7 @@ documented in the report as a demo-catalog convenience, not real merchant pricin
 **Scope note:** this is a functional prototype of an e-commerce sizing/try-on
 experience, not a real online store — no checkout, no payment processing, no real
 inventory/stock system. Catalog, pricing, profiles, model recommendations, and the
-AR try-on are all real and functional; describe it as a "functional prototype" in
+virtual try-on are all real and functional; describe it as a "functional prototype" in
 the report, not as "an online store."
 
 ---
@@ -205,7 +204,7 @@ already planned.
    This mirrors the concise glossary-card style used by industry tools
    (e.g. Vue.ai's "Virtual Fitting Rooms" card) — short label + one plain
    descriptive line, no long paragraphs.
-2. **About/How it works** — the problem (35% return rate), how sizing + AR try-on
+2. **About/How it works** — the problem (35% return rate), how sizing + virtual try-on
    work, the fairness differentiator (real trained model + published fairness
    audit vs. commercial black-box tools) — doubles as an in-product business pitch
 3. **Profile setup** — photo upload (for try-on pose only), manual measurement
@@ -306,7 +305,7 @@ Confirmed against the exact rubric point breakdown (totals to 100):
       final report, clean commit history — pending push
 - [ ] Bonus — Creative & well-presented submission (5 pts) — separate criterion from
       Steps 1-7, awarded for originality/design/innovation across the whole
-      submission (this is where the AR try-on demo and website polish earn credit)
+      submission (this is where the virtual try-on demo and website polish earn credit)
 
 Note: Steps 8 (Deployment/MLOps) and 9 (Generative AI use) are optional and do
 NOT carry their own rubric points in the official breakdown — the 100 points
@@ -344,7 +343,7 @@ instructions allow a single approved format: .pdf/.doc/.pptx/.ppt), name it:
 clearly section it internally (Report → Technical Deck → Business Deck)
 rather than uploading three separate files, if the submission portal only
 accepts one. The report itself should still be titled "FitML: A
-Fairness-Audited Machine Learning System for Sizing and Augmented Reality
+Fairness-Audited Machine Learning System for Sizing and Intelligent Virtual
 Try-On in E-Commerce" on its cover page — the filename follows the LMS assignment
 name, the document title follows the project name.
 

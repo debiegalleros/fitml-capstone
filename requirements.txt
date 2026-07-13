@@ -26,7 +26,7 @@ rembg[cpu]==2.0.76  # bare rembg has no onnxruntime backend and fails at import
 Pillow==12.3.0
 opencv-python==5.0.0.93
 
-# Phase 8: Flask backend + AR try-on
+# Phase 8: Flask backend + try-on
 flask==3.1.3
 flask-cors==6.0.5
 mediapipe==0.10.35
