@@ -542,6 +542,42 @@ def _recommend(profile: dict, item: dict) -> dict:
     return size_logic.recommend_womens_size(profile, item)
 
 
+def _build_fit_context(item: dict, size: str, rec: dict,
+                       client_fit_context: str | None = None) -> str:
+    """Size-mismatch wording for the SDXL prompt path: when the selected size
+    differs from the model recommendation, describe the visual consequence
+    from the size-chart delta so the render shows it (this replaces the old
+    compositor's size-proportional scaling cue). IDM-VTON has no prompt
+    lever — there the /advice layer carries size accuracy instead."""
+    sizes = [s.strip() for s in str(item.get("size_range", "")).split(",")]
+    rec_size = rec.get("recommended_size", size)
+    if size not in sizes or rec_size not in sizes or size == rec_size:
+        return client_fit_context or "true to size — natural fit as recommended"
+    delta = sizes.index(size) - sizes.index(rec_size)
+    n = abs(delta)
+    steps = f"{n} size{'s' if n > 1 else ''}"
+    degree = "slightly" if n == 1 else "clearly"
+    cat = (item.get("category") or "").lower()
+    if delta > 0:
+        if cat in LOWER_BODY_CATEGORIES:
+            look = ("loose through the waist and hips, extra length "
+                    "bunching over the feet")
+        elif cat in FULL_LENGTH_CATEGORIES:
+            look = "loose through the body, hem sitting visibly lower"
+        else:
+            look = ("loose through the body, sleeves past the wrists, "
+                    "dropped shoulder seam")
+        return (f"{steps} above the recommendation — render {degree} "
+                f"oversized: {look}")
+    if cat in LOWER_BODY_CATEGORIES:
+        look = "tight through the waist and hips, length sitting short"
+    else:
+        look = ("snug through the body, fabric pulling slightly, sleeves "
+                "and length sitting short")
+    return (f"{steps} below the recommendation — render {degree} "
+            f"undersized: {look}")
+
+
 def _save_tryon_row(session_id: str, item: dict, size: str, color: str | None,
                     rec: dict, image_path: str) -> str:
     """Persist the try-on like legacy /try-on does, so /advice and the
@@ -596,7 +632,7 @@ def tryon_pipeline():
                 "Update your photo in your profile."}), 422
 
         rec = _recommend(profile, meta)
-        fit_context = data.get("fit_context", "true to size")
+        fit_context = _build_fit_context(meta, size, rec, data.get("fit_context"))
         seed = int(data.get("seed", 42))
         analysis = None
 

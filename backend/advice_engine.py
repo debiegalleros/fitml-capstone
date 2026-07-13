@@ -31,8 +31,9 @@ Write personalized clothing-fit advice for a shopper. Rules:
   like "seam alignment", "hem", "drape", "silhouette", "inseam", or "bodice".
   Example tone: "Looking at your photo, this fits you well — it sits nicely
   on your shoulders and the length is just right for you."
-- The try-on image is a 2D preview composite, so comment on overall size and
-  placement, not fabric texture or lighting.
+- The try-on image is an AI-generated preview (it shows how the garment looks
+  worn, not how the specific size fits), so comment on overall look and
+  placement — size accuracy comes from the measurements, not the picture.
 - If a sizing tip is flagged (borderline case), explain the tradeoff of the
   suggested size in paragraph 1 (e.g. roomier fit vs snug fit).
 - Keep the whole response under 130 words. Warm, helpful, concrete.
@@ -97,9 +98,24 @@ def generate_advice(profile: dict, item: dict, recommendation: dict,
                      "and the cut is fitted, so we suggested one size up. "
                      "Explain that tradeoff.")
     if size != recommendation["recommended_size"]:
-        lines.append(f"The shopper picked {size} instead of the recommended "
-                     f"{recommendation['recommended_size']} — explain how this "
-                     f"size will fit differently.")
+        rec_size = recommendation["recommended_size"]
+        sizes = [s.strip() for s in str(item.get("size_range", "")).split(",")]
+        delta = (sizes.index(size) - sizes.index(rec_size)
+                 if size in sizes and rec_size in sizes else 0)
+        n = abs(delta)
+        steps = f"{n} size{'s' if n > 1 else ''}" if n else "a different size"
+        if delta > 0:
+            example = (f'"the {size} will run large on you — expect extra '
+                       f'room; the {rec_size} is your match."')
+            direction = f"{size} is {steps} larger than their match."
+        else:
+            example = (f'"the {size} will run snug on you — expect a '
+                       f'tighter fit; the {rec_size} is your match."')
+            direction = f"{size} is {steps} smaller than their match."
+        lines.append(
+            f"The shopper is trying {size} but their match is {rec_size}. "
+            f"{direction} Paragraph 1 MUST state this mismatch explicitly and "
+            f"plainly up front — e.g. {example} Then explain why.")
     note = history_note(session_id=profile["session_id"], brand=item.get("brand"),
                         fabric=item.get("fabric"))
     if note:
