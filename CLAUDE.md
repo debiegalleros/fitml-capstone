@@ -141,8 +141,10 @@ Two planning docs may exist in `docs/planning/`:
   Fairness-Audited Machine Learning System for Sizing and Intelligent
   Virtual Try-On in E-Commerce", then "Pillar 5: Capstone Project", then the program
   name "Postgraduate Diploma in Artificial Intelligence and Machine Learning",
-  then "Debie Galleros · July 2026", then the tagline "A virtual fitting room
-  with size recommendations and tailored advice".
+  then "Debie Galleros · July 2026", then a deck-specific presentation-type +
+  links line ("Technical presentation — fit-ml.netlify.app ·
+  github.com/debiegalleros/fitml-capstone" / "Business presentation — live
+  demo: fit-ml.netlify.app"). No separate tagline line.
 
 ## Rubric (100 pts) — effort should track points
 Problem Framing 10 · Data Collection 10 · EDA/FE 10 · **Models 20** ·
