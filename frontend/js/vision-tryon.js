@@ -3,7 +3,7 @@
 
      primary engine → other engine → window.legacyTryOn (2D compositor)
 
-   The 10–25s generation gets a status line via the onStatus callback (the
+   The 10–41s generation gets a status line via the onStatus callback (the
    item page paints it over the hero image). Engine names are shown in the
    status line only on localhost — shoppers never see them. A 422 (photo
    coverage: bottoms need a full-body photo) is NOT retried on another
@@ -18,7 +18,7 @@ const VISION_TRYON = {
 function _tryonStatusText(phase, engine) {
   const base = {
     analyzing: "Analyzing the garment on your photo…",
-    generating: "Generating your try-on… this can take up to half a minute.",
+    generating: "Generating your try-on… this can take up to a minute.",
     fallback: "Taking a little longer than usual — trying another way…",
     legacy: "Using quick preview mode…",
   }[phase];
