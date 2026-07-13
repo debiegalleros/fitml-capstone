@@ -20,6 +20,7 @@ let tryonError = null;
 let adviceText = null;
 let adviceLoading = false;
 let tryonLoading = false;
+let tryonStatus = null;
 let recommendationError = null;
 
 function money(n) {
@@ -74,7 +75,7 @@ function render() {
   } else {
     tryOnActionHtml = `<div class="item-actions">
       <button type="button" class="btn btn-primary" id="try-on-btn" ${tryonLoading ? "disabled" : ""}>
-        ${tryonLoading ? "Compositing…" : "Try on"}
+        ${tryonLoading ? "Generating…" : "Try on"}
       </button>
     </div>`;
   }
@@ -103,7 +104,7 @@ function render() {
       <div>
         <div class="item-hero-wrap${!tryonResult && !isNative ? " showing-cutout" : ""}" id="item-hero-wrap">
           <img class="item-hero-img" src="${heroPhoto}" alt="${item.product_name}">
-          ${tryonLoading ? '<div class="item-hero-loading">Compositing your try-on…</div>' : ""}
+          ${tryonLoading ? `<div class="item-hero-loading">${tryonStatus || "Generating your try-on…"}</div>` : ""}
         </div>
         <div class="item-swatch-row">${swatches}</div>
       </div>
@@ -241,18 +242,36 @@ async function loadRecommendation() {
   render();
 }
 
+// Legacy 2D compositor — final fallback of visionTryOn's engine chain.
+// Same response shape as /api/tryon, so the caller can't tell them apart.
+window.legacyTryOn = () => apiPostJSON("/try-on", {
+  session_id: profile.session_id,
+  item_id: itemId,
+  size: selectedSize,
+  color: selectedColor,
+});
+
+function setTryonStatus(msg) {
+  tryonStatus = msg;
+  // Targeted update — a full render() mid-generation would drop scroll and
+  // accordion state for a text change.
+  const line = document.querySelector(".item-hero-loading");
+  if (line) line.textContent = msg;
+}
+
 async function runTryOn() {
   if (!profile || !selectedSize) return;
   tryonLoading = true;
   tryonError = null;
+  tryonStatus = null;
   render();
   try {
-    const res = await apiPostJSON("/try-on", {
-      session_id: profile.session_id,
-      item_id: itemId,
+    const res = await visionTryOn({
+      sessionId: profile.session_id,
+      itemId: itemId,
       size: selectedSize,
-      color: selectedColor,
-    });
+      colorVariant: selectedColor,
+    }, setTryonStatus);
     tryonResult = { image_url: res.image_url, tryon_id: res.tryon_id };
     recommendation = { ...recommendation, recommended_size: res.recommended_size, confidence: res.confidence, state: res.state };
     tryonLoading = false;

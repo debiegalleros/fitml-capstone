@@ -20,7 +20,8 @@ async function _handle(res) {
     data = {};
   }
   if (!res.ok) {
-    throw new ApiError(data.error || res.statusText || "Request failed", res.status);
+    // legacy endpoints use {error}; the vision try-on endpoints use {message}
+    throw new ApiError(data.error || data.message || res.statusText || "Request failed", res.status);
   }
   return data;
 }
