@@ -108,6 +108,41 @@ def test_top_mask_works_without_hips():
     assert white > 0.05  # non-degenerate mask
 
 
+# --------------------------------------- lower-body standardization (SDXL)
+
+def test_standardize_extends_top_mask_to_ankle(full_pose):
+    """extend_to_ankle=True must reach past the hip line (into leg territory),
+    not stop at the hip like a normal top mask."""
+    pose = vt._load_session_pose(full_pose)
+    photo = Image.new("RGB", (640, 1200), (200, 200, 200))
+    normal = vt._build_mask(photo, pose, "tshirt", extend_to_ankle=False)
+    extended = vt._build_mask(photo, pose, "tshirt", extend_to_ankle=True)
+    import numpy as np
+    normal_bottom = np.array(normal)[1100:1120, :].sum()
+    extended_bottom = np.array(extended)[1100:1120, :].sum()
+    assert extended_bottom > normal_bottom  # ankle region only covered when extended
+
+
+def test_standardizes_lower_body_gating():
+    full = {"photo_coverage": "full_body"}
+    upper = {"photo_coverage": "upper_body"}
+    # tops/outerwear on full-body photos: standardize
+    assert vt._standardizes_lower_body("tshirt", full) is True
+    assert vt._standardizes_lower_body("jacket", full) is True
+    # no-op on upper-body photos — nothing below frame to mask
+    assert vt._standardizes_lower_body("tshirt", upper) is False
+    # never applies to bottoms-only or dress try-ons
+    assert vt._standardizes_lower_body("jeans", full) is False
+    assert vt._standardizes_lower_body("dress", full) is False
+
+
+def test_leggings_reference_item_exists():
+    import catalog
+    item = catalog.get_item(vt.LEGGINGS_ITEM_ID)
+    assert item is not None
+    assert item["category"] in vt.LOWER_BODY_CATEGORIES
+
+
 # -------------------------------------------------------------- fit context
 
 ITEM = {"size_range": "XS,S,M,L,XL", "category": "tshirt"}

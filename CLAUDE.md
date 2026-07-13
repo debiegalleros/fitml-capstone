@@ -44,6 +44,25 @@ Two planning docs may exist in `docs/planning/`:
   user renders visibly wider/longer than an M). Lightweight visual size-difference
   cue; the advice text explains the fit tradeoff. Cite fit-aware generative try-on
   (FIT dataset, 2026) as the future-work upgrade path.
+  **Superseded (vision-tryon branch, in progress):** the primary renderer is
+  now generative — Claude Vision + IDM-VTON (garment-conditioned diffusion,
+  default) with SDXL inpainting and this 2D compositor as successive
+  fallbacks. Full doc rewrite reconciling this paragraph is pending (planned
+  Phase 5 pass across CLAUDE.md/report/decks/README); until then this bullet
+  describes the pre-rebuild architecture and the one below describes a rule
+  that applies to the new renderer.
+  **Universal lower-body standardization (deliberate design decision, not a
+  bug):** for any top/outerwear try-on on a full-body photo, the lower-body
+  region (hip-to-ankle) is always standardized to plain black fitted
+  leggings, regardless of what the shopper is actually wearing below the
+  frame — a consistent, catalog-style presentation independent of their real
+  bottoms. No-op on upper-body photos (nothing below frame to mask); never
+  applies to bottoms-only or dress try-ons. IDM-VTON: two chained calls (top
+  on torso+arms, then a second call on the first pass's own output, masked
+  lower_body, against a fixed leggings reference garment). SDXL: single
+  pass, mask extended to the ankle for top/outerwear categories, with a
+  fixed prompt clause appended. See `docs/genai_usage.md` for the
+  engine-selection rationale this sits alongside.
 - Alpha-feather: apply a 1–2px Gaussian feather to the garment alpha channel
   before try-on compositing so edges blend into the user photo instead of
   showing a hard cutout line.

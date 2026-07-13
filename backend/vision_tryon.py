@@ -83,6 +83,24 @@ FULL_LENGTH_CATEGORIES = {"dress"}
 
 VISIBILITY_THRESHOLD = 0.5  # same bar tryon.extract_pose uses
 
+# Universal lower-body standardization (deliberate design decision — see
+# CLAUDE.md and Report §6, not a bug): every top/outerwear try-on on a
+# full-body photo also standardizes the shopper's actual bottoms to plain
+# black fitted leggings, independent of what they're actually wearing below
+# the frame, for a consistent catalog-style presentation. No catalog item is
+# literally tagged "leggings" — 9150 (Lee Black Maxi Super-Skinny Jeans) is
+# the closest match: solid black, minimal pocket/stitch detail, fitted
+# silhouette.
+LEGGINGS_ITEM_ID = "9150"
+LEGGINGS_DESCRIPTION = "black fitted leggings"
+
+
+def _standardizes_lower_body(category: str, pose: dict) -> bool:
+    cat = (category or "").lower()
+    if cat in LOWER_BODY_CATEGORIES or cat in FULL_LENGTH_CATEGORIES:
+        return False
+    return pose.get("photo_coverage") == "full_body"
+
 
 # ---------------------------------------------------------------------------
 # Helpers — session assets
@@ -161,6 +179,13 @@ def _load_garment_cutout(item: dict, color_variant: str | None = None) -> Image.
     flat = Image.new("RGB", rgba.size, (255, 255, 255))
     flat.paste(rgba, mask=rgba.getchannel("A"))
     return flat
+
+
+def _load_leggings_cutout() -> Image.Image:
+    """Static reference garment for lower-body standardization (see
+    LEGGINGS_ITEM_ID above)."""
+    item = catalog.get_item(LEGGINGS_ITEM_ID)
+    return _load_garment_cutout(item)
 
 
 def _img_to_b64(img: Image.Image, fmt: str = "JPEG", max_side: int = 1024) -> str:
@@ -261,14 +286,19 @@ def _call_claude_vision(person_img: Image.Image, garment_img: Image.Image,
 # ---------------------------------------------------------------------------
 
 def _build_mask(photo: Image.Image, pose: dict, category: str,
-                sleeve_coverage: str = "n_a") -> Image.Image:
+                sleeve_coverage: str = "n_a", extend_to_ankle: bool = False) -> Image.Image:
     """White = regenerate, black = preserve.
 
     Mirror-worn rule: the mask must cover EVERYTHING the shopper is currently
     wearing in the garment's region, or remnants of their real clothes survive
     at the edges and the result reads as a sticker instead of worn clothing.
     So: torso polygon is raised toward the neckline, padded generously, and for
-    sleeved garments the arms (shoulder->elbow->wrist) are masked too."""
+    sleeved garments the arms (shoulder->elbow->wrist) are masked too.
+
+    extend_to_ankle: universal lower-body standardization for tops/outerwear
+    on a full-body photo — extends the mask from the shoulders all the way to
+    the ankles (like a dress) instead of stopping at the hips, so the
+    standardized-leggings prompt clause has an actual region to render into."""
     w, h = photo.size
     kp = pose["keypoints"]
 
@@ -300,7 +330,12 @@ def _build_mask(photo: Image.Image, pose: dict, category: str,
         bottom = ((la[0], la[1]), (ra[0], ra[1]))
     else:  # tops, outerwear
         top = (ls, rs)
-        bottom = (lh, rh)
+        if extend_to_ankle:
+            la = kp.get("left_ankle") or [lh[0], h - 1]
+            ra = kp.get("right_ankle") or [rh[0], h - 1]
+            bottom = ((la[0], la[1]), (ra[0], ra[1]))
+        else:
+            bottom = (lh, rh)
 
     # MediaPipe "left_*" is the person's left = image-right on a front-facing
     # photo, so order each pair by x: top[0]/bottom[0] must be the image-left
@@ -320,7 +355,7 @@ def _build_mask(photo: Image.Image, pose: dict, category: str,
     span = abs(top[0][0] - top[1][0]) or w * 0.25
     if cat in LOWER_BODY_CATEGORIES:
         pad_top_x = pad_bot_x = span * 0.55
-    elif cat in FULL_LENGTH_CATEGORIES:
+    elif cat in FULL_LENGTH_CATEGORIES or extend_to_ankle:
         pad_top_x, pad_bot_x = span * 0.25, span * 0.60
     else:
         pad_top_x = pad_bot_x = span * 0.25
@@ -551,11 +586,16 @@ def generate_tryon_image():
                 "This item needs a full-body photo to try on. "
                 "Update your photo in your profile."}), 422
 
+        standardize_legs = _standardizes_lower_body(category, pose)
         mask = _build_mask(photo, pose, category,
-                           sleeve_coverage=data.get("sleeve_coverage", "n_a"))
+                           sleeve_coverage=data.get("sleeve_coverage", "n_a"),
+                           extend_to_ankle=standardize_legs)
+        prompt = data["prompt"]
+        if standardize_legs:
+            prompt = f"{prompt}, wearing simple black fitted leggings"
         result = _replicate_inpaint(
             photo, mask,
-            prompt=data["prompt"],
+            prompt=prompt,
             negative_prompt=data.get("negative_prompt",
                 "extra limbs, deformed hands, changed face, changed background, "
                 "text, watermark, logo, cartoon, illustration"),
@@ -686,6 +726,7 @@ def tryon_pipeline():
         fit_context = _build_fit_context(meta, size, rec, data.get("fit_context"))
         seed = int(data.get("seed", 42))
         analysis = None
+        standardize_legs = _standardizes_lower_body(category, pose)
 
         if engine == "idm-vton":
             # Garment-conditioned: the model gets the actual cutout, no
@@ -695,13 +736,25 @@ def tryon_pipeline():
                            f"{meta['category']} — {meta['product_name']}")
             result = _replicate_idm_vton(photo, cutout, garment_des,
                                          category, seed=seed)
+            if standardize_legs:
+                # Pass 2: pass 1's render becomes the new source photo; a
+                # second IDM-VTON call, scoped to lower_body, standardizes
+                # whatever is below the waist to the fixed leggings
+                # reference — regardless of what the shopper actually wore.
+                leggings = _load_leggings_cutout()
+                result = _replicate_idm_vton(result, leggings, LEGGINGS_DESCRIPTION,
+                                             "jeans", seed=seed)
         else:
             analysis = _call_claude_vision(photo, garment, size_label=size,
                                            fit_context=fit_context)
             sleeve = analysis.get("garment", {}).get("sleeve_coverage", "n_a")
-            mask = _build_mask(photo, pose, category, sleeve_coverage=sleeve)
+            mask = _build_mask(photo, pose, category, sleeve_coverage=sleeve,
+                               extend_to_ankle=standardize_legs)
+            prompt = analysis["prompt"]
+            if standardize_legs:
+                prompt = f"{prompt}, wearing simple black fitted leggings"
             result = _replicate_inpaint(photo, mask,
-                                        prompt=analysis["prompt"],
+                                        prompt=prompt,
                                         negative_prompt=analysis["negative_prompt"],
                                         seed=seed)
 
