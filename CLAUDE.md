@@ -63,6 +63,14 @@ Two planning docs may exist in `docs/planning/`:
   pass, mask extended to the ankle for top/outerwear categories, with a
   fixed prompt clause appended. See `docs/genai_usage.md` for the
   engine-selection rationale this sits alongside.
+  **Symmetric upper-body case — evaluated, not shipped:** the mirror
+  feature (bottoms try-on standardizing the top above to a black
+  long-sleeve reference, so a dress-source photo doesn't leave a
+  mismatched original top) was built and tested but disabled after two
+  reference garments and both chained-call orders each showed a genuine
+  IDM-VTON boundary-bleed problem rather than a fixable asset/ordering
+  choice. Bottoms try-on on a shopper already wearing a separate top is
+  unaffected. See `docs/genai_usage.md` for the full investigation.
 - Alpha-feather: apply a 1–2px Gaussian feather to the garment alpha channel
   before try-on compositing so edges blend into the user photo instead of
   showing a hard cutout line.

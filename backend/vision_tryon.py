@@ -102,6 +102,44 @@ def _standardizes_lower_body(category: str, pose: dict) -> bool:
     return pose.get("photo_coverage") == "full_body"
 
 
+# Universal upper-body standardization — the symmetric case (deliberate
+# design decision — see CLAUDE.md and Report §6, not a bug): every bottoms
+# try-on on a full-body photo also standardizes the shopper's actual top to
+# a plain black long-sleeve top, independent of what they're actually
+# wearing above the frame (a separate top, or a one-piece dress that would
+# otherwise leave a mismatched upper half). No detection of "is she in a
+# dress" is needed — the rule applies universally, same principle as the
+# leggings case. 23047 (Arrow Woman Charcoal Solid Sweater) is the closest
+# catalog match with the RIGHT PROPORTIONS: long sleeves and a waist-length
+# hem with a visible waistband in its own product photo. The black
+# long-sleeve candidates (11784/11785) are tunic-length in their product
+# photos — IDM-VTON faithfully reproduced that length and covered the
+# rendered bottoms entirely (verified during testing) — charcoal is a
+# closer proportional match than black is a color match, same tradeoff the
+# leggings item makes (jeans texture instead of true legging fabric).
+UPPER_STANDARD_ITEM_ID = "23047"
+UPPER_STANDARD_DESCRIPTION = "a simple black long-sleeve top"
+
+
+def _standardizes_upper_body(category: str, pose: dict) -> bool:
+    """Disabled pending future work — see docs/genai_usage.md.
+
+    The mask-geometry support (_build_mask's extend_to_shoulder) and the
+    reference-garment plumbing below are real and unit-tested, but IDM-VTON
+    showed a boundary-bleed failure between the two chained calls (the
+    already-rendered bottoms don't survive the second, upper_body-scoped
+    call cleanly) in both call orders tested — bottoms-then-top and
+    top-then-bottom. That rules out a call-order fix, and two reference
+    garments (a tunic-length black top, then a waist-length charcoal
+    sweater) each isolated a different real problem rather than fixing it,
+    so this is treated as a genuine engine limitation for this specific
+    composition, not a tunable asset-selection issue. Always returns False
+    until revisited. Bottoms try-on itself (Case A: top+separate-bottom
+    photos) is unaffected and ships normally — this only gates the
+    dress-source symmetric case."""
+    return False
+
+
 # ---------------------------------------------------------------------------
 # Helpers — session assets
 # ---------------------------------------------------------------------------
@@ -185,6 +223,13 @@ def _load_leggings_cutout() -> Image.Image:
     """Static reference garment for lower-body standardization (see
     LEGGINGS_ITEM_ID above)."""
     item = catalog.get_item(LEGGINGS_ITEM_ID)
+    return _load_garment_cutout(item)
+
+
+def _load_upper_standard_cutout() -> Image.Image:
+    """Static reference garment for upper-body standardization (see
+    UPPER_STANDARD_ITEM_ID above)."""
+    item = catalog.get_item(UPPER_STANDARD_ITEM_ID)
     return _load_garment_cutout(item)
 
 
@@ -286,7 +331,8 @@ def _call_claude_vision(person_img: Image.Image, garment_img: Image.Image,
 # ---------------------------------------------------------------------------
 
 def _build_mask(photo: Image.Image, pose: dict, category: str,
-                sleeve_coverage: str = "n_a", extend_to_ankle: bool = False) -> Image.Image:
+                sleeve_coverage: str = "n_a", extend_to_ankle: bool = False,
+                extend_to_shoulder: bool = False) -> Image.Image:
     """White = regenerate, black = preserve.
 
     Mirror-worn rule: the mask must cover EVERYTHING the shopper is currently
@@ -298,7 +344,13 @@ def _build_mask(photo: Image.Image, pose: dict, category: str,
     extend_to_ankle: universal lower-body standardization for tops/outerwear
     on a full-body photo — extends the mask from the shoulders all the way to
     the ankles (like a dress) instead of stopping at the hips, so the
-    standardized-leggings prompt clause has an actual region to render into."""
+    standardized-leggings prompt clause has an actual region to render into.
+
+    extend_to_shoulder: the symmetric case — universal upper-body
+    standardization for bottoms categories on a full-body photo — extends
+    the mask from the ankles all the way up to the shoulders (like a dress)
+    instead of stopping at the hips, so the standardized-top prompt clause
+    has an actual region to render into."""
     w, h = photo.size
     kp = pose["keypoints"]
 
@@ -326,7 +378,7 @@ def _build_mask(photo: Image.Image, pose: dict, category: str,
     elif cat in LOWER_BODY_CATEGORIES:
         la = kp.get("left_ankle") or [lh[0], h - 1]
         ra = kp.get("right_ankle") or [rh[0], h - 1]
-        top = (lh, rh)
+        top = (ls, rs) if extend_to_shoulder else (lh, rh)
         bottom = ((la[0], la[1]), (ra[0], ra[1]))
     else:  # tops, outerwear
         top = (ls, rs)
@@ -353,14 +405,15 @@ def _build_mask(photo: Image.Image, pose: dict, category: str,
     # Dresses: shoulder-anchored, but the skirt flares well past shoulder
     # width — widen the bottom edge of the trapezoid to ~60%.
     span = abs(top[0][0] - top[1][0]) or w * 0.25
-    if cat in LOWER_BODY_CATEGORIES:
+    covers_upper = cat not in LOWER_BODY_CATEGORIES or extend_to_shoulder
+    if cat in LOWER_BODY_CATEGORIES and not extend_to_shoulder:
         pad_top_x = pad_bot_x = span * 0.55
-    elif cat in FULL_LENGTH_CATEGORIES or extend_to_ankle:
+    elif cat in FULL_LENGTH_CATEGORIES or extend_to_ankle or extend_to_shoulder:
         pad_top_x, pad_bot_x = span * 0.25, span * 0.60
     else:
         pad_top_x = pad_bot_x = span * 0.25
     pad_y = abs(bottom[0][1] - top[0][1]) * 0.08
-    neck_raise = span * 0.18 if cat not in LOWER_BODY_CATEGORIES else 0
+    neck_raise = span * 0.18 if covers_upper else 0
 
     def clamp(p):
         return (min(max(p[0], 0), w - 1), min(max(p[1], 0), h - 1))
@@ -380,7 +433,7 @@ def _build_mask(photo: Image.Image, pose: dict, category: str,
     # otherwise leave the shopper's current sleeves visible. Cheap and safe:
     # mask arms for all upper-body garments; the prompt regenerates bare skin
     # for sleeveless garments and fabric for sleeved ones.
-    if cat not in LOWER_BODY_CATEGORIES:
+    if covers_upper:
         arm_w = max(6, span * 0.28)
         # long sleeves -> mask to wrist; otherwise to elbow (covers most
         # currently-worn sleeves without touching hands)
@@ -587,12 +640,16 @@ def generate_tryon_image():
                 "Update your photo in your profile."}), 422
 
         standardize_legs = _standardizes_lower_body(category, pose)
+        standardize_top = _standardizes_upper_body(category, pose)
         mask = _build_mask(photo, pose, category,
                            sleeve_coverage=data.get("sleeve_coverage", "n_a"),
-                           extend_to_ankle=standardize_legs)
+                           extend_to_ankle=standardize_legs,
+                           extend_to_shoulder=standardize_top)
         prompt = data["prompt"]
         if standardize_legs:
             prompt = f"{prompt}, wearing simple black fitted leggings"
+        elif standardize_top:
+            prompt = f"{prompt}, wearing a simple black long-sleeve top"
         result = _replicate_inpaint(
             photo, mask,
             prompt=prompt,
@@ -727,6 +784,7 @@ def tryon_pipeline():
         seed = int(data.get("seed", 42))
         analysis = None
         standardize_legs = _standardizes_lower_body(category, pose)
+        standardize_top = _standardizes_upper_body(category, pose)
 
         if engine == "idm-vton":
             # Garment-conditioned: the model gets the actual cutout, no
@@ -744,15 +802,27 @@ def tryon_pipeline():
                 leggings = _load_leggings_cutout()
                 result = _replicate_idm_vton(result, leggings, LEGGINGS_DESCRIPTION,
                                              "jeans", seed=seed)
+            elif standardize_top:
+                # Symmetric case: pass 1 rendered the actual bottoms; pass 2
+                # standardizes whatever is above the waist (a separate top,
+                # or a one-piece dress that would otherwise leave a
+                # mismatched upper half) to the fixed long-sleeve-top
+                # reference, scoped to upper_body.
+                upper = _load_upper_standard_cutout()
+                result = _replicate_idm_vton(result, upper, UPPER_STANDARD_DESCRIPTION,
+                                             "sweater", seed=seed)
         else:
             analysis = _call_claude_vision(photo, garment, size_label=size,
                                            fit_context=fit_context)
             sleeve = analysis.get("garment", {}).get("sleeve_coverage", "n_a")
             mask = _build_mask(photo, pose, category, sleeve_coverage=sleeve,
-                               extend_to_ankle=standardize_legs)
+                               extend_to_ankle=standardize_legs,
+                               extend_to_shoulder=standardize_top)
             prompt = analysis["prompt"]
             if standardize_legs:
                 prompt = f"{prompt}, wearing simple black fitted leggings"
+            elif standardize_top:
+                prompt = f"{prompt}, wearing a simple black long-sleeve top"
             result = _replicate_inpaint(photo, mask,
                                         prompt=prompt,
                                         negative_prompt=analysis["negative_prompt"],

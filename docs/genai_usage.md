@@ -207,6 +207,38 @@ feature (below) is unaffected either way, since it deliberately targets
 the full hip-to-ankle region rather than relying on the engine to
 auto-detect existing bottoms.
 
+**Upper-body standardization (the symmetric case) — attempted, not
+shipped.** The lower-body standardization feature (any top/outerwear
+try-on standardizes what's below to plain black leggings, via a chained
+IDM-VTON pass — ships, verified reliable) has a symmetric counterpart:
+any bottoms try-on standardizing what's above to a plain black
+long-sleeve top, so a dress-source photo doesn't leave a mismatched
+original top visible. This was built and tested but is **disabled**
+(`_standardizes_upper_body` always returns `False`) after two rounds of
+investigation both surfaced real problems rather than fixing one:
+
+1. First reference garment (a black long-sleeve tee, tunic-length in its
+   own product photo): IDM-VTON faithfully reproduced that length and the
+   standardized top visually covered the actual rendered bottoms entirely
+   — a proportions problem.
+2. Second reference garment (a charcoal cable-knit sweater with a correct
+   waist-length hem in its own product photo): proportions were right,
+   but the rendered bottoms from the first pass no longer read clearly as
+   jeans in the boundary region — a different failure, boundary bleed
+   between the two chained calls rather than an asset-length problem.
+3. Tested whether call order was the cause (top-standardization first,
+   then bottoms, mirroring the working leggings direction) — same
+   boundary bleed persisted. This rules out a call-order fix and points
+   to a genuine IDM-VTON limitation specific to this composition
+   (redressing upper_body on an image whose lower body was itself just
+   generated), not a tunable reference-image or ordering choice.
+
+Bottoms try-on itself (a shopper already in a separate top and bottom)
+is unaffected and ships normally — only the dress-source symmetric case
+is affected. Left as documented future work rather than shipped with a
+visually incorrect result. Comparison images from both attempts are in
+`docs/assets/tryon_samples/upper_standardization_not_shipped_finding.png`.
+
 ## Responsible boundaries — why GenAI is kept out of the graded pipeline
 
 The graded core of this capstone (Steps 4–5: model implementation and the

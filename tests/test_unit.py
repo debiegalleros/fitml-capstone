@@ -136,6 +136,50 @@ def test_standardizes_lower_body_gating():
     assert vt._standardizes_lower_body("dress", full) is False
 
 
+# ------------------------------- upper-body standardization (symmetric case)
+
+def test_standardize_extends_bottoms_mask_to_shoulder(full_pose):
+    """extend_to_shoulder=True must reach past the hip line upward (into
+    torso/chest territory), not start at the hip like a normal bottoms mask."""
+    pose = vt._load_session_pose(full_pose)
+    photo = Image.new("RGB", (640, 1200), (200, 200, 200))
+    normal = vt._build_mask(photo, pose, "jeans", extend_to_shoulder=False)
+    extended = vt._build_mask(photo, pose, "jeans", extend_to_shoulder=True)
+    import numpy as np
+    normal_top = np.array(normal)[280:300, :].sum()   # near shoulder line
+    extended_top = np.array(extended)[280:300, :].sum()
+    assert extended_top > normal_top  # shoulder region only covered when extended
+
+
+def test_standardizes_upper_body_disabled():
+    """Case B is disabled pending future work (see docs/genai_usage.md) —
+    IDM-VTON showed a boundary-bleed failure between the two chained calls
+    in both orders tested, so the gate always returns False regardless of
+    category or photo coverage. The underlying mask-geometry support
+    (test_standardize_extends_bottoms_mask_to_shoulder above) stays
+    available and tested for when this is revisited."""
+    full = {"photo_coverage": "full_body"}
+    upper = {"photo_coverage": "upper_body"}
+    for cat in ("jeans", "skirt", "tshirt", "dress"):
+        for pose in (full, upper):
+            assert vt._standardizes_upper_body(cat, pose) is False
+
+
+def test_standardize_legs_and_top_are_mutually_exclusive():
+    full = {"photo_coverage": "full_body"}
+    for cat in ("tshirt", "jacket", "jeans", "skirt", "dress"):
+        assert not (vt._standardizes_lower_body(cat, full)
+                    and vt._standardizes_upper_body(cat, full))
+
+
+def test_upper_standard_reference_item_exists():
+    import catalog
+    item = catalog.get_item(vt.UPPER_STANDARD_ITEM_ID)
+    assert item is not None
+    assert item["category"] not in vt.LOWER_BODY_CATEGORIES
+    assert item["category"] not in vt.FULL_LENGTH_CATEGORIES
+
+
 def test_leggings_reference_item_exists():
     import catalog
     item = catalog.get_item(vt.LEGGINGS_ITEM_ID)
