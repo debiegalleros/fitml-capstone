@@ -84,16 +84,22 @@ def main():
     check_no_measurement_language(analysis)
     print(f"  prompt: {analysis['prompt'][:100]}...")
 
-    # 3 — full pipeline
-    print(f"2) POST {BASE_URL}/api/tryon (SDXL inpainting — may take ~60s cold)")
-    r = requests.post(f"{BASE_URL}/api/tryon", json={
-        "session_id": SESSION_ID, "item_id": ITEM_ID, "size": "M",
-        "seed": 42}, timeout=240)
+    # 3 — full pipeline (engine from TEST_ENGINE or the backend default)
+    engine = os.environ.get("TEST_ENGINE")
+    print(f"2) POST {BASE_URL}/api/tryon (engine={engine or 'backend default'} "
+          f"— may take ~60s cold)")
+    payload = {"session_id": SESSION_ID, "item_id": ITEM_ID, "size": "M",
+               "seed": 42}
+    if engine:
+        payload["engine"] = engine
+    r = requests.post(f"{BASE_URL}/api/tryon", json=payload, timeout=240)
     if r.status_code != 200:
         fail(f"/api/tryon returned {r.status_code}: {r.text[:300]}")
     body = r.json()
-    if body.get("engine") != "vision-sdxl" or not body.get("image_url"):
+    if body.get("engine") not in ("idm-vton", "sdxl") or not body.get("image_url"):
         fail(f"unexpected /api/tryon response: {body}")
+    if not body.get("tryon_id"):
+        fail("no tryon_id in response (advice/history integration broken)")
     img = requests.get(f"{BASE_URL}{body['image_url']}", timeout=60)
     if img.status_code != 200 or img.content[:4] not in (b"\x89PNG", b"\xff\xd8\xff\xe0",
                                                          b"\xff\xd8\xff\xe1", b"\xff\xd8\xff\xdb"):

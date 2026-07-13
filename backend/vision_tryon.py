@@ -38,7 +38,9 @@ from flask import Blueprint, jsonify, request
 from PIL import Image, ImageDraw, ImageFilter
 
 import catalog
-from config import BOTTOM_CATEGORIES, UPLOADS_DIR
+import size_logic
+from config import BOTTOM_CATEGORIES, CATALOG_DIR, UPLOADS_DIR
+from db import get_db
 
 vision_tryon_bp = Blueprint("vision_tryon", __name__)
 
@@ -49,11 +51,25 @@ vision_tryon_bp = Blueprint("vision_tryon", __name__)
 CLAUDE_VISION_MODEL = os.environ.get("CLAUDE_VISION_MODEL", "claude-sonnet-4-6")
 
 REPLICATE_API_TOKEN = os.environ.get("REPLICATE_API_TOKEN", "")
+
+# Engine selection: "idm-vton" (garment-conditioned diffusion — renders THE
+# catalog item) or "sdxl" (text-conditioned inpainting — renders a lookalike
+# from the analyzer prompt). Per-request override via the "engine" body field.
+TRYON_ENGINE = os.environ.get("TRYON_ENGINE", "idm-vton")
+
 # SDXL inpainting on Replicate. Pin a version hash in env for reproducibility.
 SDXL_INPAINT_MODEL = os.environ.get(
     "SDXL_INPAINT_MODEL", "stability-ai/stable-diffusion-inpainting"
 )
 SDXL_INPAINT_VERSION = os.environ.get("SDXL_INPAINT_VERSION", "")  # optional pin
+
+# IDM-VTON (garment-conditioned virtual try-on). Version pinned for
+# reproducibility — override via env if the maintainer publishes a fix.
+IDM_VTON_MODEL = os.environ.get("IDM_VTON_MODEL", "cuuupid/idm-vton")
+IDM_VTON_VERSION = os.environ.get(
+    "IDM_VTON_VERSION",
+    "0513734a452173b8173e907e3a59d19a36266e55b48528559432bd21c7d7e985",
+)
 
 REPLICATE_POLL_INTERVAL_S = 2
 REPLICATE_TIMEOUT_S = 120
@@ -124,13 +140,23 @@ def _load_garment(item_id: str, color_variant: str | None = None) -> tuple[Image
     if item is None:
         raise FileNotFoundError(f"Unknown item_id {item_id!r}")
 
-    from config import CATALOG_DIR
     if color_variant and color_variant.strip().lower() != item["color"].lower():
         path = catalog.garment_png_path(item, color_variant)
     else:
         path = os.path.join(CATALOG_DIR, item["photo"])
     img = Image.open(path).convert("RGB")
     return img, item
+
+
+def _load_garment_cutout(item: dict, color_variant: str | None = None) -> Image.Image:
+    """The rembg cutout flattened onto white — IDM-VTON wants a clean
+    product-style garment image, and the cutout is the exact catalog asset
+    (including hue variants) rather than an on-model photo."""
+    path = catalog.garment_png_path(item, color_variant)
+    rgba = Image.open(path).convert("RGBA")
+    flat = Image.new("RGB", rgba.size, (255, 255, 255))
+    flat.paste(rgba, mask=rgba.getchannel("A"))
+    return flat
 
 
 def _img_to_b64(img: Image.Image, fmt: str = "JPEG", max_side: int = 1024) -> str:
@@ -278,7 +304,7 @@ def _build_mask(photo: Image.Image, pose: dict, category: str,
     # ~18% of shoulder width above the shoulder line to cover collars and
     # necklines of whatever the shopper is currently wearing.
     span = abs(top[0][0] - top[1][0]) or w * 0.25
-    pad_x = span * 0.25
+    pad_top_x = pad_bot_x = span * 0.25
     pad_y = abs(bottom[0][1] - top[0][1]) * 0.08
     neck_raise = span * 0.18 if cat not in LOWER_BODY_CATEGORIES else 0
 
@@ -289,10 +315,10 @@ def _build_mask(photo: Image.Image, pose: dict, category: str,
     draw = ImageDraw.Draw(mask)
 
     poly = [clamp(p) for p in [
-        (top[0][0] - pad_x, top[0][1] - pad_y - neck_raise),
-        (top[1][0] + pad_x, top[1][1] - pad_y - neck_raise),
-        (bottom[1][0] + pad_x, bottom[1][1] + pad_y),
-        (bottom[0][0] - pad_x, bottom[0][1] + pad_y),
+        (top[0][0] - pad_top_x, top[0][1] - pad_y - neck_raise),
+        (top[1][0] + pad_top_x, top[1][1] - pad_y - neck_raise),
+        (bottom[1][0] + pad_bot_x, bottom[1][1] + pad_y),
+        (bottom[0][0] - pad_bot_x, bottom[0][1] + pad_y),
     ]]
     draw.polygon(poly, fill=255)
 
@@ -328,34 +354,25 @@ def _build_mask(photo: Image.Image, pose: dict, category: str,
 # Stage 2 — SDXL inpainting via Replicate
 # ---------------------------------------------------------------------------
 
-def _replicate_inpaint(photo: Image.Image, mask: Image.Image,
-                       prompt: str, negative_prompt: str, seed: int = 42) -> Image.Image:
+def _data_uri(img: Image.Image, mode: str = "RGB") -> str:
+    buf = io.BytesIO()
+    img.convert(mode).save(buf, format="PNG")
+    return "data:image/png;base64," + base64.b64encode(buf.getvalue()).decode()
+
+
+def _replicate_run(payload_input: dict, model: str, version: str,
+                   label: str) -> Image.Image:
+    """Create a Replicate prediction, poll to completion, download the image."""
     if not REPLICATE_API_TOKEN:
         raise RuntimeError("REPLICATE_API_TOKEN is not set.")
-
-    def data_uri(img, mode="RGB"):
-        buf = io.BytesIO()
-        img.convert(mode).save(buf, format="PNG")
-        return "data:image/png;base64," + base64.b64encode(buf.getvalue()).decode()
-
-    payload_input = {
-        "image": data_uri(photo),
-        "mask": data_uri(mask, "L"),
-        "prompt": prompt,
-        "negative_prompt": negative_prompt,
-        "num_inference_steps": 30,
-        "guidance_scale": 7.5,
-        "seed": seed,
-    }
-
     headers = {"Authorization": f"Bearer {REPLICATE_API_TOKEN}",
                "Content-Type": "application/json"}
 
-    if SDXL_INPAINT_VERSION:
+    if version:
         create_url = "https://api.replicate.com/v1/predictions"
-        body = {"version": SDXL_INPAINT_VERSION, "input": payload_input}
+        body = {"version": version, "input": payload_input}
     else:
-        create_url = f"https://api.replicate.com/v1/models/{SDXL_INPAINT_MODEL}/predictions"
+        create_url = f"https://api.replicate.com/v1/models/{model}/predictions"
         body = {"input": payload_input}
 
     r = requests.post(create_url, headers=headers, json=body, timeout=30)
@@ -365,17 +382,57 @@ def _replicate_inpaint(photo: Image.Image, mask: Image.Image,
     deadline = time.time() + REPLICATE_TIMEOUT_S
     while pred["status"] not in ("succeeded", "failed", "canceled"):
         if time.time() > deadline:
-            raise TimeoutError("SDXL generation timed out.")
+            raise TimeoutError(f"{label} generation timed out.")
         time.sleep(REPLICATE_POLL_INTERVAL_S)
         pred = requests.get(pred["urls"]["get"], headers=headers, timeout=30).json()
 
     if pred["status"] != "succeeded":
-        raise RuntimeError(f"SDXL generation failed: {pred.get('error')}")
+        raise RuntimeError(f"{label} generation failed: {pred.get('error')}")
 
     out = pred["output"]
     url = out[0] if isinstance(out, list) else out
     img_bytes = requests.get(url, timeout=60).content
     return Image.open(io.BytesIO(img_bytes)).convert("RGB")
+
+
+def _replicate_inpaint(photo: Image.Image, mask: Image.Image,
+                       prompt: str, negative_prompt: str, seed: int = 42) -> Image.Image:
+    return _replicate_run({
+        "image": _data_uri(photo),
+        "mask": _data_uri(mask, "L"),
+        "prompt": prompt,
+        "negative_prompt": negative_prompt,
+        "num_inference_steps": 30,
+        "guidance_scale": 7.5,
+        "seed": seed,
+    }, SDXL_INPAINT_MODEL, SDXL_INPAINT_VERSION, "SDXL")
+
+
+def _idm_category(category: str) -> str:
+    cat = (category or "").lower()
+    if cat in LOWER_BODY_CATEGORIES:
+        return "lower_body"
+    if cat in FULL_LENGTH_CATEGORIES:
+        return "dresses"
+    return "upper_body"
+
+
+def _replicate_idm_vton(photo: Image.Image, garment: Image.Image,
+                        garment_des: str, category: str, seed: int = 42) -> Image.Image:
+    """Garment-conditioned try-on: IDM-VTON takes the actual garment image and
+    masks/redraws internally, so the output wears THE catalog item (no text
+    lookalike) with the original clothes removed."""
+    idm_cat = _idm_category(category)
+    return _replicate_run({
+        "human_img": _data_uri(photo),
+        "garm_img": _data_uri(garment),
+        "garment_des": garment_des,
+        "category": idm_cat,
+        "force_dc": idm_cat == "dresses",  # DressCode weights for dresses
+        "crop": True,  # session photos are not 3:4
+        "steps": 30,
+        "seed": seed,
+    }, IDM_VTON_MODEL, IDM_VTON_VERSION, "IDM-VTON")
 
 
 # ---------------------------------------------------------------------------
@@ -447,48 +504,114 @@ def generate_tryon_image():
 
 
 # ---------------------------------------------------------------------------
-# Endpoint 3: /api/tryon — combined pipeline
+# Endpoint 3: /api/tryon — combined pipeline (engine dispatch)
 # ---------------------------------------------------------------------------
+
+def _get_profile(session_id: str):
+    with get_db() as conn:
+        row = conn.execute("SELECT * FROM profiles WHERE session_id = ?",
+                           (session_id,)).fetchone()
+    return dict(row) if row else None
+
+
+def _recommend(profile: dict, item: dict) -> dict:
+    if item["gender"] == "men":
+        return size_logic.recommend_mens_size(profile, item)
+    return size_logic.recommend_womens_size(profile, item)
+
+
+def _save_tryon_row(session_id: str, item: dict, size: str, color: str | None,
+                    rec: dict, image_path: str) -> str:
+    """Persist the try-on like legacy /try-on does, so /advice and the
+    History page work identically for generative results."""
+    tryon_id = uuid.uuid4().hex[:12]
+    with get_db() as conn:
+        conn.execute(
+            """INSERT INTO tryons (tryon_id, session_id, item_id, brand,
+               fabric, category, size, color, recommended_size, confidence,
+               state, image_path)
+               VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",
+            (tryon_id, session_id, item["item_id"],
+             catalog._brand(item["product_name"]), item["fabric"],
+             item["category"], size, color or item["color"],
+             rec["recommended_size"], rec["confidence"], rec["state"],
+             image_path))
+    return tryon_id
+
 
 @vision_tryon_bp.route("/api/tryon", methods=["POST"])
 def tryon_pipeline():
-    """Body: { session_id, item_id, size, fit_context?, color_variant?, seed? }
-    Full pipeline; response mirrors the legacy /try-on so the frontend can
-    swap endpoints with no other changes."""
+    """Body: { session_id, item_id, size, fit_context?, color_variant?,
+    seed?, engine? }. Full pipeline; response mirrors the legacy /try-on
+    (tryon_id, image_url, recommendation fields) so the frontend can swap
+    endpoints with no other changes. Engine: request override > TRYON_ENGINE
+    env (idm-vton | sdxl)."""
     data = request.get_json(force=True)
     try:
         session_id = data["session_id"]
+        engine = (data.get("engine") or TRYON_ENGINE).strip().lower()
+        if engine not in ("idm-vton", "sdxl"):
+            return jsonify({"status": "error",
+                            "message": f"unknown engine {engine!r}"}), 400
+
+        profile = _get_profile(session_id)
+        if not profile:
+            return jsonify({"status": "error", "message": "unknown session_id"}), 404
         photo = _load_session_photo(session_id)
         pose = _load_session_pose(session_id)
         garment, meta = _load_garment(data["item_id"], data.get("color_variant"))
         category = (meta.get("category") or "top").lower()
+
+        size = (data.get("size") or "M").strip().upper()
+        available = [s.strip() for s in meta["size_range"].split(",")]
+        if size not in available:
+            return jsonify({"status": "error",
+                            "message": f"size must be one of {available}"}), 400
 
         if category in LOWER_BODY_CATEGORIES and pose.get("photo_coverage") == "upper_body":
             return jsonify({"status": "error", "message":
                 "This item needs a full-body photo to try on. "
                 "Update your photo in your profile."}), 422
 
-        analysis = _call_claude_vision(
-            photo, garment,
-            size_label=data.get("size", "M"),
-            fit_context=data.get("fit_context", "true to size"),
-        )
-        sleeve = analysis.get("garment", {}).get("sleeve_coverage", "n_a")
-        mask = _build_mask(photo, pose, category, sleeve_coverage=sleeve)
-        result = _replicate_inpaint(
-            photo, mask,
-            prompt=analysis["prompt"],
-            negative_prompt=analysis["negative_prompt"],
-            seed=int(data.get("seed", 42)),
-        )
+        rec = _recommend(profile, meta)
+        fit_context = data.get("fit_context", "true to size")
+        seed = int(data.get("seed", 42))
+        analysis = None
+
+        if engine == "idm-vton":
+            # Garment-conditioned: the model gets the actual cutout, no
+            # text prompt lever — masking and blending happen inside.
+            cutout = _load_garment_cutout(meta, data.get("color_variant"))
+            garment_des = (f"{meta['color']} {meta['fabric']} "
+                           f"{meta['category']} — {meta['product_name']}")
+            result = _replicate_idm_vton(photo, cutout, garment_des,
+                                         category, seed=seed)
+        else:
+            analysis = _call_claude_vision(photo, garment, size_label=size,
+                                           fit_context=fit_context)
+            sleeve = analysis.get("garment", {}).get("sleeve_coverage", "n_a")
+            mask = _build_mask(photo, pose, category, sleeve_coverage=sleeve)
+            result = _replicate_inpaint(photo, mask,
+                                        prompt=analysis["prompt"],
+                                        negative_prompt=analysis["negative_prompt"],
+                                        seed=seed)
 
         out_name = f"tryon_{uuid.uuid4().hex[:12]}.png"
-        result.save(os.path.join(_session_dir(session_id), out_name))
+        out_path = os.path.join(_session_dir(session_id), out_name)
+        result.save(out_path)
+        tryon_id = _save_tryon_row(session_id, meta, size,
+                                   data.get("color_variant"), rec, out_path)
+
         return jsonify({
             "status": "ok",
+            "tryon_id": tryon_id,
             "image_url": f"/tryon-image/{session_id}/{out_name}",
-            "analysis": analysis,          # feeds straight into /advice
-            "engine": "vision-sdxl",
+            "size": size,
+            "recommended_size": rec["recommended_size"],
+            "confidence": rec["confidence"],
+            "state": rec["state"],
+            "analysis": analysis,          # null on the idm-vton path
+            "engine": engine,
         })
     except (KeyError, FileNotFoundError, ValueError) as e:
         return jsonify({"status": "error", "message": str(e)}), 400
