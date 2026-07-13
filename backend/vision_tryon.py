@@ -57,11 +57,14 @@ REPLICATE_API_TOKEN = os.environ.get("REPLICATE_API_TOKEN", "")
 # from the analyzer prompt). Per-request override via the "engine" body field.
 TRYON_ENGINE = os.environ.get("TRYON_ENGINE", "idm-vton")
 
-# SDXL inpainting on Replicate. Pin a version hash in env for reproducibility.
-SDXL_INPAINT_MODEL = os.environ.get(
-    "SDXL_INPAINT_MODEL", "stability-ai/stable-diffusion-inpainting"
+# SDXL inpainting on Replicate. Version pinned for reproducibility (community
+# models also require version-pinned prediction creates — the /models/{slug}/
+# predictions shortcut 404s for them).
+SDXL_INPAINT_MODEL = os.environ.get("SDXL_INPAINT_MODEL", "lucataco/sdxl-inpainting")
+SDXL_INPAINT_VERSION = os.environ.get(
+    "SDXL_INPAINT_VERSION",
+    "a5b13068cc81a89a4fbeefeccc774869fcb34df4dbc92c1555e0f2771d49dde7",
 )
-SDXL_INPAINT_VERSION = os.environ.get("SDXL_INPAINT_VERSION", "")  # optional pin
 
 # IDM-VTON (garment-conditioned virtual try-on). Version pinned for
 # reproducibility — override via env if the maintainer publishes a fix.
@@ -275,7 +278,13 @@ def _build_mask(photo: Image.Image, pose: dict, category: str,
         return (float(v[0]), float(v[1]))
 
     ls, rs = pt("left_shoulder"), pt("right_shoulder")
-    lh, rh = pt("left_hip"), pt("right_hip")
+    # Upper-body photos (cropped at the waist) have no visible hips — tops
+    # still composite on them (guardrail only blocks bottoms), so estimate:
+    # hips sit ~1.3x shoulder span below the shoulder line, clamped to frame.
+    shoulder_span = abs(ls[0] - rs[0]) or w * 0.25
+    est_y = min(h - 1, (ls[1] + rs[1]) / 2 + shoulder_span * 1.3)
+    lh = pt("left_hip", [ls[0] * 0.9 + rs[0] * 0.1, est_y])
+    rh = pt("right_hip", [rs[0] * 0.9 + ls[0] * 0.1, est_y])
 
     cat = (category or "").lower()
     if cat in FULL_LENGTH_CATEGORIES:
@@ -411,8 +420,12 @@ def _replicate_inpaint(photo: Image.Image, mask: Image.Image,
         "mask": _data_uri(mask, "L"),
         "prompt": prompt,
         "negative_prompt": negative_prompt,
-        "num_inference_steps": 30,
+        "steps": 30,
         "guidance_scale": 7.5,
+        # near-full repaint inside the mask — lower strength blends the
+        # original clothes back in, which is exactly the remnant failure
+        # the mirror-worn rule bans
+        "strength": 0.99,
         "seed": seed,
     }, SDXL_INPAINT_MODEL, SDXL_INPAINT_VERSION, "SDXL")
 
