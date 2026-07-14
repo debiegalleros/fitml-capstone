@@ -28,5 +28,7 @@ RUN bash scripts/fetch_catalog_assets.sh
 
 EXPOSE 10000
 # One worker only: multiple workers each load MediaPipe + the XGBoost model
-# into RAM and blow the 512 MB instance; threads share them.
-CMD ["sh", "-c", "gunicorn --chdir backend --bind 0.0.0.0:${PORT:-10000} --workers 1 --threads 4 --timeout 120 app:app"]
+# into RAM and blow the 512 MB instance; threads share them. Capped at 2
+# threads after an OOM kill on 2026-07-14 (512Mi) -- 4 concurrent
+# image/MediaPipe requests was enough to exceed the free instance's memory.
+CMD ["sh", "-c", "gunicorn --chdir backend --bind 0.0.0.0:${PORT:-10000} --workers 1 --threads 2 --timeout 120 app:app"]
