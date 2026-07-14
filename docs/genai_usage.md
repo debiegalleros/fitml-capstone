@@ -171,10 +171,14 @@ benchmarking found it can regenerate the entire frame, including a fully
 synthetic, unrelated face, on some full-body renders. Two protections now
 cover this, one per state of the opt-in `crop_face` checkbox:
 
-- **Checked — structural fix.** The photo is cropped above the nose
-  before any storage or processing (see `docs/privacy.md`), so there is
-  no face pixel in the input for any engine to regenerate incorrectly in
-  the first place.
+- **Checked — structural fix, upper face only.** The photo is cropped
+  above the nose before any storage or processing (see
+  `docs/privacy.md`), so there is no forehead/eye pixel in the input for
+  any engine to regenerate incorrectly — that region is outside the
+  frame entirely. The crop boundary is the nose tip, as specified: the
+  lower face (nose tip, mouth, chin, jaw) remains in frame on this path
+  and is not covered by paste-back (below), which is scoped to the
+  unchecked path only.
 - **Unchecked (the default) — reinstated paste-back.** `_paste_source_face`
   re-composites the detected face region from the stored photo back onto
   every generated render, with a feathered edge. This is the same
@@ -183,17 +187,21 @@ cover this, one per state of the opt-in `crop_face` checkbox:
   that a face-free input made it unnecessary, and reinstated once the
   checkbox became opt-in, specifically scoped to the unchecked path only
   — `detect_face_bbox` (in `backend/tryon.py`) is never called on the
-  checked path, since a cropped photo has nothing left to protect.
+  checked path, since the upper face is already structurally absent
+  there.
 
-Both states now close the finding this section describes, by two
-different means: removing the face from the input entirely (checked)
-versus restoring the real face onto the output regardless of what the
-engine drew there (unchecked). This is a case where a documented bug (a
-bounded, per-render defensive patch) led first to a stronger structural
-fix, and then — once the toggle reopened a gap for the unchecked path —
-to that original patch being deliberately brought back for the one case
-that still needed it, rather than leaving the gap disclosed-but-live in
-a shipping product.
+Both states address the finding this section describes for the upper
+face (forehead, eyes), by two different means: removing that region
+from the input entirely, so it's structurally absent (checked) versus
+restoring the real, unaltered face onto the output regardless of what
+the engine drew there (unchecked). Only the unchecked path's paste-back
+covers the lower face; on the checked path the lower face is present in
+frame without that additional protection. This is a case where a
+documented bug (a bounded, per-render defensive patch) led first to a
+stronger structural fix, and then — once the toggle reopened a gap for
+the unchecked path — to that original patch being deliberately brought
+back for the one case that still needed it, rather than leaving the gap
+disclosed-but-live in a shipping product.
 
 **What it explicitly does NOT do:** the same measurement/audit boundaries as
 the advice text (§1) apply here too — the analyzer prompt never estimates or

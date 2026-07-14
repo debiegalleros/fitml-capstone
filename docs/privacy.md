@@ -50,8 +50,13 @@ fairness audit.
    try-on engine. When selected, this is a **stronger, code-enforced
    data-minimization guarantee than blurring**: a blurred face is still
    face data present in the file (obscured, but there); a cropped photo
-   has no face pixels at all, in the stored photo, in `pose.json`, or in
-   any generated try-on image. If checked but the nose can't be
+   has the upper face — forehead and eyes — entirely absent from the
+   frame (not merely obscured) in the stored photo, in `pose.json`, and
+   in any generated try-on image, because that region of the image no
+   longer exists past this point. The crop boundary is the nose tip, as
+   specified: the lower face (nose tip, mouth, chin, jaw) remains visible
+   in the cropped photo and in any resulting try-on render. If checked
+   but the nose can't be
    confidently detected (face turned away, occluded, poor lighting), the
    upload is rejected with a friendly re-upload prompt rather than
    guessing a crop boundary — a wrong guess could leave part of the face
@@ -66,22 +71,30 @@ fairness audit.
    regenerating the blurred area — specifically because benchmarking
    found IDM-VTON can regenerate a fully synthetic, unrelated face on
    some full-body renders (see [genai_usage.md](genai_usage.md)).
-   Cropping structurally closes that finding when the checkbox is used —
-   there is no face pixel in the input for any engine to regenerate
-   incorrectly. When the checkbox is left unchecked, `detect_face_bbox`
-   (in [backend/tryon.py](../backend/tryon.py)) locates the face once on
-   the raw upload — never on the checked path, where there is nothing
-   left to protect — and that box travels with the session's `pose.json`
-   so `_paste_source_face` (in
+   Cropping structurally closes that finding for the upper face when the
+   checkbox is used — there is no forehead/eye pixel in the input for any
+   engine to regenerate incorrectly, because that region is outside the
+   frame entirely. The lower face (mouth, chin, jaw) remains in frame on
+   the checked path; that region is not separately protected by
+   paste-back on that path, since `_paste_source_face` is scoped to the
+   unchecked path only (below). When the checkbox is left
+   unchecked, `detect_face_bbox` (in
+   [backend/tryon.py](../backend/tryon.py)) locates the face once on the
+   raw upload — never on the checked path — and that box travels with
+   the session's `pose.json` so `_paste_source_face` (in
    [backend/vision_tryon.py](../backend/vision_tryon.py)) re-composites
    the real face region from the stored photo onto every generated
    try-on render, with a feathered edge, regardless of what the engine
    drew there. This is the same mechanism the earlier mandatory-blur
    design used, reinstated specifically for the unchecked path — so both
-   checkbox states now close the IDM-VTON synthetic-face-regeneration
-   finding, by two different means: removing the face from the input
-   entirely (checked) versus restoring the real face onto the output
-   (unchecked).
+   checkbox states address the IDM-VTON synthetic-face-regeneration
+   finding for the upper face (forehead, eyes), by two different means:
+   removing that region from the input entirely, so it's structurally
+   absent (checked) versus restoring the real, unaltered face onto the
+   output regardless of what the engine drew there (unchecked). Only the
+   unchecked path's paste-back covers the lower face; on the checked
+   path the lower face is present in frame without that additional
+   protection.
 4. **Third-party processing disclosure — generative try-on sends the
    photo to Replicate.** The IDM-VTON and SDXL rendering engines run on
    Replicate's hosted infrastructure (see
@@ -125,9 +138,9 @@ The prototype is framed against the Philippines' Data Privacy Act of
   purpose, are disclosed in the consent text, and are documented in
   [genai_usage.md](genai_usage.md).
 - **Proportionality** — only data necessary for the feature is
-  collected (§"What is collected"); the face crop removes identity
-  information the try-on does not need, at the source, rather than
-  merely obscuring it downstream.
+  collected (§"What is collected"); the face crop removes the upper-face
+  identity information (forehead, eyes) the try-on does not need, at the
+  source, rather than merely obscuring it downstream.
 - **Retention limitation** — hard 24-hour TTL, enforced in code rather
   than by policy alone (§2 above).
 - **Security** — TLS in transit, encrypted disk at rest (Render
