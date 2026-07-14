@@ -2,6 +2,10 @@
 
 **Live demo:** [fit-ml.netlify.app](https://fit-ml.netlify.app) · **API:** [fit-ml.onrender.com](https://fit-ml.onrender.com) *(free tiers — first request after idle may take 30–60 s to cold-start)*
 
+> **Branch note:** `vision-tryon` is the canonical, actively developed branch —
+> it's what Render and Netlify actually deploy from. `main` is stale; browse
+> `vision-tryon` for the current state of the project.
+
 Capstone project for the AIM Postgraduate Diploma in Artificial Intelligence
 and Machine Learning — "Pillar 5: Capstone Project" — by Debie Galleros,
 July 2026.
