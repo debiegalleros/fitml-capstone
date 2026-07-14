@@ -17,6 +17,17 @@ jobs:
           python-version: "3.12"
           cache: "pip"
 
+      # mediapipe's native bindings link against GL libs (mp.Image
+      # construction alone needs libGLESv2.so.2) even on the CPU delegate
+      # and even when the specific detector is mocked in a test — mirrors
+      # the same packages the Dockerfile installs for Render.
+      - name: Install system dependencies (mediapipe native libs)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libgl1 libegl1 libgles2 libgbm1 libglib2.0-0 \
+            libsm6 libxext6 libxrender1 libgomp1
+
       - name: Install dependencies
         run: pip install -r requirements.txt ruff pytest
 
