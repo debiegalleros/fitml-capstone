@@ -70,6 +70,10 @@ LETTER_TO_ORDERED = {"XS": 1, "S": 5, "M": 9, "L": 13, "XL": 17, "XXL": 21}
 # bust width and overall length ratios are taken relative to these.
 WOMENS_CHART_BUST = {"XS": 82, "S": 87, "M": 93, "L": 99, "XL": 106, "XXL": 113}
 WOMENS_CHART_HIP = {"XS": 88, "S": 93, "M": 99, "L": 105, "XL": 112, "XXL": 119}
+# Waist chart derived the same way as hip (bust - 12cm, same per-size deltas
+# as the bust/hip progressions above) so dress anchoring can use all three
+# measurements instead of just bust/hip.
+WOMENS_CHART_WAIST = {"XS": 70, "S": 75, "M": 81, "L": 87, "XL": 94, "XXL": 101}
 
 # Borderline rule inputs (locked decision: near boundary + low-stretch fabric
 # + fitted cut -> amber). Fabric stretch from catalog fabric strings; cut is
@@ -160,7 +164,20 @@ def _bust_cm(profile: dict):
 def _anchor_size(profile: dict, category: str, sizes: list):
     """Deterministic chart anchor: pick the available size whose chart
     measurement is nearest the user's keyed measurement (hip for bottoms,
-    bust for tops/outerwear, the larger-indexed of the two for dresses)."""
+    bust for tops/outerwear, the median of bust/waist/hip for dresses).
+
+    Dresses used to anchor on max(bust_index, hip_index) -- "fit the larger
+    measurement" -- but that blindly chases whichever single axis maps to
+    the bigger size, with no check for whether the OTHER axis was clamped
+    below the chart's smallest row (i.e. genuinely smaller than XS, not just
+    "a bit smaller"). A pronounced hourglass frame (bust comfortably mid-chart,
+    hip/waist clamped below XS) would get maxed up to the bust anchor with no
+    signal that the hip/waist side disagreed by more than one step, then the
+    amber borderline rule could size up once more on top of that -- two
+    oversized jumps stacked on a single "fit the larger measurement" heuristic.
+    Taking the median of bust/waist/hip is robust to exactly that case: one
+    outlier axis no longer dominates, since the vote of the other two wins.
+    """
     def nearest(chart, value):
         idx = min(range(len(sizes)), key=lambda i: abs(chart[sizes[i]] - value))
         clamped = (idx == 0 and value < chart[sizes[0]]) or \
@@ -176,13 +193,16 @@ def _anchor_size(profile: dict, category: str, sizes: list):
 
     bust = _bust_cm(profile)
     hip = profile.get("hip_cm")
+    waist = profile.get("waist_cm")
     if category in HIP_KEYED_CATEGORIES:
         value = hip if hip is not None else MEDIANS["hip_cm"]
         return nearest(WOMENS_CHART_HIP, value)
     if category == "dress" and hip is not None and bust is not None:
-        bi = nearest(WOMENS_CHART_BUST, bust)
-        hi = nearest(WOMENS_CHART_HIP, hip)
-        return max(bi, hi, key=lambda t: t[0])  # fit the larger measurement
+        votes = [nearest(WOMENS_CHART_BUST, bust), nearest(WOMENS_CHART_HIP, hip)]
+        if waist is not None:
+            votes.append(nearest(WOMENS_CHART_WAIST, waist))
+        votes.sort(key=lambda t: t[0])
+        return votes[len(votes) // 2]  # median vote, not the single largest
     value = bust if bust is not None else (MEDIANS["bust_band"] + 3) * 2.54
     return nearest(WOMENS_CHART_BUST, value)
 

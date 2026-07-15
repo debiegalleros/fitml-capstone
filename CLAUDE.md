@@ -44,11 +44,15 @@ Two planning docs may exist in `docs/planning/`:
   body-wrap compositor (MediaPipe pose keypoints + affine-warped transparent
   garment PNG, alpha-composited on HTML5 Canvas) as the final, always-available
   fallback. **NOT 3D, NOT Three.js, NOT WebGL** at any tier — do not suggest 3D.
-  Size-proportional rendering carries through every tier: when compositing a
-  size other than the model-recommended one, scale to that size's measurement
-  ratios from the size chart (an XL on a small-framed user renders visibly
-  wider/longer than an M). Cite fit-aware generative try-on (FIT dataset, 2026)
-  as the future-work upgrade path beyond what already ships here. See
+  Size-proportional rendering is a documented gap, not a shipped-everywhere
+  feature: only the final 2D-compositor fallback actually scales the garment
+  render to a non-recommended size's chart ratios (an XL on a small-framed
+  user renders visibly wider/longer than an M **there**). IDM-VTON and SDXL —
+  the tiers that serve almost every live request — receive no numeric scale
+  factor at all today (IDM-VTON's API has no fit lever; SDXL gets a
+  qualitative fit description in its prompt, not a geometric scale). Cite
+  fit-aware generative try-on (FIT dataset, 2026) as the future-work upgrade
+  path that would close this gap. See
   `docs/genai_usage.md` for the full engine-selection rationale and prompt
   design.
   **Universal lower-body standardization (deliberate design decision, not a
