@@ -242,6 +242,10 @@ add_section("1", "Problem Framing", [
           "metrics, disparate impact, equalized odds, SHAP explainability, "
           "and an honest before/after mitigation comparison — as a "
           "first-class deliverable alongside the product."),
+    ("p", "<b>All coding files (data prep, model training, fairness audit, "
+          "Flask backend, frontend) are in the public GitHub repository:</b> "
+          "https://github.com/debiegalleros/fitml-capstone — see §9 for "
+          "repository structure and commit history."),
 ])
 
 add_section("2", "Data Collection & Understanding", [
