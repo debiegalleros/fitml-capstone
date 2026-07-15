@@ -137,6 +137,38 @@ final fallback:
   automated smoke-test assertion). SDXL then inpaints only the pose-derived
   clothing-region mask.
 
+**IDM-VTON auto-masking reliability — root-caused to thin-strap source
+photos, fixed with an explicit mask.** Live post-deployment testing surfaced
+a distinct failure mode from the SDXL one below: on some renders, IDM-VTON
+left an entire sleeve/shoulder region uncovered — bare skin, or a visible
+fragment of the shopper's real garment, instead of the requested catalog
+item. `garm_img`/`human_img`/`category` were the only inputs sent; with no
+`mask_img` supplied, IDM-VTON falls back to its own internal person/garment
+auto-segmentation, and that auto-segmentation degrades when the shopper's
+*current* garment has a thin, low-contrast boundary against skin (a
+camisole's spaghetti strap, in the reproducing case) — a much harder
+segmentation task than a photo wearing a garment with a clean, solid edge.
+Confirmed root cause by checking the garment cutout assets for the three
+reproducing items first (all three cutouts have complete, correctly-shaped
+sleeves — ruling out a data problem) and then reproducing the failure
+directly against the deployed backend.
+
+The fix: `_replicate_idm_vton` now takes an optional `mask_img`, built from
+the same MediaPipe-keypoint mask already used for the SDXL fallback
+(`_build_mask`, shoulder→elbow/wrist line segments with generous padding) —
+a deterministic region computed from the shopper's actual pose, independent
+of how thin or low-contrast their current garment's edge is. `mask_img`
+defines where IDM-VTON is *allowed* to redraw, not what it draws there —
+`garm_img` still drives the rendered shape and length — so a generously
+sized mask (always extended toward the wrist, a conservative default since
+the IDM-VTON call path has no Claude Vision sleeve-length signal available
+to it) does not force a longer sleeve onto a short-sleeve or sleeveless
+garment; it only guarantees no sliver of the shopper's real clothing can
+survive at the true garment's edge. Re-tested against the same three
+reproducing items (a puffer jacket, a collared shirt, a v-neck top) after
+the fix: all three now render with complete, correctly-shaped sleeve
+coverage and no visible remnant of the original garment.
+
 **Engine-selection rationale — SDXL fork limitation, investigated and
 documented rather than silently worked around.** During benchmarking, SDXL
 consistently rendered a garment resembling the shopper's *original* clothing

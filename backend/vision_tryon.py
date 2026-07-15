@@ -589,12 +589,27 @@ def _idm_category(category: str) -> str:
 
 
 def _replicate_idm_vton(photo: Image.Image, garment: Image.Image,
-                        garment_des: str, category: str, seed: int = 42) -> Image.Image:
+                        garment_des: str, category: str, seed: int = 42,
+                        mask_img: Image.Image | None = None) -> Image.Image:
     """Garment-conditioned try-on: IDM-VTON takes the actual garment image and
-    masks/redraws internally, so the output wears THE catalog item (no text
-    lookalike) with the original clothes removed."""
+    masks/redraws internally by default, so the output wears THE catalog item
+    (no text lookalike) with the original clothes removed.
+
+    mask_img (optional): IDM-VTON's own automatic masking is a person/garment
+    segmentation call under the hood, and it degrades on source photos where
+    the shopper's current garment has a thin, low-contrast boundary against
+    skin (spaghetti straps, thin camisole edges) — observed live as a garment
+    failing to cover the shoulder/arm at all, leaving a strap fragment or
+    bare skin instead. Passing our own MediaPipe-keypoint mask (same
+    _build_mask() used for the SDXL fallback) bypasses that fragile
+    auto-segmentation with a deterministic region instead: mask_img defines
+    where the model is *allowed* to redraw, not what it draws there — the
+    garment image (garm_img) still drives the actual shape/length rendered,
+    so a generously-sized mask does not force a longer sleeve than the real
+    garment has, it just guarantees no old-garment remnant can survive at
+    the true garment's edges regardless of how thin that edge was."""
     idm_cat = _idm_category(category)
-    return _replicate_run({
+    payload = {
         "human_img": _data_uri(photo),
         "garm_img": _data_uri(garment),
         "garment_des": garment_des,
@@ -603,7 +618,10 @@ def _replicate_idm_vton(photo: Image.Image, garment: Image.Image,
         "crop": True,  # session photos are not 3:4
         "steps": 30,
         "seed": seed,
-    }, IDM_VTON_MODEL, IDM_VTON_VERSION, "IDM-VTON")
+    }
+    if mask_img is not None:
+        payload["mask_img"] = _data_uri(mask_img, "L")
+    return _replicate_run(payload, IDM_VTON_MODEL, IDM_VTON_VERSION, "IDM-VTON")
 
 
 # ---------------------------------------------------------------------------
@@ -799,20 +817,35 @@ def tryon_pipeline():
 
         if engine == "idm-vton":
             # Garment-conditioned: the model gets the actual cutout, no
-            # text prompt lever — masking and blending happen inside.
+            # text prompt lever — masking and blending happen inside by
+            # default, but we pass our own MediaPipe-derived mask (see
+            # _replicate_idm_vton's docstring) rather than trust that
+            # automatic segmentation on every source photo.
             cutout = _load_garment_cutout(meta, data.get("color_variant"))
             garment_des = (f"{meta['color']} {meta['fabric']} "
                            f"{meta['category']} — {meta['product_name']}")
+            # "long_sleeve" is a deliberately generous default (mask defines
+            # the allowed edit region, not the rendered content — garm_img
+            # still drives the actual sleeve length), guaranteeing no sliver
+            # of the shopper's real garment survives at the boundary even
+            # for a source photo with thin, low-contrast straps.
+            primary_mask = _build_mask(photo, pose, category,
+                                       sleeve_coverage="long_sleeve",
+                                       extend_to_ankle=standardize_legs,
+                                       extend_to_shoulder=standardize_top)
             result = _replicate_idm_vton(photo, cutout, garment_des,
-                                         category, seed=seed)
+                                         category, seed=seed,
+                                         mask_img=primary_mask)
             if standardize_legs:
                 # Pass 2: pass 1's render becomes the new source photo; a
                 # second IDM-VTON call, scoped to lower_body, standardizes
                 # whatever is below the waist to the fixed leggings
                 # reference — regardless of what the shopper actually wore.
                 leggings = _load_leggings_cutout()
+                legs_mask = _build_mask(photo, pose, "jeans",
+                                        sleeve_coverage="n_a")
                 result = _replicate_idm_vton(result, leggings, LEGGINGS_DESCRIPTION,
-                                             "jeans", seed=seed)
+                                             "jeans", seed=seed, mask_img=legs_mask)
             elif standardize_top:
                 # Symmetric case: pass 1 rendered the actual bottoms; pass 2
                 # standardizes whatever is above the waist (a separate top,
@@ -820,8 +853,10 @@ def tryon_pipeline():
                 # mismatched upper half) to the fixed long-sleeve-top
                 # reference, scoped to upper_body.
                 upper = _load_upper_standard_cutout()
+                upper_mask = _build_mask(photo, pose, "sweater",
+                                         sleeve_coverage="long_sleeve")
                 result = _replicate_idm_vton(result, upper, UPPER_STANDARD_DESCRIPTION,
-                                             "sweater", seed=seed)
+                                             "sweater", seed=seed, mask_img=upper_mask)
         else:
             analysis = _call_claude_vision(photo, garment, size_label=size,
                                            fit_context=fit_context)
