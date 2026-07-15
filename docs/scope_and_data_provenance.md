@@ -211,11 +211,16 @@ rounds each excluded 2 more items with residual cutout flaws (a post-review
 cleanup: 57068, 13458; then a Phase 9 live-site review: 22322, 44578 — all
 logged in `src/catalog_exclusions.csv`), and the Phase 9 polish pass baked
 the 1px Gaussian alpha edge feather into every garment PNG and removed
-hairline strand remnants (`src/catalog_polish.py`). Final catalog: **117
-items (106 women's across 10 categories, 11 men's across the 4
-chart-covered categories), 234 color variants** — still above the ~100+
-women's / 10–15 men's targets. This resolves catalog presentability: cutout edge artifacts
-never appear as standalone product imagery. A segmentation-model comparison
+hairline strand remnants (`src/catalog_polish.py`). A later post-deployment
+review excluded one more item — 52465 ("Red Rose Black Camisole") — for a
+different reason than the cutout-quality flaws above: its try-on rendered
+as a full-length tank when the source product is actually a cropped
+bralette-style camisole, a silhouette misrepresentation rather than an
+image-quality defect. Final catalog: **116 items (105 women's across 10
+categories, 11 men's across the 4 chart-covered categories), 232 color
+variants** — still above the ~100+ women's / 10–15 men's targets. This
+resolves catalog presentability: cutout edge artifacts never appear as
+standalone product imagery. A segmentation-model comparison
 (SegFormer-B2-clothes vs the pipeline's u2net_cloth_seg, all 121 items,
 source-photo defect audit) found no net quality advantage to switching
 models — 59 vs 56 items with near-identical medians, plus 5 SegFormer
