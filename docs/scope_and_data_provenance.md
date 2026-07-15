@@ -216,9 +216,18 @@ review excluded one more item — 52465 ("Red Rose Black Camisole") — for a
 different reason than the cutout-quality flaws above: its try-on rendered
 as a full-length tank when the source product is actually a cropped
 bralette-style camisole, a silhouette misrepresentation rather than an
-image-quality defect. Final catalog: **116 items (105 women's across 10
-categories, 11 men's across the 4 chart-covered categories), 232 color
-variants** — still above the ~100+ women's / 10–15 men's targets. This
+image-quality defect. A separate post-deployment finding removed one color
+*variant* rather than a whole item: item 19727 ("United Colors of Benetton
+Women Solid White Shirt")'s "navy" hue-shift washed out the subtle
+white-on-white button placket entirely visible on the native photo and
+still faintly visible on its "slate blue" variant — a dark hue-shift
+losing fine same-tone garment detail, plausibly present on other dark
+variants across the catalog but not audited item-by-item given time
+constraints (documented as future work). The item's native white and
+slate-blue options are unaffected and remain live. Final catalog: **116
+items (105 women's across 10 categories, 11 men's across the 4
+chart-covered categories), 231 color variants** — still above the ~100+
+women's / 10–15 men's targets. This
 resolves catalog presentability: cutout edge artifacts never appear as
 standalone product imagery. A segmentation-model comparison
 (SegFormer-B2-clothes vs the pipeline's u2net_cloth_seg, all 121 items,

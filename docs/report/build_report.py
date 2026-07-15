@@ -261,7 +261,7 @@ add_section("2", "Data Collection & Understanding", [
          "the fairness audit"),
         ("Garment catalog imagery (visual only, never training data)",
          "Kaggle Fashion Product Images Dataset (MIT license) — 116 "
-         "curated items, background-removed via rembg, 232 hue-shifted "
+         "curated items, background-removed via rembg, 231 hue-shifted "
          "color variants",
          "Real photos, demo pricing"),
     ], [1.7 * inch, 3.1 * inch, 1.4 * inch]),
