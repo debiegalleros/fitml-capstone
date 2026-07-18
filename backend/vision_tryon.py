@@ -445,7 +445,7 @@ def _build_mask(photo: Image.Image, pose: dict, category: str,
     # mask arms for all upper-body garments; the prompt regenerates bare skin
     # for sleeveless garments and fabric for sleeved ones.
     if covers_upper:
-        arm_w = max(6, span * 0.28)
+        arm_w = max(6, span * 0.42)
         # long sleeves -> mask to wrist; otherwise to elbow (covers most
         # currently-worn sleeves without touching hands)
         to_wrist = sleeve_coverage == "long_sleeve"
