@@ -37,7 +37,8 @@ CREATE TABLE IF NOT EXISTS tryons (
     confidence INTEGER,
     state TEXT,                   -- blue / amber
     image_path TEXT,
-    fit_feedback TEXT             -- small / fit / large (user-reported, optional)
+    fit_feedback TEXT,            -- small / fit / large (user-reported, optional)
+    engine TEXT                   -- idm-vton / sdxl, used to key the try-on cache
 );
 """
 
@@ -56,6 +57,10 @@ def _migrate(conn):
                         ("face_cropped", "INTEGER DEFAULT 0")):
         if col not in cols:
             conn.execute(f"ALTER TABLE profiles ADD COLUMN {col} {coltype}")
+
+    tryon_cols = {row[1] for row in conn.execute("PRAGMA table_info(tryons)")}
+    if "engine" not in tryon_cols:
+        conn.execute("ALTER TABLE tryons ADD COLUMN engine TEXT")
 
 
 @contextmanager

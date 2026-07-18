@@ -569,7 +569,7 @@ def _replicate_inpaint(photo: Image.Image, mask: Image.Image,
         "mask": _data_uri(mask, "L"),
         "prompt": prompt,
         "negative_prompt": negative_prompt,
-        "steps": 30,
+        "steps": 20,
         "guidance_scale": 7.5,
         # near-full repaint inside the mask — lower strength blends the
         # original clothes back in, which is exactly the remnant failure
@@ -616,7 +616,7 @@ def _replicate_idm_vton(photo: Image.Image, garment: Image.Image,
         "category": idm_cat,
         "force_dc": idm_cat == "dresses",  # DressCode weights for dresses
         "crop": True,  # session photos are not 3:4
-        "steps": 30,
+        "steps": 20,
         "seed": seed,
     }
     if mask_img is not None:
@@ -756,7 +756,7 @@ def _build_fit_context(item: dict, size: str, rec: dict,
 
 
 def _save_tryon_row(session_id: str, item: dict, size: str, color: str | None,
-                    rec: dict, image_path: str) -> str:
+                    rec: dict, image_path: str, engine: str) -> str:
     """Persist the try-on like legacy /try-on does, so /advice and the
     History page work identically for generative results."""
     tryon_id = uuid.uuid4().hex[:12]
@@ -764,14 +764,35 @@ def _save_tryon_row(session_id: str, item: dict, size: str, color: str | None,
         conn.execute(
             """INSERT INTO tryons (tryon_id, session_id, item_id, brand,
                fabric, category, size, color, recommended_size, confidence,
-               state, image_path)
-               VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",
+               state, image_path, engine)
+               VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)""",
             (tryon_id, session_id, item["item_id"],
              catalog._brand(item["product_name"]), item["fabric"],
              item["category"], size, color or item["color"],
              rec["recommended_size"], rec["confidence"], rec["state"],
-             image_path))
+             image_path, engine))
     return tryon_id
+
+
+def _find_cached_tryon(session_id: str, item_id: str, size: str,
+                       color: str | None, engine: str):
+    """Reuse a still-on-disk render for an identical prior request (same
+    session, item, color, size, engine) instead of re-generating -- every
+    "Try on" click used to trigger a fresh Replicate call even for a combo
+    already rendered a minute earlier (re-clicking, or navigating back to
+    an item). Free, no quality tradeoff: skips the call entirely, it
+    doesn't touch what gets generated when there's no cache hit."""
+    with get_db() as conn:
+        row = conn.execute(
+            """SELECT tryon_id, image_path, recommended_size, confidence, state
+               FROM tryons
+               WHERE session_id=? AND item_id=? AND size=? AND color=?
+                     AND engine=?
+               ORDER BY created_at DESC LIMIT 1""",
+            (session_id, item_id, size, color, engine)).fetchone()
+    if row and os.path.exists(row["image_path"]):
+        return dict(row)
+    return None
 
 
 @vision_tryon_bp.route("/api/tryon", methods=["POST"])
@@ -807,6 +828,23 @@ def tryon_pipeline():
             return jsonify({"status": "error", "message":
                 "This item needs a full-body photo to try on. "
                 "Update your photo in your profile."}), 422
+
+        color = data.get("color_variant") or meta["color"]
+        cached = _find_cached_tryon(session_id, data["item_id"], size, color, engine)
+        if cached:
+            out_name = os.path.basename(cached["image_path"])
+            return jsonify({
+                "status": "ok",
+                "tryon_id": cached["tryon_id"],
+                "image_url": f"/tryon-image/{session_id}/{out_name}",
+                "size": size,
+                "recommended_size": cached["recommended_size"],
+                "confidence": cached["confidence"],
+                "state": cached["state"],
+                "analysis": None,
+                "engine": engine,
+                "cached": True,
+            })
 
         rec = _recommend(profile, meta)
         fit_context = _build_fit_context(meta, size, rec, data.get("fit_context"))
@@ -880,7 +918,7 @@ def tryon_pipeline():
         out_path = os.path.join(_session_dir(session_id), out_name)
         result.save(out_path)
         tryon_id = _save_tryon_row(session_id, meta, size,
-                                   data.get("color_variant"), rec, out_path)
+                                   data.get("color_variant"), rec, out_path, engine)
 
         return jsonify({
             "status": "ok",
@@ -892,6 +930,7 @@ def tryon_pipeline():
             "state": rec["state"],
             "analysis": analysis,          # null on the idm-vton path
             "engine": engine,
+            "cached": False,
         })
     except (KeyError, FileNotFoundError, ValueError) as e:
         return jsonify({"status": "error", "message": str(e)}), 400
