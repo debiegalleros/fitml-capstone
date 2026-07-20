@@ -455,6 +455,14 @@ def _build_mask(photo: Image.Image, pose: dict, category: str,
             wr = kp.get(f"{side}_wrist")
             if not sh:
                 continue
+            if to_wrist and el and not wr:
+                # Wrist keypoint filtered out by VISIBILITY_THRESHOLD (common
+                # when an arm is partly occluded, e.g. by a bag strap): the
+                # forearm is roughly as long as the upper arm, so extrapolate
+                # past the elbow along the shoulder->elbow direction rather
+                # than silently capping the mask (and thus the rendered
+                # sleeve) at the elbow.
+                wr = (el[0] + (el[0] - sh[0]) * 0.9, el[1] + (el[1] - sh[1]) * 0.9)
             seg_end = (wr if to_wrist and wr else el) or None
             if seg_end is None:
                 continue
